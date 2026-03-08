@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Portfolio of June Vic Abello — 2nd Year BSCS Student at Gordon College, AI Developer, Local LLM Integrator, EcomineAI." />
+  <meta name="keywords" content="June Vic Abello, EcomineAI, BSCS, Gordon College, AI Developer, Portfolio, Python, JavaScript, LLM, Local LLM, LM Studio, GGUF, Chatbot, Prompt Engineering" />
+  <meta name="author" content="June Vic Abello · EcomineAI" />
+  <meta property="og:title" content="June Vic Abello · EcomineAI | BSCS AI Developer" />
+  <meta property="og:description" content="2nd Year CS Student — integrating local LLMs, building chatbots, and exploring AI-driven systems." />
+  <meta property="og:type" content="website" />
+  <title>June Vic Abello · EcomineAI | Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  
+
+  <link rel="stylesheet" href="v7.css" />
+</head>
+<body class="loading">
+
+<div id="loader">
+  <div class="loader-inner">
+        <div class="loader-terminal" id="loaderTerminal">
+      <div class="loader-terminal-inner" id="loaderLog"></div>
+      <div class="loader-cursor-line">
+        <span class="loader-prompt">$&nbsp;</span>
+        <span class="loader-caret" id="loaderCaret"></span>
+      </div>
+    </div>
+        <div class="loader-bar-wrap">
+      <div class="loader-bar" id="loaderBar"></div>
+    </div>
+    <div class="loader-bottom">
+      <div class="loader-pct" id="loaderPct">0%</div>
+      <button class="loader-skip" id="loaderSkip">continue</button>
+    </div>
+  </div>
+</div>
+
+<div id="aurora">
+  <div class="aurora-layer aurora-1"></div>
+  <div class="aurora-layer aurora-2"></div>
+  <div class="aurora-layer aurora-3"></div>
+</div>
+
+<div class="now-playing-bar" id="nowPlaying">
+  <div class="np-eq">
+    <div class="np-bar"></div><div class="np-bar"></div>
+    <div class="np-bar"></div><div class="np-bar"></div>
+  </div>
+  <div class="np-info">
+    <div class="np-label">Currently using</div>
+    <div class="np-track" id="npTrack">LM Studio + Gemma 3 4B</div>
+  </div>
+</div>
+
+<canvas id="particleCanvas"></canvas>
+
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="#hero" class="nav-logo">
+      <span class="logo-bracket">&lt;</span>eco<span class="logo-dot">.</span>mine<span class="logo-bracket">/&gt;</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#about" class="nav-link">About</a></li>
+      <li><a href="#skills" class="nav-link">Skills</a></li>
+      <li><a href="#projects" class="nav-link">Projects</a></li>
+      <li><a href="#services" class="nav-link">Services</a></li>
+      <li><a href="#certs" class="nav-link">Certs</a></li>
+      <li><a href="#github" class="nav-link">GitHub</a></li>
+      <li><a href="#faq" class="nav-link">FAQ</a></li>
+      <li><a href="#experience" class="nav-link">Experience</a></li>
+      <li><a href="#contact" class="nav-link">Contact</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle light/dark mode">
+        <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<section class="hero" id="hero">
+  <div class="hero-bg">
+    <div class="grid-overlay"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+  <div class="hero-content">
+    <p class="hero-greeting"><span class="terminal-prompt">$</span> Hello, World! I'm</p>
+    <h1 class="hero-name">
+      <span class="name-line glitch neon-pulse" data-text="June Vic">June Vic</span>
+      <span class="name-line accent glitch neon-pulse" data-text="Abello">Abello</span>
+    </h1>
+    <p class="hero-aka">aka <span>EcomineAI</span></p>
+    <p class="hero-title">
+      <span class="typing-text" id="typingText"></span>
+      <span class="cursor">|</span>
+    </p>
+    <p class="hero-bio">
+      2nd Year <span class="highlight">BSCS Student</span> at Gordon College · Building AI systems that run locally,
+      integrating language models into web apps, and learning through every project I ship.
+    </p>
+    <div class="hero-cta">
+      <a href="#projects" class="btn btn-primary magnetic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+        View Projects
+      </a>
+      <a href="#contact" class="btn btn-outline magnetic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Contact Me
+      </a>
+      <a href="June Vic M. Abello — Resume.pdf" download class="btn btn-cv magnetic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download CV
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-number">2nd</span><span class="stat-label">Year BSCS</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><span class="stat-number">5+</span><span class="stat-label">AI Projects</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><span class="stat-number">∞</span><span class="stat-label">Things to Learn</span></div>
+    </div>
+  </div>
+  <div class="scroll-indicator">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<section class="about section" id="about">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="section-label"><span class="terminal-prompt">01.</span> get_to_know_me()</p>
+      <h2 class="section-title">About Me</h2>
+    </div>
+    <div class="about-grid">
+      <div class="about-image-wrap reveal">
+        <div class="about-image-container">
+          <div class="image-placeholder">
+            <img src="jv.png" alt="June Vic Abello" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" />
+          </div>
+          <div class="image-border"></div>
+          <div class="image-dot dot-1"></div>
+          <div class="image-dot dot-2"></div>
+        </div>
+      </div>
+      <div class="about-text reveal">
+        <p class="about-intro">
+          I'm <span class="highlight">June Vic Abello</span>, a 2nd-year BSCS student at Gordon College with a specialization in AI systems and web development.
+        </p>
+        <p>
+
+I design and build practical AI-integrated applications — from locally running LLM chatbots to web interfaces backed by Python. My work spans both offline-capable local AI (LM Studio + GGUF models) and cloud AI APIs including OpenAI (GPT-4o), Google Gemini, and Anthropic Claude — choosing the right tool for the job.
+
+I have a strong focus on Prompt Engineering: crafting system prompts, chain-of-thought templates, and persona designs that get the best out of any model, local or cloud. I'm driven by clean, functional builds and learning through shipping real products. Currently open to freelance work, collaborations, and entry-level opportunities in AI and web development.</p>
+        <p>I am driven by clean, functional builds and a commitment to learning through shipping real products. Currently open to freelance work, collaborations, and entry-level opportunities in AI and web development.</p>
+        <div class="about-resume-grid">
+          <div class="resume-item"><div class="resume-item-label">School</div><div class="resume-item-value">Gordon College</div></div>
+          <div class="resume-item"><div class="resume-item-label">Program</div><div class="resume-item-value">BS Computer Science</div></div>
+          <div class="resume-item"><div class="resume-item-label">Year Level</div><div class="resume-item-value">2nd Year (2024–Present)</div></div>
+          <div class="resume-item"><div class="resume-item-label">Alias</div><div class="resume-item-value">EcomineAI</div></div>
+          <div class="resume-item"><div class="resume-item-label">Specialization</div><div class="resume-item-value">AI & Web Dev</div></div>
+          <div class="resume-item"><div class="resume-item-label">Status</div><div class="resume-item-value open-badge">Open to Work ✓</div></div>
+        </div>
+        <div class="about-tags">
+          <span class="tag">Gordon College</span>
+          <span class="tag">Local LLM</span>
+          <span class="tag">Linux</span>
+          <span class="tag">Prompt Engineering</span>
+          <span class="tag">Web Dev</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="skills section" id="skills">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="section-label"><span class="terminal-prompt">02.</span> list_skills()</p>
+      <h2 class="section-title">Skills & Tools</h2>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-card reveal" data-delay="0">
+        <div class="skill-card-header">
+          <div class="skill-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+          <h3>Languages</h3>
+        </div>
+        <ul class="skill-list">
+          <li class="skill-item"><div class="skill-badge python">Py</div><div class="skill-info"><div class="skill-name-row"><span class="skill-name">Python</span><span class="skill-pct" data-target="80">0%</span></div><div class="skill-bar"><div class="skill-fill" data-width="80"></div></div></div></li>
+          <li class="skill-item"><div class="skill-badge js">JS</div><div class="skill-info"><div class="skill-name-row"><span class="skill-name">JavaScript</span><span class="skill-pct" data-target="70">0%</span></div><div class="skill-bar"><div class="skill-fill" data-width="70"></div></div></div></li>
+          <li class="skill-item"><div class="skill-badge html">H5</div><div class="skill-info"><div class="skill-name-row"><span class="skill-name">HTML5</span><span class="skill-pct" data-target="90">0%</span></div><div class="skill-bar"><div class="skill-fill" data-width="90"></div></div></div></li>
+          <li class="skill-item"><div class="skill-badge css">C3</div><div class="skill-info"><div class="skill-name-row"><span class="skill-name">CSS3</span><span class="skill-pct" data-target="85">0%</span></div><div class="skill-bar"><div class="skill-fill" data-width="85"></div></div></div></li>
+        </ul>
+      </div>
+      <div class="skill-card reveal" data-delay="100">
+        <div class="skill-card-header">
+          <div class="skill-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg></div>
+          <h3>Tools & Platforms</h3>
+        </div>
+        <ul class="skill-list">
+          <li class="skill-item"><div class="skill-badge git">Git</div><div class="skill-info"><div class="skill-name-row"><span class="skill-name">Git</span><span class="skill-pct" data-target="75">0%</span></div><div class="skill-bar"><div class="skill-fill" data-width="75"></div></div></div></li>
+          <li class="skill-item"><div class="skill-badge gh">GH</div><div class="skill-info"><div class="skill-name-row"><span class="skill-name">GitHub</span><span class="skill-pct" data-target="78">0%</span></div><div class="skill-bar"><div class="skill-fill" data-width="78"></div></div></div></li>
+          <li class="skill-item"><div class="skill-badge vsc">VCL</div><div class="skill-info"><div class="skill-name-row"><span class="skill-name">Vercel</span><span class="skill-pct" data-target="72">0%</span></div><div class="skill-bar"><div class="skill-fill" data-width="72"></div></div></div></li>
+          <li class="skill-item"><div class="skill-badge linux">LX</div><div class="skill-info"><div class="skill-name-row"><span class="skill-name">Linux</span><span class="skill-pct" data-target="70">0%</span></div><div class="skill-bar"><div class="skill-fill" data-width="70"></div></div></div></li>
+        </ul>
+      </div>
+      <div class="skill-card reveal" data-delay="200">
+        <div class="skill-card-header">
+          <div class="skill-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M12 6v6l4 2"/></svg></div>
+          <h3>AI / LLM</h3>
+        </div>
+        <ul class="skill-list">
+          <li class="skill-item"><div class="skill-badge llm">LLM</div><div class="skill-info"><div class="skill-name-row"><span class="skill-name">Local LLM Inference</span><span class="skill-pct" data-target="78">0%</span></div><div class="skill-bar"><div class="skill-fill" data-width="78"></div></div></div></li>
+          <li class="skill-item"><div class="skill-badge lms">LMS</div><div class="skill-info"><div class="skill-name-row"><span class="skill-name">LM Studio</span><span class="skill-pct" data-target="82">0%</span></div><div class="skill-bar"><div class="skill-fill" data-width="82"></div></div></div></li>
+          <li class="skill-item"><div class="skill-badge pe">GF</div><div class="skill-info"><div class="skill-name-row"><span class="skill-name">GGUF Models</span><span class="skill-pct" data-target="75">0%</span></div><div class="skill-bar"><div class="skill-fill" data-width="75"></div></div></div></li>
+          <li class="skill-item"><div class="skill-badge ai">AI</div><div class="skill-info"><div class="skill-name-row"><span class="skill-name">LLM App Integration</span><span class="skill-pct" data-target="76">0%</span></div><div class="skill-bar"><div class="skill-fill" data-width="76"></div></div></div></li>
+        </ul>
+      </div>
+      <div class="skill-card reveal ts-card" data-delay="300">
+        <div class="skill-card-header">
+          <div class="skill-icon ts-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/><path d="M11 8v3M11 14h.01"/></svg></div>
+          <h3>Troubleshooting</h3>
+        </div>
+        <!-- 4 sub-sections in a mini 2x2 grid -->
+        <div class="ts-grid">
+          <div class="ts-section">
+            <div class="ts-section-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+              Hardware
+            </div>
+            <ul class="ts-list">
+              <li>PC Builds &amp; Assembly</li>
+              <li>RAM / Storage Diagnosis</li>
+              <li>Peripheral Issues</li>
+              <li>Thermal &amp; Power Problems</li>
+            </ul>
+          </div>
+          <div class="ts-section">
+            <div class="ts-section-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              Software
+            </div>
+            <ul class="ts-list">
+              <li>OS Errors &amp; Crashes</li>
+              <li>Driver Conflicts</li>
+              <li>App Failures &amp; Logs</li>
+              <li>Windows / Linux Fixes</li>
+            </ul>
+          </div>
+          <div class="ts-section">
+            <div class="ts-section-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M12 3v4M8 7h8M7 11V9a5 5 0 0 1 10 0v2"/></svg>
+              LLM / AI
+            </div>
+            <ul class="ts-list">
+              <li>Model Load Errors</li>
+              <li>VRAM &amp; OOM Fixes</li>
+              <li>LM Studio Issues</li>
+              <li>GGUF Compatibility</li>
+            </ul>
+          </div>
+          <div class="ts-section">
+            <div class="ts-section-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>
+              Network
+            </div>
+            <ul class="ts-list">
+              <li>WiFi / LAN Drops</li>
+              <li>Ping &amp; Latency Issues</li>
+              <li>DNS &amp; IP Config</li>
+              <li>Local Server Setup</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="projects section" id="projects">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="section-label"><span class="terminal-prompt">03.</span> fetch_projects()</p>
+      <h2 class="section-title">Projects</h2>
+    </div>
+    <div class="project-tabs reveal" id="projectTabs">
+      <button class="tab-btn active" data-filter="all">All <span class="tab-count" id="count-all">0</span></button>
+      <button class="tab-btn" data-filter="coding">Coding <span class="tab-count" id="count-coding">0</span></button>
+      <button class="tab-btn" data-filter="prompt">Prompt Eng <span class="tab-count" id="count-prompt">0</span></button>
+      <button class="tab-btn" data-filter="video">Video <span class="tab-count" id="count-video">0</span></button>
+      <button class="tab-btn" data-filter="graphics">Graphics <span class="tab-count" id="count-graphics">0</span></button>
+      <button class="tab-btn" data-filter="photo">Photo <span class="tab-count" id="count-photo">0</span></button>
+    </div>
+    <div class="projects-grid" id="projectsGrid"></div>
+  </div>
+</section>
+
+<section class="section" id="services">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="section-label"><span class="terminal-prompt">04.</span> get_services()</p>
+      <h2 class="section-title">What I Offer</h2>
+    </div>
+    <div class="services-grid">
+      <div class="service-card reveal" data-delay="0">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M8 12h8M12 8v8"/></svg>
+        </div>
+        <h3>Local AI Chatbots</h3>
+        <p>Build custom AI chatbots powered by local LLMs. No cloud required — fully private, fast, and deployable on your own hardware using LM Studio and Python backends.</p>
+        <div class="service-tags"><span class="service-tag">Python</span><span class="service-tag">LM Studio</span><span class="service-tag">GGUF</span><span class="service-tag">No Cloud</span></div>
+      </div>
+      <div class="service-card reveal" data-delay="80">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </div>
+        <h3>Web Development</h3>
+        <p>Clean, responsive, and fast-loading websites and landing pages using HTML, CSS, and JavaScript. No frameworks, no bloat — just optimized, maintainable code.</p>
+        <div class="service-tags"><span class="service-tag">HTML/CSS</span><span class="service-tag">JavaScript</span><span class="service-tag">Responsive</span><span class="service-tag">Vercel</span></div>
+      </div>
+      <div class="service-card reveal" data-delay="160">
+        <div class="service-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        <h3>Prompt Engineering</h3>
+        <p>Craft precise, high-performing system prompts and personas for local AI models. Specializing in chain-of-thought prompts, RAG-style instructions, and persona design.</p>
+        <div class="service-tags"><span class="service-tag">System Prompts</span><span class="service-tag">Persona Design</span><span class="service-tag">GGUF</span><span class="service-tag">LM Studio</span></div>
+      </div>
+    </div>
+    <p class="section-note">Available for short-term or long-term freelance projects on OnlineJobs.ph — web builds, chatbot prototypes, AI integrations, and prompt engineering tasks.</p>
+  </div>
+</section>
+
+<section class="section" id="certs">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="section-label"><span class="terminal-prompt">05.</span> get_achievements()</p>
+      <h2 class="section-title">Certificates & Achievements</h2>
+    </div>
+    <div class="certs-grid">
+      <div class="cert-card reveal" data-delay="0">
+        <div class="cert-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        </div>
+        <div class="cert-body">
+          <h3>BS Computer Science</h3>
+          <p>Gordon College · Olongapo City</p>
+          <div class="cert-meta"><span class="cert-date">2024 – Present</span><span class="cert-badge">Active</span></div>
+        </div>
+      </div>
+      <div class="cert-card reveal" data-delay="80">
+        <div class="cert-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M12 3v4M8 7h8M7 11V9a5 5 0 0 1 10 0v2"/></svg>
+        </div>
+        <div class="cert-body">
+          <h3>Local LLM Practitioner</h3>
+          <p>Self-directed · EcomineAI Research</p>
+          <div class="cert-meta"><span class="cert-date">2024</span><span class="cert-badge">Completed</span></div>
+        </div>
+      </div>
+      <div class="cert-card reveal" data-delay="160">
+        <div class="cert-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <div class="cert-body">
+          <h3>Web Development</h3>
+          <p>Personal Projects · HTML/CSS/JS</p>
+          <div class="cert-meta"><span class="cert-date">2024</span><span class="cert-badge">Completed</span></div>
+        </div>
+      </div>
+      <div class="cert-card reveal" data-delay="240">
+        <div class="cert-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="12" r="10"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="cert-body">
+          <h3>Prompt Engineering</h3>
+          <p>Self-directed · LM Studio & GGUF Models</p>
+          <div class="cert-meta"><span class="cert-date">2024 – Present</span><span class="cert-badge pending">In Progress</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="github">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="section-label"><span class="terminal-prompt">06.</span> fetch_github_stats()</p>
+      <h2 class="section-title">GitHub Stats</h2>
+    </div>
+    <div class="github-stats-wrap reveal">
+      <div class="gh-stat-card">
+        <span class="gh-stat-number stat-counter" data-target="5" data-gh="repos">0</span>
+        <span class="gh-stat-label">Repositories</span>
+      </div>
+      <div class="gh-stat-card">
+        <span class="gh-stat-number stat-counter" data-target="3">0</span>
+        <span class="gh-stat-label">AI Projects</span>
+      </div>
+      <div class="gh-stat-card">
+        <span class="gh-stat-number stat-counter" data-target="2">0</span>
+        <span class="gh-stat-label">Web Projects</span>
+      </div>
+      <div class="gh-stat-card">
+        <span class="gh-stat-number stat-counter" data-target="100">0</span>
+        <span class="gh-stat-label">Commits+</span>
+      </div>
+    </div>
+    <div class="gh-lang-list reveal">
+      <div class="gh-lang-item"><div class="gh-lang-dot" style="background:#3776ab"></div><span class="gh-lang-name">Python</span><span class="gh-lang-pct">45%</span></div>
+      <div class="gh-lang-item"><div class="gh-lang-dot" style="background:#f7df1e"></div><span class="gh-lang-name">JavaScript</span><span class="gh-lang-pct">25%</span></div>
+      <div class="gh-lang-item"><div class="gh-lang-dot" style="background:#e34c26"></div><span class="gh-lang-name">HTML</span><span class="gh-lang-pct">20%</span></div>
+      <div class="gh-lang-item"><div class="gh-lang-dot" style="background:#264de4"></div><span class="gh-lang-name">CSS</span><span class="gh-lang-pct">8%</span></div>
+      <div class="gh-lang-item"><div class="gh-lang-dot" style="background:#4eaa25"></div><span class="gh-lang-name">Bash</span><span class="gh-lang-pct">2%</span></div>
+      <div class="gh-lang-item"><div class="gh-lang-dot" style="background:var(--cyan)"></div><span class="gh-lang-name">Other</span><span class="gh-lang-pct">—</span></div>
+    </div>
+    <p ><a href="https://github.com/EcomineAI" target="_blank">github.com/EcomineAI</a></p>
+  </div>
+</section>
+
+<section class="section" id="faq">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="section-label"><span class="terminal-prompt">07.</span> frequently_asked()</p>
+      <h2 class="section-title">FAQ</h2>
+    </div>
+    <div class="faq-list reveal">
+      <div class="faq-item">
+        <button class="faq-question"><span>Are you available for freelance work?</span><div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></button>
+        <div class="faq-answer"><p>Yes! I'm open to freelance projects — web development, AI chatbot builds, prompt engineering, and LLM integration work. You can reach me via the contact form below or through my OnlineJobs.ph profile.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question"><span>What kind of AI projects do you build?</span><div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></button>
+        <div class="faq-answer"><p>I specialize in locally-run AI systems using LM Studio and GGUF models — no cloud, no API keys. I build chatbots, information systems, AI-integrated web apps, and LLM simulations that run entirely on local hardware.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question"><span>Do you work with cloud-based AI APIs like OpenAI?</span><div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></button>
+        <div class="faq-answer"><p>It depends on the project. My primary focus is local LLM inference — offline, private, and cost-free. However, I'm familiar with REST API patterns and can integrate cloud-based AI APIs if a project requires it like OpenAI's ChatGPT, claude.ai, gemini.ai, etc.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question"><span>What's your typical turnaround time?</span><div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></button>
+        <div class="faq-answer"><p>Simple landing pages take 3–5 days. AI chatbot integrations typically range from 1–2 weeks. I'll always give you a clear timeline upfront before starting any project.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question"><span>Can I see your resume / CV?</span><div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></button>
+        <div class="faq-answer"><p>Absolutely — hit the "Download CV" button in the hero section. You can also reach out directly if you need a more detailed portfolio or work samples.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question"><span>Are you open to internships or part-time roles?</span><div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></button>
+        <div class="faq-answer"><p>Actively seeking part-time, remote, or internship opportunities in AI development, web development, or anywhere at the intersection of both. Skilled in AI prompt engineering, photo and graphic editing, and video content creation. Open to projects where I can combine technical and creative skills — feel free to reach out!</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="experience section" id="experience">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="section-label"><span class="terminal-prompt">08.</span> get_experience()</p>
+      <h2 class="section-title">Experience & Learning</h2>
+    </div>
+    <div class="timeline">
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <div class="timeline-header"><span class="timeline-date">2024 — Present</span><span class="timeline-status active">Active</span></div>
+          <h3>2nd Year BSCS Student</h3>
+          <p class="timeline-place">Gordon College · Olongapo City</p>
+          <p>Pursuing a Bachelor of Science in Computer Science. Building foundations in programming, data structures, algorithms, and software engineering while applying concepts to real personal projects.</p>
+          <div class="timeline-tags"><span>Python</span><span>Data Structures</span><span>Algorithms</span><span>OOP</span></div>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <div class="timeline-header"><span class="timeline-date">2024 — Present</span><span class="timeline-status active">Active</span></div>
+          <h3>Local LLM Experimentation</h3>
+          <p class="timeline-place">Personal Research · EcomineAI</p>
+          <p>Experimenting with locally running language models using LM Studio and GGUF-format models including Gemma 3 4B and Qwen 3.5 4B. Focused on integrating these models into practical web and desktop applications without cloud dependency.</p>
+          <div class="timeline-tags"><span>LM Studio</span><span>GGUF</span><span>Gemma 3 4B</span><span>Qwen 3.5 4B</span></div>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <div class="timeline-header"><span class="timeline-date">2024 — Present</span><span class="timeline-status active">Active</span></div>
+          <h3>AI-Integrated Web Projects</h3>
+          <p class="timeline-place">Personal Projects · EcomineAI</p>
+          <p>Designing and building applications that connect web front-ends to locally running language models through Python backends — including GC-Assist and an experimental AI Twitch chat simulator.</p>
+          <div class="timeline-tags"><span>Python</span><span>HTML/CSS/JS</span><span>LM Studio API</span><span>Chatbots</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="contact section" id="contact">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="section-label"><span class="terminal-prompt">09.</span> send_message()</p>
+      <h2 class="section-title">Get In Touch</h2>
+    </div>
+    <div class="contact-solo reveal">
+      <p class="contact-intro">Have a project idea? Want to collaborate? Or just want to say hi?<br>Pick a channel below — I'll get back to you ASAP.</p>
+
+            <div class="contact-gmail-card">
+        <div class="contact-gmail-icon">
+          <svg viewBox="0 0 24 24" fill="none" width="36" height="36">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="1.5"/>
+            <polyline points="22,6 12,13 2,6" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="contact-gmail-body">
+          <p class="contact-gmail-label">Direct Gmail</p>
+          <p class="contact-gmail-address" id="emailDisplay"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="09637c676c7f606a686b6c656566496e64686065276a6664">[email&#160;protected]</a></p>
+          <p class="contact-gmail-hint">Opens Gmail compose pre-filled with my address and a subject line.</p>
+        </div>
+        <div class="contact-gmail-actions">
+          <a id="gmailComposeBtn" href="https://mail.google.com/mail/?view=cm&to=junevicabello@gmail.com&su=Project%20Inquiry%20%E2%80%94%20Portfolio" target="_blank" rel="noopener" class="btn btn-primary magnetic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Open Gmail
+          </a>
+          <button class="copy-email-btn" id="copyEmailBtn" onclick="copyEmail(event)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy Email
+          </button>
+        </div>
+      </div>
+
+            <div class="contact-links-row">
+        <a href="https://github.com/EcomineAI" target="_blank" rel="noopener" class="contact-link">
+          <div class="contact-link-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg></div>
+          <div><span class="contact-link-label">GitHub</span><span class="contact-link-value">github.com/EcomineAI</span></div>
+        </a>
+        <a href="https://www.onlinejobs.ph/jobseekers/info/4809449" target="_blank" rel="noopener" class="contact-link">
+          <div class="contact-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
+          <div><span class="contact-link-label">OnlineJobs.ph</span><span class="contact-link-value">Hire me for freelance</span></div>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <a href="#hero" class="footer-logo">
+        <span class="logo-bracket">&lt;</span>eco<span class="logo-dot">.</span>mine<span class="logo-bracket">/&gt;</span>
+      </a>
+      <p class="footer-text">Built by <span class="highlight">June Vic Abello</span> · EcomineAI · v0.4</p>
+      <div class="footer-links">
+        <a href="https://github.com/EcomineAI" target="_blank" rel="noopener" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        </a>
+        <a href="https://www.onlinejobs.ph/jobseekers/info/4809449" target="_blank" rel="noopener" aria-label="OnlineJobs.ph">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        </a>
+        <a href="/cdn-cgi/l/email-protection#86ecf3e8e3f0efe5e7e4e3eaeae9c6e3ebe7efeaa8e5e9eb" aria-label="Email">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </a>
+      </div>
+    </div>
+    <p class="footer-copy">© 2026 June Vic Abello · EcomineAI. All rights reserved.</p>
+  </div>
+</footer>
+
+<button class="back-to-top" id="backToTop" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
+<div class="chatbot-widget" id="chatbotWidget">
+  <button class="chatbot-toggle" id="chatbotToggle" aria-label="Open EcomineAI Assistant">
+    <svg class="chat-icon-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <svg class="chat-icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    <span class="chatbot-ping"></span>
+  </button>
+  <div class="chatbot-panel" id="chatbotPanel">
+    <div class="chatbot-header">
+      <div class="chatbot-header-left">
+        <div class="chatbot-avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M12 3v4M8 7h8M7 11V9a5 5 0 0 1 10 0v2"/><circle cx="9" cy="16" r="1" fill="currentColor"/><circle cx="15" cy="16" r="1" fill="currentColor"/></svg>
+        </div>
+        <div>
+          <p class="chatbot-name">EcomineAI</p>
+          <p class="chatbot-status"><span class="status-dot"></span>Online &middot; Always learning</p>
+        </div>
+      </div>
+      <button class="chatbot-clear" id="chatbotClear" title="Clear chat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+      </button>
+    </div>
+    <div class="chatbot-messages" id="chatbotMessages">
+      <div class="chatbot-msg bot">
+        <div class="msg-avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M12 3v4M8 7h8M7 11V9a5 5 0 0 1 10 0v2"/><circle cx="9" cy="16" r="1" fill="currentColor"/><circle cx="15" cy="16" r="1" fill="currentColor"/></svg>
+        </div>
+        <div class="msg-bubble">Hey! I am the EcomineAI assistant. Ask me anything about June Vic projects, skills, or how to get in touch!</div>
+      </div>
+    </div>
+    <div class="chatbot-quick" id="chatbotQuick">
+      <button class="quick-chip" data-msg="What projects have you built?">Projects</button>
+      <button class="quick-chip" data-msg="What AI tech do you use?">AI Stack</button>
+      <button class="quick-chip" data-msg="Are you available for hire?">Hire?</button>
+      <button class="quick-chip" data-msg="What skills do you have?">Skills</button>
+      <button class="quick-chip" data-msg="How can I contact you?">Contact</button>
+    </div>
+    <div class="chatbot-input-row">
+      <input type="text" id="chatbotInput" placeholder="Ask me anything..." autocomplete="off" />
+      <button id="chatbotSend" aria-label="Send">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="v7.js"></script>
+</body>
+</html>
