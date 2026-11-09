@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import PixelSprite from './PixelSprite.jsx';
 
-const BASE_ACTIONS = [
+const DEFAULT_ACTIONS = [
   { id: 'walk', label: 'Walk' },
   { id: 'run', label: 'Run' },
   { id: 'hop', label: 'Hop' },
@@ -14,19 +14,26 @@ const BASE_ACTIONS = [
  *
  * state: { x, dir (1 right / -1 left), mode, frame }
  */
-export default function Buddy({ name, label, sprite, scale = 3, state, bubble, onAction, extraActions = [], stageWidth }) {
+export default function Buddy({ name, label, sprite, scale = 3, state, bubble, bubbleSide, bubbleLift = 0, onAction, actions = DEFAULT_ACTIONS, stageWidth }) {
   const [open, setOpen] = useState(false);
   const btnRef = useRef(null);
   const menuRef = useRef(null);
   const wrapRef = useRef(null);
   const menuId = useId();
 
-  const actions = [...BASE_ACTIONS, ...extraActions];
   const moving = state.mode === 'walk' || state.mode === 'run';
-  const grid = moving ? sprite.walk[state.frame % sprite.walk.length] : sprite.stand;
+  // Special poses override the standing sprite. A pose can be one grid or a list of frames.
+  const pose = sprite.poses?.[state.mode];
+  let grid = moving
+    ? sprite.walk[state.frame % sprite.walk.length]
+    : pose ? (Array.isArray(pose[0]) ? pose[state.frame % pose.length] : pose) : sprite.stand;
+  // Blink: swap the eye pixels for the eyelid colour for a moment.
+  if (state.blink && sprite.blinkChar) grid = grid.map(row => row.replaceAll('E', sprite.blinkChar));
   const width = sprite.stand[0].length * scale;
   // Keep bubbles and the menu inside the stage: anchor them toward the open side.
-  const anchor = state.x + width / 2 > stageWidth / 2 ? 'right' : 'left';
+  // 'right' = bubble's right edge on the buddy, so it opens to the LEFT (and vice versa).
+  // BuddyFloor passes bubbleSide so speech opens away from the other buddy.
+  const anchor = bubbleSide || (state.x + width / 2 > stageWidth / 2 ? 'right' : 'left');
 
   const close = (refocus = true) => {
     setOpen(false);
@@ -75,11 +82,17 @@ export default function Buddy({ name, label, sprite, scale = 3, state, bubble, o
   return (
     <div
       ref={wrapRef}
-      className={`buddy buddy--${name} is-${state.mode}`}
+      className={`buddy buddy--${name} is-${state.mode}${bubble || open ? ' is-talking' : ''}`}
       style={{ transform: `translateX(${Math.round(state.x)}px)` }}
     >
       {bubble && !open && (
-        <p className={`buddy__bubble buddy__bubble--${anchor}`} aria-hidden="true">{bubble}</p>
+        <p
+          className={`buddy__bubble buddy__bubble--${anchor}`}
+          style={bubbleLift ? { bottom: `calc(100% + ${6 + bubbleLift}px)` } : undefined}
+          aria-hidden="true"
+        >
+          {bubble}
+        </p>
       )}
 
       {open && (

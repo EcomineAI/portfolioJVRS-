@@ -18,8 +18,10 @@
   display: flex;
   height: var(--px);
 }
-.buddy-floor__line span { flex: 1; background: var(--dot, var(--border)); }
-.buddy-floor__line span:last-child { flex: 4; background: var(--border); }
+/* Solid black platform (light text colour in dark mode so it stays visible) */
+.buddy-floor__line span { flex: 1; background: #000; }
+.buddy-floor__line span:last-child { flex: 4; }
+[data-theme='dark'] .buddy-floor__line span { background: var(--border); }
 
 /* ---- Buddy --------------------------------------------------------------- */
 .buddy {
@@ -176,3 +178,60 @@
 @media (prefers-reduced-motion: reduce) {
   .buddy, .buddy * , .buddy-floor__heart svg { animation: none !important; transition: none !important; }
 }
+
+/* Thin 1px black outline around June Vic's sprite (doesn't change the sprite's size) */
+.buddy--vic .buddy__sprite {
+  filter:
+    drop-shadow(1px 0 0 #000)
+    drop-shadow(-1px 0 0 #000)
+    drop-shadow(0 1px 0 #000)
+    drop-shadow(0 -1px 0 #000);
+}
+
+/* Claude "Wiggle": quick side-to-side shimmy */
+.buddy.is-wiggle .buddy__sprite { animation: buddy-wiggle 240ms steps(2, end) infinite; transform-origin: 50% 100%; }
+@keyframes buddy-wiggle {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+}
+
+/* Claude "Nap": slow breathing */
+.buddy.is-nap .buddy__sprite { animation: buddy-breathe 1.6s steps(2, end) infinite; transform-origin: 50% 100%; }
+@keyframes buddy-breathe {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.92); }
+}
+
+/* Laptop prop next to Claude */
+.buddy-floor__prop {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 1;
+}
+/* pop-in runs on the inner svg: the span's own transform positions the laptop */
+.buddy-floor__prop svg { animation: buddy-pop 160ms steps(3, end); transform-origin: 50% 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .buddy.is-wiggle .buddy__sprite,
+  .buddy.is-nap .buddy__sprite { animation: none; }
+}
+
+/* Claude typing on the laptop: quick little bounce */
+.buddy.is-laptop .buddy__sprite { animation: buddy-type 300ms steps(2, end) infinite; }
+@keyframes buddy-type {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+/* Laptop screen glow */
+.buddy-floor__prop svg { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--world-code) 55%, transparent)); }
+@media (prefers-reduced-motion: reduce) {
+  .buddy.is-laptop .buddy__sprite { animation: none; }
+}
+
+/* Whoever is talking (or has the menu open) is drawn in front of the other buddy */
+.buddy.is-talking { z-index: 6; }
+
+/* Menu items stay on one line ("Talk to Claude", "Say something") */
+.buddy__menu { min-width: max-content; }
+.buddy__menu-item { white-space: nowrap; }
