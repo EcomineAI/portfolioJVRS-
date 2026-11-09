@@ -1,0 +1,138 @@
+/* ==========================================================================
+   App shell: header, mobile menu, footer, Say hi
+   ========================================================================== */
+
+/* ---- Header -------------------------------------------------------------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(6px);
+  border-bottom: var(--border-w) solid var(--border);
+}
+.site-header__inner {
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.logo {
+  font-family: var(--font-pixel);
+  font-size: 0.95rem;
+  text-decoration: none;
+  color: var(--fg);
+  white-space: nowrap;
+}
+.logo:hover { color: var(--primary); }
+
+.site-nav { margin-left: auto; }
+.site-nav__list { display: flex; gap: 4px; list-style: none; }
+.site-nav__link {
+  display: inline-flex; align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  font-size: var(--text-lg);
+  text-decoration: none;
+  color: var(--muted-fg);
+}
+.site-nav__link::before { content: '■'; margin-right: 6px; font-size: 0.7em; opacity: 0; }
+.site-nav__link:hover { color: var(--fg); }
+.site-nav__link.active { color: var(--fg); }
+.site-nav__link.active::before { opacity: 1; color: var(--primary-soft); }
+
+.site-header__tools { display: flex; align-items: center; gap: 10px; }
+.menu-toggle { display: none; }
+
+.menu-icon { display: grid; gap: 4px; width: 20px; }
+.menu-icon span { height: 3px; background: currentColor; transition: transform 150ms var(--step-ease), opacity 150ms; }
+.menu-icon.is-open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.menu-icon.is-open span:nth-child(2) { opacity: 0; }
+.menu-icon.is-open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.mobile-menu {
+  position: fixed;
+  inset: var(--header-h) 0 0 0;
+  background: var(--bg);
+  padding: 24px var(--gutter);
+  overflow-y: auto;
+}
+.mobile-menu ul { list-style: none; display: grid; gap: 4px; }
+.mobile-menu__link {
+  display: flex; align-items: baseline; gap: 16px;
+  min-height: 56px;
+  padding: 8px 0;
+  font-family: var(--font-pixel);
+  font-size: 1.1rem;
+  text-decoration: none;
+  color: var(--fg);
+  border-bottom: 2px dashed var(--hairline);
+}
+.mobile-menu__link.active { color: var(--primary); }
+.mobile-menu__num { font-family: var(--font-ui); font-size: var(--text-base); color: var(--muted-fg); }
+
+@media (max-width: 860px) {
+  .site-nav { display: none; }
+  .menu-toggle { display: inline-flex; }
+  .site-header__tools { margin-left: auto; }
+}
+@media (min-width: 861px) {
+  .mobile-menu { display: none !important; }
+}
+
+/* ---- Say hi -------------------------------------------------------------- */
+.say-hi { border-top: var(--border-w) solid var(--border); }
+.say-hi__inner { display: grid; gap: 20px; justify-items: start; }
+.say-hi__title { font-size: clamp(1.75rem, 6vw, 3.5rem); }
+.say-hi__email {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px;
+  width: 100%; max-width: 720px;
+}
+.say-hi__address {
+  font-family: var(--font-ui);
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  color: var(--fg);
+  text-decoration: none;
+  word-break: break-all;
+}
+.say-hi__address:hover { color: var(--primary); text-decoration: underline; }
+.say-hi__actions { display: flex; gap: 12px; margin-left: auto; }
+.say-hi__links { list-style: none; display: grid; gap: 6px; }
+.say-hi__links a {
+  display: inline-flex; align-items: center; gap: 10px;
+  min-height: 44px;
+  font-size: var(--text-lg);
+  color: var(--fg);
+  text-decoration: none;
+}
+.say-hi__links a:hover { color: var(--primary); text-decoration: underline; text-underline-offset: 4px; }
+.say-hi__links svg { width: 20px; height: 20px; }
+.say-hi__muted { color: var(--muted-fg); }
+
+/* ---- Footer -------------------------------------------------------------- */
+.site-footer {
+  border-top: var(--border-w) solid var(--border);
+  background: color-mix(in srgb, var(--primary-soft) 14%, var(--bg));
+  padding-block: 32px;
+}
+.site-footer__inner { display: grid; gap: 20px; grid-template-columns: 1fr auto; align-items: center; }
+.site-footer__brand { display: grid; gap: 8px; color: var(--muted-fg); }
+.site-footer__nav { display: flex; flex-wrap: wrap; gap: 4px 18px; list-style: none; }
+.site-footer__nav a { color: var(--fg); text-decoration: none; font-size: var(--text-lg); }
+.site-footer__nav a:hover { color: var(--primary); text-decoration: underline; }
+.site-footer__copy { grid-column: 1 / -1; color: var(--muted-fg); font-size: var(--text-sm); }
+@media (max-width: 640px) { .site-footer__inner { grid-template-columns: 1fr; } }
+
+/* ---- Retro pixel cursor (site-wide) --------------------------------------
+   Pixel arrow everywhere; blue-filled arrow over anything clickable.
+   Other stylesheets use var(--cursor-pointer) instead of `cursor: pointer`.
+   Text fields keep the normal I-beam so editing stays obvious. */
+:root {
+  --cursor-default: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2724%27%20height%3D%2734%27%20viewBox%3D%270%200%2012%2017%27%20shape-rendering%3D%27crispEdges%27%3E%3Cpath%20fill%3D%27%230d1226%27%20d%3D%27M0%200h1v1h-1zM0%201h2v1h-2zM0%202h3v1h-3zM0%203h4v1h-4zM0%204h5v1h-5zM0%205h6v1h-6zM0%206h7v1h-7zM0%207h8v1h-8zM0%208h9v1h-9zM0%209h10v1h-10zM0%2010h11v1h-11zM0%2011h7v1h-7zM0%2012h3v1h-3zM4%2012h4v1h-4zM0%2013h2v1h-2zM4%2013h4v1h-4zM0%2014h1v1h-1zM5%2014h4v1h-4zM5%2015h4v1h-4zM6%2016h2v1h-2z%27%2F%3E%3Cpath%20fill%3D%27%23ffffff%27%20d%3D%27M1%202h1v1h-1zM1%203h2v1h-2zM1%204h3v1h-3zM1%205h4v1h-4zM1%206h5v1h-5zM1%207h6v1h-6zM1%208h7v1h-7zM1%209h8v1h-8zM1%2010h5v1h-5zM1%2011h2v1h-2zM4%2011h2v1h-2zM1%2012h1v1h-1zM5%2012h2v1h-2zM5%2013h2v1h-2zM6%2014h2v1h-2zM6%2015h2v1h-2z%27%2F%3E%3C%2Fsvg%3E") 0 0, auto;
+  --cursor-pointer: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2724%27%20height%3D%2734%27%20viewBox%3D%270%200%2012%2017%27%20shape-rendering%3D%27crispEdges%27%3E%3Cpath%20fill%3D%27%230d1226%27%20d%3D%27M0%200h1v1h-1zM0%201h2v1h-2zM0%202h3v1h-3zM0%203h4v1h-4zM0%204h5v1h-5zM0%205h6v1h-6zM0%206h7v1h-7zM0%207h8v1h-8zM0%208h9v1h-9zM0%209h10v1h-10zM0%2010h11v1h-11zM0%2011h7v1h-7zM0%2012h3v1h-3zM4%2012h4v1h-4zM0%2013h2v1h-2zM4%2013h4v1h-4zM0%2014h1v1h-1zM5%2014h4v1h-4zM5%2015h4v1h-4zM6%2016h2v1h-2z%27%2F%3E%3Cpath%20fill%3D%27%236b8bff%27%20d%3D%27M1%202h1v1h-1zM1%203h2v1h-2zM1%204h3v1h-3zM1%205h4v1h-4zM1%206h5v1h-5zM1%207h6v1h-6zM1%208h7v1h-7zM1%209h8v1h-8zM1%2010h5v1h-5zM1%2011h2v1h-2zM4%2011h2v1h-2zM1%2012h1v1h-1zM5%2012h2v1h-2zM5%2013h2v1h-2zM6%2014h2v1h-2zM6%2015h2v1h-2z%27%2F%3E%3C%2Fsvg%3E") 0 0, pointer;
+}
+html { cursor: var(--cursor-default); }
+a, button, summary, label, select, [role="button"], [role="radio"], [role="tab"] {
+  cursor: var(--cursor-pointer);
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea { cursor: text; }

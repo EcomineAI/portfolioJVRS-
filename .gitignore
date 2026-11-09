@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Build output & caches
+dist/
+dist-ssr/
+*.local
+.vite/
+.cache/
+coverage/
+
+# Deploy
+.vercel/
+
+# Environment variables (never commit secrets)
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors / IDEs
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.suo
+*.sln
+*.sw?
+
+# Local AI-assistant settings
+.claude/settings.local.json

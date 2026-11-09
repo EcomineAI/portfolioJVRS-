@@ -1,0 +1,240 @@
+/* ==========================================================================
+   Floating widgets: JV-BOT RPG dialog (bottom-right) + EQUIPPED HUD (bottom-left)
+   z-index 45: above the spray canvases (40), below the sticky header (50).
+   ========================================================================== */
+
+/* ---- JV-BOT ------------------------------------------------------------ */
+.jvbot__launcher {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 45;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: var(--primary);
+  color: var(--primary-fg);
+  border: var(--border-w) solid var(--border);
+  border-radius: 0;
+  box-shadow: var(--shadow-sm);
+  cursor: var(--cursor-pointer);
+  transition: transform 100ms var(--step-ease), box-shadow 100ms var(--step-ease);
+}
+.jvbot__launcher:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 0 var(--shadow-color); }
+.jvbot__launcher:active { transform: translate(4px, 4px); box-shadow: none; }
+.jvbot__launcher-x { font-size: 1.5rem; line-height: 1; }
+
+.jvbot__panel {
+  position: fixed;
+  right: 16px;
+  bottom: 88px;
+  z-index: 45;
+  width: min(380px, calc(100vw - 32px));
+  max-height: min(580px, calc(100dvh - var(--header-h) - 112px));
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+  color: var(--fg);
+  border: var(--border-w) solid var(--border);
+  box-shadow: var(--shadow-md);
+  /* inner double frame, like a classic RPG text box */
+  outline: 2px solid var(--card);
+  outline-offset: -10px;
+  animation: jvbot-open 180ms var(--step-ease);
+}
+@keyframes jvbot-open {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+
+.jvbot__head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 10px 10px 12px;
+  background: var(--surface);
+  border-bottom: var(--border-w) solid var(--border);
+}
+.jvbot__portrait {
+  flex: none;
+  width: 52px; height: 52px;
+  display: grid; place-items: center;
+  background: var(--bg);
+  border: 3px solid var(--border);
+}
+.jvbot__portrait svg { image-rendering: pixelated; }
+.jvbot__name {
+  /* name plate */
+  padding: 6px 10px;
+  background: var(--fg);
+  color: var(--bg);
+  font-family: var(--font-pixel);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  letter-spacing: 0.1em;
+  box-shadow: 3px 3px 0 0 var(--world-create);
+}
+.jvbot__head-actions { margin-left: auto; display: flex; gap: 6px; }
+.jvbot__icon-btn {
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  padding: 0;
+  background: var(--card);
+  color: var(--fg);
+  border: 3px solid var(--border);
+  border-radius: 0;
+  font-size: 1.25rem;
+  cursor: var(--cursor-pointer);
+}
+.jvbot__icon-btn:hover { background: var(--bg); }
+
+.jvbot__log {
+  flex: 1 1 auto;
+  min-height: 140px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  font-size: var(--text-base);
+  line-height: 1.35;
+}
+.jvbot__msg { max-width: 92%; word-wrap: break-word; }
+.jvbot__msg--bot { align-self: flex-start; }
+.jvbot__msg--bot::before { content: '▸ '; color: var(--primary); }
+.jvbot__msg--bot a { color: var(--primary); text-underline-offset: 3px; font-weight: 400; }
+.jvbot__msg--bot a:hover { text-decoration-thickness: 2px; }
+.jvbot__msg--bot strong { color: var(--fg); font-weight: 400; background: linear-gradient(transparent 60%, color-mix(in srgb, var(--world-code) 55%, transparent) 60%); }
+.jvbot__msg--user {
+  align-self: flex-end;
+  padding: 6px 10px;
+  background: var(--primary);
+  color: var(--primary-fg);
+  border: 3px solid var(--border);
+  box-shadow: 3px 3px 0 0 var(--shadow-color);
+}
+.jvbot__typed { white-space: pre-line; }
+.jvbot__caret { animation: jvbot-blink 700ms steps(1, end) infinite; color: var(--primary); }
+@keyframes jvbot-blink { 50% { opacity: 0; } }
+.jvbot__thinking span { display: inline-block; margin-right: 4px; color: var(--muted-fg); animation: jvbot-dots 900ms steps(1, end) infinite; }
+.jvbot__thinking span:nth-child(2) { animation-delay: 150ms; }
+.jvbot__thinking span:nth-child(3) { animation-delay: 300ms; }
+@keyframes jvbot-dots { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+.jvbot__next {
+  align-self: flex-end;
+  color: var(--primary);
+  animation: jvbot-bounce 800ms steps(2, end) infinite;
+}
+@keyframes jvbot-bounce { 50% { transform: translateY(3px); } }
+
+.jvbot__chips {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  border-top: 2px dashed var(--hairline);
+  scrollbar-width: thin;
+}
+.jvbot__chip {
+  flex: none;
+  min-height: 44px;
+  padding: 4px 12px;
+  background: var(--card);
+  color: var(--fg);
+  border: 3px solid var(--border);
+  border-radius: 0;
+  box-shadow: 3px 3px 0 0 var(--shadow-color);
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  cursor: var(--cursor-pointer);
+  transition: transform 100ms var(--step-ease), box-shadow 100ms var(--step-ease);
+}
+.jvbot__chip:hover:not(:disabled) { transform: translate(2px, 2px); box-shadow: 1px 1px 0 0 var(--shadow-color); }
+.jvbot__chip:disabled { opacity: 0.5; cursor: wait; }
+
+.jvbot__form { padding: 8px 12px 14px; border-top: var(--border-w) solid var(--border); }
+.jvbot__label { display: block; margin-bottom: 4px; font-size: var(--text-sm); color: var(--muted-fg); text-transform: uppercase; letter-spacing: 0.1em; }
+.jvbot__row { display: flex; gap: 8px; }
+.jvbot__input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 6px 10px;
+  background: var(--bg);
+  color: var(--fg);
+  border: 3px solid var(--border);
+  border-radius: 0;
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+}
+.jvbot__input::placeholder { color: var(--muted-fg); }
+.jvbot__send {
+  min-height: 44px;
+  padding: 0 16px;
+  background: var(--primary);
+  color: var(--primary-fg);
+  border: 3px solid var(--border);
+  border-radius: 0;
+  box-shadow: 3px 3px 0 0 var(--shadow-color);
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  cursor: var(--cursor-pointer);
+}
+.jvbot__send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+@media (max-width: 639px) {
+  /* bottom sheet */
+  .jvbot__panel {
+    left: 0; right: 0; bottom: 0;
+    width: 100%;
+    max-height: min(82dvh, calc(100dvh - var(--header-h) - 8px));
+    border-left: 0; border-right: 0; border-bottom: 0;
+    box-shadow: 0 -6px 0 0 var(--shadow-color);
+  }
+  .jvbot.is-open .jvbot__launcher { display: none; }
+  @keyframes jvbot-open { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+}
+
+/* ---- EQUIPPED HUD badge ------------------------------------------------ */
+.hud-badge {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 45;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(50vw - 60px);
+  padding: 6px 12px 6px 8px;
+  background: var(--card);
+  color: var(--fg);
+  border: 3px solid var(--border);
+  box-shadow: 3px 3px 0 0 var(--shadow-color);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.hud-badge__icon { display: grid; place-items: center; }
+.hud-badge__label { color: var(--muted-fg); }
+.hud-badge__tool {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--fg);
+  animation: hud-swap 400ms steps(4, end);
+}
+@keyframes hud-swap {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@media (max-width: 639px) {
+  .hud-badge { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-badge__tool, .jvbot__panel, .jvbot__caret, .jvbot__next, .jvbot__thinking span { animation: none; }
+}

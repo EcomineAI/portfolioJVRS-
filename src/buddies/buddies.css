@@ -1,0 +1,178 @@
+/* ==========================================================================
+   Pixel buddies on the hero floor (plan §6)
+   ========================================================================== */
+
+.buddy-floor {
+  position: relative;
+  margin-top: clamp(24px, 4vw, 40px);
+}
+
+/* Where the buddies walk. Tall enough for sprite + one-line bubble, so they never cover text. */
+.buddy-floor__stage {
+  position: relative;
+  height: 104px;
+}
+
+/* Floor rule with world-colored segments */
+.buddy-floor__line {
+  display: flex;
+  height: var(--px);
+}
+.buddy-floor__line span { flex: 1; background: var(--dot, var(--border)); }
+.buddy-floor__line span:last-child { flex: 4; background: var(--border); }
+
+/* ---- Buddy --------------------------------------------------------------- */
+.buddy {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  transition: transform 100ms linear;
+  will-change: transform;
+}
+.buddy--vic { z-index: 2; }
+.buddy--claude { z-index: 1; }
+
+.buddy__btn {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: var(--cursor-pointer);
+}
+.buddy__body { display: block; }
+.buddy__sprite { display: block; }
+
+.buddy__btn:hover .buddy__sprite { filter: drop-shadow(0 -3px 0 var(--primary-soft)); }
+
+/* Idle bob */
+.buddy.is-idle .buddy__sprite { animation: buddy-bob 1.2s steps(1, end) infinite; }
+@keyframes buddy-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* Hop */
+.buddy.is-hop .buddy__sprite { animation: buddy-hop 400ms steps(4, end) infinite; }
+@keyframes buddy-hop {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-18px); }
+}
+
+/* Dance: flip side to side with a little bounce */
+.buddy.is-dance .buddy__body { animation: buddy-dance 500ms steps(1, end) infinite; }
+@keyframes buddy-dance {
+  0% { transform: scaleX(1) translateY(0); }
+  25% { transform: scaleX(1) translateY(-6px); }
+  50% { transform: scaleX(-1) translateY(0); }
+  75% { transform: scaleX(-1) translateY(-6px); }
+}
+
+/* ---- Speech bubble ------------------------------------------------------- */
+.buddy__bubble {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  padding: 3px 10px;
+  background: var(--card);
+  color: var(--fg);
+  border: 3px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  line-height: 1.1;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: buddy-pop 240ms steps(3, end);
+}
+.buddy__bubble--left { left: 0; }
+.buddy__bubble--right { right: 0; }
+/* pixel tail */
+.buddy__bubble::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  width: 9px;
+  height: 9px;
+  background: var(--card);
+  border: 3px solid var(--border);
+  border-top: 0;
+  border-left: 0;
+  transform: translateY(-5px) rotate(45deg);
+}
+.buddy__bubble--left::after { left: 14px; }
+.buddy__bubble--right::after { right: 14px; }
+
+@keyframes buddy-pop {
+  from { transform: scale(0.6); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+/* ---- "What now?" menu ---------------------------------------------------- */
+.buddy__menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  z-index: 30;
+  display: grid;
+  min-width: 168px;
+  padding: 8px;
+  background: var(--card);
+  color: var(--fg);
+  border: var(--border-w) solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+.buddy__menu--left { left: 0; }
+.buddy__menu--right { right: 0; }
+.buddy__menu-title {
+  font-family: var(--font-pixel);
+  font-size: 1rem;
+  line-height: 1.4;
+  padding: 4px 8px 8px;
+  border-bottom: 2px dashed var(--hairline);
+  margin-bottom: 4px;
+  white-space: nowrap;
+}
+.buddy__menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 10px;
+  background: transparent;
+  border: 0;
+  font-family: var(--font-ui);
+  font-size: var(--text-lg);
+  text-align: left;
+  cursor: var(--cursor-pointer);
+}
+.buddy__menu-item::before { content: '▶'; font-size: 0.7em; visibility: hidden; color: var(--primary); }
+.buddy__menu-item:hover,
+.buddy__menu-item:focus-visible { background: var(--surface); }
+.buddy__menu-item:hover::before,
+.buddy__menu-item:focus-visible::before { visibility: visible; }
+
+/* ---- Heart --------------------------------------------------------------- */
+.buddy-floor__heart {
+  position: absolute;
+  left: 0;
+  bottom: 70px;
+  z-index: 3;
+  pointer-events: none;
+}
+.buddy-floor__heart svg { animation: buddy-heart 900ms steps(3, end) infinite alternate; }
+@keyframes buddy-heart {
+  from { transform: translateY(0); }
+  to { transform: translateY(-6px); }
+}
+
+/* ---- Paused / reduced motion -------------------------------------------- */
+.buddy-floor.is-paused * { animation-play-state: paused !important; }
+
+.buddy-floor.is-reduced .buddy,
+.buddy-floor.is-reduced .buddy * { animation: none !important; transition: none !important; }
+.buddy-floor.is-reduced .buddy-floor__heart svg { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .buddy, .buddy * , .buddy-floor__heart svg { animation: none !important; transition: none !important; }
+}

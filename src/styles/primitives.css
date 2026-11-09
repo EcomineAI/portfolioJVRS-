@@ -1,0 +1,215 @@
+/* ==========================================================================
+   Shared UI primitives (used by every page — do not restyle per page)
+   ========================================================================== */
+
+/* ---- Card ---------------------------------------------------------------- */
+.pixel-card {
+  background: var(--card);
+  border: var(--border-w) solid var(--border);
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius);
+}
+.pixel-card--pad { padding: clamp(16px, 3vw, 28px); }
+.pixel-card--interactive {
+  transition: transform var(--dur) var(--step-ease), box-shadow var(--dur) var(--step-ease);
+}
+.pixel-card--interactive:hover,
+.pixel-card--interactive:focus-within {
+  transform: translate(-2px, -2px);
+  box-shadow: 10px 10px 0 0 var(--shadow-color);
+}
+
+/* ---- Button -------------------------------------------------------------- */
+.pixel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;              /* ≥ 44px tap target */
+  padding: 8px 20px;
+  border: var(--border-w) solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-ui);
+  font-size: var(--text-lg);
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: var(--cursor-pointer);
+  transition: transform 100ms var(--step-ease), box-shadow 100ms var(--step-ease);
+}
+.pixel-btn svg { width: 18px; height: 18px; flex: none; }
+.pixel-btn:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 0 var(--shadow-color); }
+.pixel-btn:active { transform: translate(4px, 4px); box-shadow: none; }
+
+.pixel-btn--primary { background: var(--primary); color: var(--primary-fg); }
+.pixel-btn--outline { background: var(--card); color: var(--fg); }
+.pixel-btn--ghost {
+  background: transparent; color: var(--fg);
+  border-color: transparent; box-shadow: none;
+}
+.pixel-btn--ghost:hover { transform: none; box-shadow: none; text-decoration: underline; text-underline-offset: 4px; }
+.pixel-btn--sm { min-height: 40px; padding: 6px 14px; font-size: var(--text-base); border-width: 3px; }
+.pixel-btn--icon { width: 44px; min-height: 44px; padding: 0; }
+.pixel-btn[disabled] { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ---- Tag ----------------------------------------------------------------- */
+.tag-list { display: flex; flex-wrap: wrap; gap: 6px 10px; list-style: none; }
+.tag {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  color: var(--muted-fg);
+  white-space: nowrap;
+}
+.tag::before { content: '['; }
+.tag::after { content: ']'; }
+
+/* ---- Eyebrow & world dot ------------------------------------------------- */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted-fg);
+}
+.eyebrow__num { color: var(--fg); }
+.world-dot {
+  width: 12px; height: 12px;
+  flex: none;
+  background: var(--dot, var(--primary-soft));
+  border: 2px solid var(--border);
+}
+[data-world='code'] { --dot: var(--world-code); }
+[data-world='create'] { --dot: var(--world-create); }
+[data-world='learn'] { --dot: var(--world-learn); }
+
+/* Chunky marker highlight behind words (hero role line, headings) */
+.marker {
+  /* Full block + dark ink so the text stays readable (≥ 10:1) in both themes */
+  background: var(--dot, var(--world-code));
+  color: var(--ink);
+  padding-inline: 6px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* ---- Section heading ----------------------------------------------------- */
+.section-heading { display: grid; gap: 16px; margin-bottom: clamp(28px, 5vw, 48px); }
+.section-heading__title { font-size: clamp(1.25rem, 3.2vw, 2rem); }
+.section-heading__intro { color: var(--muted-fg); }
+
+/* ---- Readability on the animated background ------------------------------ */
+/* Text that sits directly on the page (not inside a card) gets a solid plate. */
+.section-heading__intro,
+.prose:not(.pixel-card .prose):not(.plate-off) {
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+  box-shadow: 0 0 0 10px color-mix(in srgb, var(--bg) 94%, transparent);
+}
+.section-heading .eyebrow,
+.section-heading__title {
+  justify-self: start;
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--bg) 90%, transparent);
+}
+
+/* ---- Item row (list of work) -------------------------------------------- */
+/* The list is a boxed card so rows never sit on the busy background. */
+.item-list {
+  list-style: none;
+  background: var(--card);
+  border: var(--border-w) solid var(--border);
+  box-shadow: var(--shadow-md);
+  padding-inline: clamp(12px, 2.4vw, 24px);
+}
+.item-row + .item-row { border-top: 2px dashed var(--hairline); }
+.item-row__link {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 24px;
+  padding: 18px 4px;
+  text-decoration: none;
+  color: inherit;
+}
+.item-row__title {
+  font-family: var(--font-pixel);
+  font-size: clamp(0.8rem, 1.6vw, 0.95rem);
+  line-height: 1.6;
+}
+.item-row__desc { grid-column: 1; font-family: var(--font-prose); font-size: 1rem; line-height: 1.55; color: var(--muted-fg); max-width: 62ch; }
+.item-row__meta { grid-column: 1; display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: var(--text-base); color: var(--muted-fg); }
+.item-row__meta > span + span::before { content: '·'; margin-right: 12px; color: var(--hairline); }
+.item-row__role { color: var(--fg); }
+.item-row__arrow {
+  grid-column: 2; grid-row: 1 / span 3;
+  align-self: center;
+  font-size: var(--text-xl);
+  transition: transform var(--dur) var(--step-ease);
+}
+.item-row__link:hover .item-row__title,
+.item-row__link:focus-visible .item-row__title { text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 6px; }
+.item-row__link:hover .item-row__arrow { transform: translateX(8px); }
+
+/* ---- Featured card ------------------------------------------------------- */
+.featured-card {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+}
+.featured-card__media {
+  aspect-ratio: 16 / 10;
+  background: var(--surface);
+  border-bottom: var(--border-w) solid var(--border);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+.featured-card__media img { width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; }
+.featured-card__body { display: grid; gap: 8px; padding: 16px; }
+.featured-card__title { font-size: clamp(0.8rem, 1.5vw, 0.95rem); line-height: 1.6; }
+
+/* ---- View all ------------------------------------------------------------ */
+.view-all {
+  display: inline-flex; align-items: center; gap: 10px;
+  margin-top: 28px;
+  padding: 4px 10px;
+  background: var(--card);
+  border: 3px solid var(--border);
+  font-size: var(--text-lg);
+  text-decoration: none;
+  color: var(--fg);
+  box-shadow: var(--shadow-sm);
+}
+.view-all:hover { color: var(--primary); }
+.view-all__count { color: var(--muted-fg); }
+
+/* ---- TODO placeholder block (content the owner still has to provide) ---- */
+.todo {
+  border: 3px dashed var(--world-learn);
+  background: color-mix(in srgb, var(--world-learn) 12%, transparent);
+  padding: 16px 20px;
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  color: var(--fg);
+}
+.todo::before {
+  content: 'TODO';
+  display: inline-block;
+  margin-right: 10px;
+  padding: 0 6px;
+  background: var(--world-learn);
+  color: var(--ink);
+  font-family: var(--font-pixel);
+  font-size: 0.6rem;
+  vertical-align: middle;
+}
+
+/* ---- Reveal on scroll (choppy pixel fade) -------------------------------- */
+.reveal { opacity: 0; transform: translateY(16px); transition: opacity 400ms var(--step-ease), transform 400ms var(--step-ease); }
+.reveal.is-visible { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } }

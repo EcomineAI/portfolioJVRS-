@@ -1,0 +1,182 @@
+// All work items. Facts come from the GitHub scan in plan.md.
+// `team` lists members for team projects; `role` + `contributions` say what *I* did.
+// TODO(owner): fill every `todo:` field and confirm dates.
+
+export const CASE_STUDY_SLUG = 'askademic';
+
+export const projects = [
+  // ---------------------------------------------------------------- CODE
+  {
+    slug: 'askademic',
+    world: 'code',
+    featured: true,
+    title: 'Askademic',
+    subtitle: 'Faculty Appointment & Consultation System',
+    type: 'Web app · Software engineering project',
+    date: '2026',
+    status: 'v0.15 · in use',
+    summary:
+      'A real-time system for the Gordon College CCS department: students see which faculty are available right now, book consultation slots, and get notified when requests are approved.',
+    tags: ['React', 'Vite', 'Supabase', 'PostgreSQL', 'Realtime', 'PWA'],
+    team: ['June Vic M. Abello', 'Erica M.', 'Erica C.'],
+    role: 'TODO: e.g. Lead developer · Frontend & Supabase integration',
+    contributions: [],
+    links: { live: 'https://cae-g-cas.vercel.app', source: 'https://github.com/EcomineAI/CAE-G-CAS' },
+    cover: null,
+  },
+  {
+    slug: 'gc-assist',
+    world: 'code',
+    title: 'GC Assist',
+    subtitle: 'AI campus assistant for Gordon College',
+    type: 'AI web app',
+    date: '2026',
+    summary:
+      'A chatbot that answers questions about enrollment, programs and campus services. It runs on a local model through LM Studio and only sends the most relevant parts of a scraped knowledge base to keep answers accurate and within the context window.',
+    tags: ['React 19', 'LM Studio', 'Python', 'BeautifulSoup', 'transformers.js', 'Supabase'],
+    team: null,
+    role: 'Solo project: design, frontend, data crawler, LLM integration',
+    links: { live: 'https://gcassist.vercel.app', source: 'https://github.com/EcomineAI/GC-Assist' },
+    cover: null,
+  },
+  {
+    slug: 'jalgorithm',
+    world: 'code',
+    title: 'JALgorithm',
+    subtitle: 'ML chatbot for salon appointment booking & reminders',
+    type: 'Thesis project · in progress',
+    date: '2026',
+    summary:
+      'A chatbot that lets clients of small hair and makeup salons book appointments in natural language, with an admin dashboard for stylists and automated reminders.',
+    tags: ['React', 'Tailwind v4', 'Supabase', 'Edge Functions', 'LM Studio'],
+    team: ['June Vic M. Abello', 'Lorraine R. Azucenas', 'Alan Jr. P. Ecalnir'],
+    role: 'TODO: my role in the thesis team',
+    contributions: [],
+    links: { live: 'https://jalgorithm-chatbot.vercel.app', source: 'https://github.com/EcomineAI/jalgorithm-chatbot' },
+    cover: null,
+  },
+  {
+    slug: 'jv-ytdlp',
+    world: 'code',
+    title: 'jv-ytdlp',
+    subtitle: 'Desktop video downloader with a browser UI',
+    type: 'Windows desktop app',
+    date: '2026',
+    summary:
+      'Paste a link, pick a quality, download. Detects which resolutions a video actually has, shows live progress and ETA, merges audio and video with ffmpeg, and ships as a one-click installer.',
+    tags: ['Electron', 'Node.js', 'yt-dlp', 'ffmpeg'],
+    team: null,
+    role: 'Solo project',
+    links: { source: 'https://github.com/EcomineAI/jv-ytdlp' },
+    cover: null,
+  },
+  {
+    slug: 'twitchchat-sim',
+    world: 'code',
+    title: 'TwitchChat Sim',
+    subtitle: 'AI-powered Twitch chat simulator',
+    type: 'Python app · beta',
+    date: '2026',
+    summary:
+      'Fills an empty stream chat with AI-driven viewers (hype, salty or chill) so you can test bots and practise streaming. Runs on a local Gemma model.',
+    tags: ['Python', 'LM Studio', 'Gemma 3'],
+    team: null,
+    role: 'Solo project',
+    links: { source: 'https://github.com/EcomineAI/ECO-S-TWITCHCHAT-SIM' },
+    cover: null,
+  },
+
+  // -------------------------------------------------------------- CREATE
+  {
+    slug: 'prompt-engineering',
+    world: 'create',
+    title: 'System Prompt Library',
+    subtitle: 'Personas and prompt templates for local LLMs',
+    type: 'Prompt engineering',
+    date: '2025–2026',
+    summary:
+      'System prompts, chain-of-thought templates and persona designs used across my AI projects, tuned for small local models.',
+    tags: ['Prompt design', 'LM Studio', 'GGUF'],
+    team: null,
+    role: 'Solo',
+    links: {},
+    cover: null,
+  },
+  {
+    slug: 'demo-videos',
+    world: 'create',
+    title: 'Project Demo Videos',
+    subtitle: 'Walkthroughs of my apps',
+    type: 'Video',
+    date: '2026',
+    summary: 'Screen-recorded demos and walkthroughs of my projects in action.',
+    tags: ['Video editing', 'Screen recording'],
+    team: null,
+    role: 'Solo',
+    links: {},
+    cover: null,
+  },
+  {
+    slug: 'graphics',
+    world: 'create',
+    title: 'UI & Graphics',
+    subtitle: 'Mockups and visual assets',
+    type: 'Graphic design',
+    date: '2025–2026',
+    summary: 'UI mockups, logos and visual assets made for my projects and freelance work.',
+    tags: ['UI design', 'Graphics'],
+    team: null,
+    role: 'Solo',
+    links: {},
+    cover: null,
+  },
+  {
+    slug: 'photography',
+    world: 'create',
+    title: 'Photography',
+    subtitle: 'Personal photo work',
+    type: 'Photography',
+    date: '2025–2026',
+    summary: 'Street shots, tech setups and creative compositions.',
+    tags: ['Photography'],
+    team: null,
+    role: 'Solo',
+    links: {},
+    cover: null,
+  },
+
+  // --------------------------------------------------------------- LEARN
+  {
+    slug: 'bscs-gordon-college',
+    world: 'learn',
+    title: 'BS Computer Science',
+    subtitle: 'Gordon College, Olongapo City',
+    type: 'Education',
+    date: '2024 – present',
+    summary: 'Programming, data structures, algorithms and software engineering, applied straight into real projects.',
+    tags: ['Data structures', 'Algorithms', 'OOP', 'Software engineering'],
+    team: null,
+    role: 'Student',
+    links: {},
+    cover: null,
+  },
+  {
+    slug: 'local-llm-lab',
+    world: 'learn',
+    title: 'Local LLM Lab',
+    subtitle: 'Running and integrating models on my own hardware',
+    type: 'Self-study',
+    date: '2024 – present',
+    summary:
+      'Experiments with LM Studio and GGUF models (Gemma, Qwen, Llama): quantization, context limits, VRAM troubleshooting and wiring models into web apps.',
+    tags: ['LM Studio', 'GGUF', 'Gemma', 'Qwen'],
+    team: null,
+    role: 'Self-directed',
+    links: {},
+    cover: null,
+  },
+];
+
+export const projectBySlug = Object.fromEntries(projects.map(p => [p.slug, p]));
+export const projectsInWorld = world => projects.filter(p => p.world === world);
+export const caseStudyProject = projectBySlug[CASE_STUDY_SLUG];

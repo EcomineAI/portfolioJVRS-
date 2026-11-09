@@ -1,0 +1,160 @@
+/* /projects/:slug — short project page */
+
+.pd-page {
+  display: grid;
+  gap: clamp(32px, 5vw, 56px);
+  padding-block: clamp(32px, 6vw, 72px) clamp(56px, 9vw, 112px);
+}
+
+.pd-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-self: start;
+  min-height: 44px;
+  font-size: var(--text-lg);
+  color: var(--fg);
+  text-decoration: none;
+  border-bottom: 3px solid transparent;
+}
+.pd-back:hover { color: var(--primary); border-bottom-color: currentColor; }
+
+/* ---- Head ---------------------------------------------------------------- */
+.pd-head { display: grid; gap: 18px; }
+.pd-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
+.pd-meta__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 0;
+  list-style: none;
+  font-size: var(--text-base);
+  color: var(--muted-fg);
+}
+.pd-meta__list li + li::before { content: '/'; margin-inline: 10px; opacity: 0.6; }
+.pd-title { font-size: clamp(1.5rem, 5.5vw, 2.75rem); line-height: 1.3; overflow-wrap: anywhere; }
+.pd-subtitle { font-size: var(--text-xl); line-height: 1.2; }
+.pd-summary { color: var(--fg); }
+.pd-actions { display: flex; flex-wrap: wrap; gap: 14px 16px; }
+
+/* ---- Cover --------------------------------------------------------------- */
+.pd-cover {
+  margin: 0;
+  border: var(--border-w) solid var(--border);
+  box-shadow: var(--shadow-md);
+  background: var(--surface);
+}
+.pd-cover img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.pd-cover figcaption {
+  padding: 10px 14px;
+  border-top: 2px dashed var(--hairline);
+  font-family: var(--font-prose);
+  font-size: 0.95rem;
+  color: var(--muted-fg);
+}
+.pd-cover--placeholder {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  max-height: 460px;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--surface);
+  background-image:
+    linear-gradient(45deg, color-mix(in srgb, var(--dot, var(--primary-soft)) 22%, transparent) 25%, transparent 25%, transparent 75%, color-mix(in srgb, var(--dot, var(--primary-soft)) 22%, transparent) 75%),
+    linear-gradient(45deg, color-mix(in srgb, var(--dot, var(--primary-soft)) 22%, transparent) 25%, transparent 25%, transparent 75%, color-mix(in srgb, var(--dot, var(--primary-soft)) 22%, transparent) 75%);
+  background-size: 32px 32px;
+  background-position: 0 0, 16px 16px;
+}
+.pd-cover__glyph {
+  display: grid;
+  place-items: center;
+  width: clamp(96px, 20vw, 160px);
+  aspect-ratio: 1;
+  background: var(--dot, var(--primary-soft));
+  color: var(--ink);
+  border: var(--border-w) solid var(--border);
+  box-shadow: var(--shadow-md);
+  font-family: var(--font-pixel);
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
+}
+.pd-cover__note {
+  position: absolute;
+  bottom: 10px;
+  right: 14px;
+  font-size: var(--text-base);
+  color: var(--muted-fg);
+}
+
+/* ---- Role / team --------------------------------------------------------- */
+.pd-h2 { font-size: clamp(1rem, 2.6vw, 1.375rem); }
+.pd-h3 {
+  font-family: var(--font-ui);
+  font-size: var(--text-lg);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted-fg);
+}
+
+.pd-role--solo { display: grid; gap: 12px; }
+
+.pd-team {
+  display: grid;
+  gap: 24px;
+  padding: clamp(18px, 3.5vw, 36px);
+  border-top: 10px solid var(--dot, var(--primary-soft));
+}
+.pd-team__grid { display: grid; gap: 28px; }
+@media (min-width: 768px) {
+  .pd-team__grid { grid-template-columns: minmax(200px, 1fr) 2.2fr; gap: 40px; }
+}
+.pd-team__members { list-style: none; display: grid; gap: 8px; margin-top: 10px; font-size: var(--text-lg); }
+.pd-team__members li::before { content: '■'; margin-right: 10px; font-size: 0.7em; color: var(--muted-fg); }
+.pd-team__me {
+  margin-left: 10px;
+  padding: 0 6px;
+  background: var(--dot, var(--primary-soft));
+  color: var(--ink);
+  border: 2px solid var(--border);
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+}
+.pd-team__mine { display: grid; gap: 12px; align-content: start; }
+.pd-team__mine .pd-h3:not(:first-child) { margin-top: 12px; }
+.pd-team__list { padding-left: 1.25em; }
+.pd-team code {
+  font-family: var(--font-ui);
+  background: var(--surface);
+  padding: 0 4px;
+}
+
+/* ---- Pager --------------------------------------------------------------- */
+.pd-pager {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  padding-top: 32px;
+  border-top: 2px dashed var(--hairline);
+}
+@media (min-width: 640px) { .pd-pager { grid-template-columns: 1fr 1fr; } }
+.pd-pager__link {
+  display: grid;
+  gap: 6px;
+  min-height: 44px;
+  padding: 14px 18px;
+  background: var(--card);
+  color: var(--fg);
+  border: 3px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  transition: transform 100ms var(--step-ease), box-shadow 100ms var(--step-ease);
+}
+.pd-pager__link:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 0 var(--shadow-color); }
+.pd-pager__link--next { text-align: right; }
+.pd-pager__dir { font-size: var(--text-base); color: var(--muted-fg); }
+.pd-pager__title { font-family: var(--font-pixel); font-size: 1rem; line-height: 1.5; overflow-wrap: anywhere; }
+
+/* ---- Not found ----------------------------------------------------------- */
+.pd-missing__card { display: grid; gap: 18px; justify-items: start; max-width: 640px; }
+.pd-missing__code { font-family: var(--font-pixel); font-size: clamp(2rem, 8vw, 3.5rem); color: var(--primary); }
+.pd-missing__title { font-size: clamp(1.25rem, 4vw, 1.75rem); }

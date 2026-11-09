@@ -1,0 +1,254 @@
+/* ==========================================================================
+   Home page (plan §3). Page layout only; primitives come from primitives.css.
+   ========================================================================== */
+
+/* ---- Hero ---------------------------------------------------------------- */
+/* Full-bleed hero (uses the whole screen width, like the reference):
+     wide:   [portrait]   gap   [name · status · meta · chips · lead · ctas · jump]
+             [portrait]   gap               [live activity, pushed to the right]
+   Everything is kept compact; the extra width becomes space, not bigger type. */
+.home-hero {
+  min-height: calc(100svh - var(--header-h));
+  display: grid;
+  align-content: center;
+  padding-block: clamp(24px, 4vw, 56px) 8px;
+  overflow-x: clip;
+}
+
+.home-hero__grid {
+  display: grid;
+  gap: 28px;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'main'
+    'portrait'
+    'activity';
+}
+.home-hero__portrait { grid-area: portrait; align-self: start; }
+.home-hero__main { grid-area: main; min-width: 0; display: grid; gap: 12px; align-content: start; justify-items: start; }
+.home-hero__activity { grid-area: activity; min-width: 0; }
+
+@media (min-width: 760px) {
+  .home-hero__grid {
+    column-gap: clamp(32px, 5vw, 96px);
+    grid-template-columns: clamp(240px, 30vw, 400px) minmax(0, 1fr);
+    grid-template-areas:
+      'portrait main'
+      'activity activity';
+  }
+}
+@media (min-width: 1180px) {
+  .home-hero__grid {
+    row-gap: 36px;
+    grid-template-columns: clamp(300px, 24vw, 420px) minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      'portrait main'
+      'portrait activity';
+    align-items: center;
+  }
+  /* activity panel sits to the right, like the reference */
+  .home-hero__activity { justify-self: end; }
+}
+
+/* Portrait card */
+.home-hero__portrait {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  width: 100%;
+  max-width: 420px;
+  justify-self: center;
+  background:
+    radial-gradient(120% 80% at 50% 30%, color-mix(in srgb, var(--primary-soft) 14%, var(--card)) 0%, var(--card) 70%);
+}
+.home-hero__portrait-cap {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 12px;
+  border-top: var(--border-w) solid var(--border);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  color: var(--muted-fg);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Name (dot matrix) — compact; the real text is sr-only. */
+.home-hero__name {
+  margin: 0 0 4px;
+  line-height: 1;
+  width: min(100%, clamp(280px, 34vw, 600px));
+}
+
+/* "● OPEN TO WORK // AI & WEB DEVELOPER" */
+.home-hero__status {
+  display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px 10px;
+  padding: 2px 10px;
+  background: var(--card);
+  border: 2px solid var(--border);
+  box-shadow: 3px 3px 0 0 var(--shadow-color);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.home-hero__status-tag { color: var(--fg); }
+.home-hero__status-sep { color: var(--muted-fg); }
+.home-hero__live-dot {
+  width: 8px; height: 8px; flex: none;
+  background: var(--world-code);
+  border: 2px solid var(--border);
+  animation: hero-blink 1.2s steps(2, jump-none) infinite;
+}
+@keyframes hero-blink { 50% { opacity: 0.25; } }
+
+.home-hero__meta {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--bg) 92%, transparent);
+}
+
+.home-hero__chips { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; }
+.home-hero__chips li {
+  padding: 0 8px;
+  background: var(--card);
+  border: 2px solid var(--border);
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.home-hero__lead {
+  font-family: var(--font-prose);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  max-width: 50ch;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--bg) 92%, transparent);
+}
+
+.home-hero__ctas { display: flex; flex-wrap: wrap; gap: 10px 12px; margin-top: 4px; }
+.home-hero__ctas .pixel-btn { font-size: var(--text-base); }
+
+/* Anchor pills: ● 01 CODE  ● 02 CREATE  ● 03 LEARN ↓ (compact) */
+.home-hero__jump { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.home-hero__jump ul { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; }
+.home-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 10px;
+  background: var(--card);
+  color: var(--fg);
+  border: 2px solid var(--border);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background-color var(--dur) var(--step-ease);
+}
+.home-pill .world-dot { width: 9px; height: 9px; }
+.home-pill__num { color: var(--muted-fg); }
+.home-pill:hover { background: var(--dot); color: var(--ink); }
+.home-pill:hover .home-pill__num { color: var(--ink); }
+.home-hero__jump-arrow { font-size: var(--text-lg); line-height: 1; color: var(--fg); }
+@media (pointer: coarse) { .home-pill { min-height: 44px; } }   /* keep tap targets ≥ 44px on touch */
+
+/* Live activity in the hero:
+   2D = compact (whole year fits, no sideways scroll, panel stays on screen)
+   3D = grows to full size; width eases while the body tilts in (activity.css). */
+.home-hero__activity {
+  width: min(100%, 640px);
+  transition: width 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.home-hero__activity:has(.activity[data-view='3d']) { width: min(100%, 920px); }
+@media (prefers-reduced-motion: reduce) { .home-hero__activity { transition: none; } }
+
+.home-hero__activity .activity[data-view='2d'] {
+  --cell: 8px;
+  --gap: 2px;
+  --dow-w: 26px;
+}
+.home-hero__activity .activity[data-view='2d'] .heatmap__scroll { padding: 2px 0 2px; }
+.home-hero__activity .activity[data-view='2d'] .heatmap__months { height: 16px; line-height: 16px; font-size: 0.85rem; }
+.home-hero__activity .activity[data-view='2d'] .heatmap__dow { font-size: 0.8rem; }
+.home-hero__activity .activity__chip { display: none; }            /* TryHackMe placeholder lives on /about */
+.home-hero__activity .activity__foot { gap: 6px 16px; }
+
+/* 2D: keep it short — one-line header, stats + legend on one line, no extra links row */
+.home-hero__activity .activity[data-view='2d'] { gap: 8px; padding: 10px 14px; }
+.home-hero__activity .activity[data-view='2d'] .activity__head { flex-wrap: nowrap; gap: 10px; }
+.home-hero__activity .activity[data-view='2d'] .activity__title { white-space: nowrap; }
+.home-hero__activity .activity[data-view='2d'] .activity__toggle { margin-left: auto; flex: none; }
+.home-hero__activity .activity[data-view='2d'] .activity__foot {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  padding-top: 6px;
+}
+.home-hero__activity .activity[data-view='2d'] .activity__links { display: none; }
+@media (max-width: 560px) {
+  .home-hero__activity .activity[data-view='2d'] .activity__head { flex-wrap: wrap; }
+}
+
+/* Compact live-activity panel inside the hero */
+.home-hero__activity .activity { gap: 12px; padding: 14px 16px; }
+.home-hero__activity .activity__title { font-family: var(--font-ui); font-size: var(--text-base); letter-spacing: 0.1em; }
+.home-hero__activity .activity__dot { width: 8px; height: 8px; }
+.home-hero__activity .activity__badge { font-size: var(--text-sm); padding: 0 8px; border-width: 2px; }
+.home-hero__activity .activity__toggle { border-width: 2px; box-shadow: 3px 3px 0 0 var(--shadow-color); }
+.home-hero__activity .activity__radio { min-height: 32px; padding: 0 10px; font-size: var(--text-sm); }
+.home-hero__activity .activity__radio + .activity__radio { border-left-width: 2px; }
+.home-hero__activity .activity__stats,
+.home-hero__activity .activity__legend,
+.home-hero__activity .activity__link,
+.home-hero__activity .activity__chip { font-size: var(--text-sm); }
+.home-hero__activity .activity__table { display: none; }   /* full table lives on /about */
+.home-hero__activity .pixel-card { border-width: 3px; box-shadow: 6px 6px 0 0 var(--shadow-color); }
+
+@media (prefers-reduced-motion: reduce) {
+  .home-hero__live-dot { animation: none; }
+}
+
+/* Pixel placeholder for missing covers */
+.home-ph {
+  width: 100%;
+  height: 100%;
+  min-height: 88px;
+  display: grid;
+  place-items: center;
+  background-color: var(--dot);
+  background-image:
+    linear-gradient(to right, rgb(13 18 38 / 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(13 18 38 / 0.08) 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+.home-ph svg { width: auto; max-width: 64%; max-height: 64%; height: auto; image-rendering: pixelated; }
+
+/* ---- Featured case study ------------------------------------------------- */
+.home-featured { padding-bottom: 0; }
+.home-featured__card {
+  display: grid;
+  gap: 24px;
+}
+.home-featured__body { display: grid; gap: 14px; justify-items: start; min-width: 0; }
+.home-featured__title { font-size: clamp(1.25rem, 3.2vw, 2rem); line-height: 1.4; }
+.home-featured__subtitle { font-family: var(--font-ui); font-size: var(--text-lg); color: var(--muted-fg); }
+.home-featured__summary { color: var(--fg); }
+.home-featured__team { font-family: var(--font-ui); font-size: var(--text-lg); }
+.home-featured__status { color: var(--muted-fg); }
+.home-featured__actions { display: flex; flex-wrap: wrap; gap: 14px 16px; margin-top: 8px; }
+.home-featured__art { display: none; border: var(--border-w) solid var(--border); min-height: 220px; }
+
+@media (min-width: 860px) {
+  .home-featured__card { grid-template-columns: minmax(0, 1fr) 260px; align-items: stretch; }
+  .home-featured__art { display: block; }
+}
+
+/* ---- World sections ------------------------------------------------------ */
+.home-world + .home-world { padding-top: 0; }

@@ -1,0 +1,80 @@
+/* ==========================================================================
+   Design tokens — pixel-art theme (see plan.md §1)
+   Light is the default; [data-theme="dark"] on <html> switches palettes.
+   Contrast: every text/background pair below meets WCAG AA (≥ 4.5:1).
+   ========================================================================== */
+
+:root {
+  /* Type */
+  --font-pixel: 'Press Start 2P', ui-monospace, monospace; /* headings & labels ≥ 16px only */
+  --font-ui: 'VT323', ui-monospace, monospace;             /* short UI text, nav, buttons, tags */
+  --font-prose: 'Space Grotesk', system-ui, sans-serif;     /* long readable text */
+
+  --text-xs: 1rem;
+  --text-sm: 1.125rem;
+  --text-base: 1.25rem;   /* VT323 runs small; 20px is its comfortable reading size */
+  --text-lg: 1.5rem;
+  --text-xl: 2rem;
+  --prose-size: 1.0625rem;
+  --prose-measure: 68ch;
+
+  /* Pixel geometry */
+  --px: 4px;              /* one "pixel" of the grid */
+  --radius: 0;
+  --border-w: 4px;
+  --shadow-sm: 4px 4px 0 0 var(--shadow-color);
+  --shadow-md: 8px 8px 0 0 var(--shadow-color);
+
+  /* Spacing scale (multiples of 4) */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px;
+  --s6: 32px; --s7: 48px; --s8: 64px; --s9: 96px; --s10: 128px;
+
+  /* Layout */
+  --max-w: 1760px;          /* use the full width of large screens (space, not bigger type) */
+  --gutter: clamp(16px, 4vw, 72px);
+  --header-h: 72px;
+
+  /* World colors (Code / Create / Learn). Text on these is always --ink. */
+  --world-code: #5cf2c8;
+  --world-create: #ff9ec0;
+  --world-learn: #f7d44a;
+  --ink: #0d1226;
+  --bg-purple: #8b5cf6;    /* second color of the animated background (with --primary-soft) */
+
+  /* Motion */
+  --step-ease: steps(5, end);
+  --dur: 200ms;
+
+  /* ---- Light palette (default) ---- */
+  color-scheme: light;
+  --bg: hsl(232 100% 97%);          /* #f0f2ff */
+  --fg: hsl(228 46% 19%);           /* #1a2447 */
+  --card: #ffffff;
+  --surface: hsl(224 40% 92%);      /* subtle fills, level-0 cells */
+  --muted-fg: hsl(228 28% 32%);     /* secondary text (≈ 9:1 on white) */
+  --primary: hsl(228 78% 52%);      /* buttons/links (white text ≈ 6:1) */
+  --primary-soft: hsl(228 90% 63%); /* decorative accents, the reference blue */
+  --primary-fg: #ffffff;
+  --border: var(--fg);
+  --hairline: hsl(218 30% 83%);
+  --shadow-color: hsl(228 46% 19% / 0.85);
+  --grid-line: hsl(228 46% 19% / 0.05);
+  --focus: hsl(228 78% 52%);
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0d1226;
+  --fg: #c9d2e0;
+  --card: #151d38;
+  --surface: #1b2547;
+  --muted-fg: hsl(218 46% 74%);     /* ≈ 7:1 on --card */
+  --primary: hsl(228 90% 68%);      /* dark text on it ≈ 5:1 */
+  --primary-soft: hsl(228 90% 63%);
+  --primary-fg: #0d1226;
+  --border: #c9d2e0;
+  --hairline: #223060;
+  --shadow-color: hsl(218 30% 83% / 0.35);
+  --grid-line: hsl(218 30% 83% / 0.05);
+  --focus: hsl(228 90% 72%);
+}
