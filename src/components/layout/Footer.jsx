@@ -1,21 +1,49 @@
 import { Link } from 'react-router-dom';
-import { navItems, profile } from '../../data/profile.js';
-import { Logo } from './Header.jsx';
+import { gmailCompose, navItems, profile } from '../../data/profile.js';
+import { BriefcaseIcon, DownloadIcon, GithubIcon, MailIcon } from '../Icons.jsx';
 
+const CONNECT = [
+  { href: profile.links.github, label: `GitHub (@${profile.links.githubHandle})`, Icon: GithubIcon, external: true },
+  { href: gmailCompose, label: `Email ${profile.email}`, Icon: MailIcon, external: true },
+  { href: profile.links.onlinejobs, label: 'OnlineJobs.ph profile', Icon: BriefcaseIcon, external: true },
+  { href: profile.resume, label: 'Download résumé (PDF)', Icon: DownloadIcon, download: true },
+];
+
+/** Site footer: navigation · connect. */
 export default function Footer() {
   return (
     <footer className="site-footer" data-no-spray="true">
-      <div className="container site-footer__inner">
-        <div className="site-footer__brand">
-          <Logo />
-          <p>{profile.name.full} · {profile.role}</p>
+      <div className="container">
+        <div className="site-footer__grid">
+          <nav className="site-footer__col" aria-labelledby="footer-nav-title">
+            <h2 id="footer-nav-title" className="site-footer__label" data-world="code"><span className="world-dot" aria-hidden="true" />Navigation</h2>
+            <ul className="site-footer__nav">
+              {navItems.map(item => <li key={item.to}><Link to={item.to}>{item.label}</Link></li>)}
+            </ul>
+          </nav>
+
+          <div className="site-footer__col">
+            <h2 className="site-footer__label" data-world="create"><span className="world-dot" aria-hidden="true" />Connect</h2>
+            <ul className="site-footer__social">
+              {CONNECT.map(({ href, label, Icon, external, download }) => (
+                <li key={label}>
+                  <a
+                    href={href}
+                    className="site-footer__icon"
+                    aria-label={label}
+                    title={label}
+                    {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                    {...(download ? { download: '' } : {})}
+                  >
+                    <Icon width="20" height="20" aria-hidden="true" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <p className="site-footer__text">Let&apos;s connect and build something awesome together!</p>
+          </div>
         </div>
-        <nav aria-label="Footer">
-          <ul className="site-footer__nav">
-            {navItems.map(item => <li key={item.to}><Link to={item.to}>{item.label}</Link></li>)}
-          </ul>
-        </nav>
-        <p className="site-footer__copy">© {new Date().getFullYear()} {profile.name.full}. Built with React + Vite.</p>
+
       </div>
     </footer>
   );

@@ -30,7 +30,7 @@ export default function PixelBackground() {
       // blue → purple → blue only
       palette = ['--primary-soft', '--bg-purple', '--primary-soft']
         .map(v => hexToRgb(cs.getPropertyValue(v).trim() || '#4c6ef6'));
-      maxAlpha = dark ? 0.42 : 0.3;
+      maxAlpha = dark ? 0.2 : 0.14;   // kept faint so it never competes with content
     };
 
     const resize = () => {
@@ -66,7 +66,7 @@ export default function PixelBackground() {
           const level = Math.min(LEVELS - 1, Math.floor(((v + 4) / 8) * LEVELS)); // 0..LEVELS-1
           if (!level) continue;
           // gentle fade toward the bottom of the viewport
-          const fade = 1 - (y / rows) * 0.3;
+          const fade = 1 - (y / rows) * 0.5;
           ctx.fillStyle = `rgba(${rgb},${((level / (LEVELS - 1)) * maxAlpha * fade).toFixed(3)})`;
           // snap to whole device pixels so neighbouring blocks never leave hairline seams
           const x0 = Math.round(x * CELL * scale), y0 = Math.round(y * CELL * scale);
@@ -80,7 +80,7 @@ export default function PixelBackground() {
       raf = requestAnimationFrame(loop);
       if (hidden || now - last < 1000 / FPS) return;
       last = now;
-      t += 0.16;
+      t += 0.08;   // slow drift
       draw();
     }
 

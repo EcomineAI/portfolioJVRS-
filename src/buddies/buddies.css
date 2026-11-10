@@ -1,13 +1,27 @@
 /* ==========================================================================
-   Pixel buddies on the hero floor (plan §6)
+   Pixel buddies (plan §6). They live in one page-wide layer (BuddyWorld) and
+   stand on the top edge of cards; the Home hero floor is one of those platforms.
    ========================================================================== */
+
+/* Page-wide layer, in page coordinates (no positioned ancestor → origin = page top-left).
+   z-index: above content and spray canvases (40), below widgets (45) and the header (50). */
+.buddy-world {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  z-index: 42;
+  pointer-events: none;
+}
+.buddy-world .buddy { pointer-events: auto; }
 
 .buddy-floor {
   position: relative;
   margin-top: clamp(24px, 4vw, 40px);
 }
 
-/* Where the buddies walk. Tall enough for sprite + one-line bubble, so they never cover text. */
+/* Space above the hero floor line: tall enough for sprite + one-line bubble, so they never cover text there. */
 .buddy-floor__stage {
   position: relative;
   height: 104px;
@@ -27,7 +41,8 @@
 .buddy {
   position: absolute;
   left: 0;
-  bottom: 0;
+  top: 0;
+  translate: 0 -100%;            /* pos.y is where the feet go */
   transition: transform 100ms linear;
   will-change: transform;
 }
@@ -35,6 +50,7 @@
 .buddy--claude { z-index: 1; }
 
 .buddy__btn {
+  position: relative;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -87,6 +103,7 @@
   line-height: 1.1;
   white-space: nowrap;
   pointer-events: none;
+  z-index: 2;                    /* in front of the emote icon */
   animation: buddy-pop 240ms steps(3, end);
 }
 .buddy__bubble--left { left: 0; }
@@ -119,7 +136,7 @@
   z-index: 30;
   display: grid;
   min-width: 168px;
-  padding: 8px;
+  padding: 6px;
   background: var(--card);
   color: var(--fg);
   border: var(--border-w) solid var(--border);
@@ -127,11 +144,12 @@
 }
 .buddy__menu--left { left: 0; }
 .buddy__menu--right { right: 0; }
+.buddy__menu--down { bottom: auto; top: calc(100% + 8px); }
 .buddy__menu-title {
   font-family: var(--font-pixel);
-  font-size: 1rem;
+  font-size: 0.85rem;
   line-height: 1.4;
-  padding: 4px 8px 8px;
+  padding: 2px 8px 6px;
   border-bottom: 2px dashed var(--hairline);
   margin-bottom: 4px;
   white-space: nowrap;
@@ -140,12 +158,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: 44px;
+  min-height: 34px;
   padding: 0 10px;
   background: transparent;
   border: 0;
   font-family: var(--font-ui);
-  font-size: var(--text-lg);
+  font-size: var(--text-base, 1rem);
   text-align: left;
   cursor: var(--cursor-pointer);
 }
@@ -170,11 +188,10 @@
 }
 
 /* ---- Paused / reduced motion -------------------------------------------- */
-.buddy-floor.is-paused * { animation-play-state: paused !important; }
+.buddy-world.is-paused * { animation-play-state: paused !important; }
 
-.buddy-floor.is-reduced .buddy,
-.buddy-floor.is-reduced .buddy * { animation: none !important; transition: none !important; }
-.buddy-floor.is-reduced .buddy-floor__heart svg { animation: none; }
+.buddy-world.is-reduced .buddy,
+.buddy-world.is-reduced .buddy * { animation: none !important; transition: none !important; }
 @media (prefers-reduced-motion: reduce) {
   .buddy, .buddy * , .buddy-floor__heart svg { animation: none !important; transition: none !important; }
 }
@@ -202,15 +219,16 @@
   50% { transform: scaleY(0.92); }
 }
 
-/* Laptop prop next to Claude */
-.buddy-floor__prop {
+/* Laptop prop next to whoever is typing */
+.buddy-world__prop {
   position: absolute;
   left: 0;
-  bottom: 0;
+  top: 0;
+  translate: 0 -100%;
   z-index: 1;
 }
 /* pop-in runs on the inner svg: the span's own transform positions the laptop */
-.buddy-floor__prop svg { animation: buddy-pop 160ms steps(3, end); transform-origin: 50% 100%; }
+.buddy-world__prop svg { animation: buddy-pop 160ms steps(3, end); transform-origin: 50% 100%; }
 
 @media (prefers-reduced-motion: reduce) {
   .buddy.is-wiggle .buddy__sprite,
@@ -224,7 +242,7 @@
   50% { transform: translateY(-2px); }
 }
 /* Laptop screen glow */
-.buddy-floor__prop svg { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--world-code) 55%, transparent)); }
+.buddy-world__prop svg { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--world-code) 55%, transparent)); }
 @media (prefers-reduced-motion: reduce) {
   .buddy.is-laptop .buddy__sprite { animation: none; }
 }
@@ -235,3 +253,187 @@
 /* Menu items stay on one line ("Talk to Claude", "Say something") */
 .buddy__menu { min-width: max-content; }
 .buddy__menu-item { white-space: nowrap; }
+
+/* Wider screens: two columns so the menu is half as tall */
+@media (min-width: 640px) {
+  .buddy__menu { grid-template-columns: repeat(2, max-content); column-gap: 4px; }
+  .buddy__menu-title { grid-column: 1 / -1; }
+}
+
+/* ---- Claude moves by hopping (no leg animation) -----------------------------
+   Walk: bunny hops with squash before take-off, stretch in the air, squash on
+   landing. Run/chase: faster, lower hops. A small pixel dust puff on each landing. */
+.buddy--claude .buddy__body { position: relative; display: inline-block; }
+.buddy--claude.is-walk .buddy__sprite,
+.buddy--claude.is-run .buddy__sprite {
+  transform-origin: 50% 100%;
+  animation: claude-hop 420ms steps(7, end) infinite;
+}
+.buddy--claude.is-run .buddy__sprite { animation: claude-hop-low 240ms steps(5, end) infinite; }
+
+@keyframes claude-hop {
+  0%   { transform: translateY(0)     scale(1.1, 0.88); }   /* crouch */
+  18%  { transform: translateY(-5px)  scale(0.92, 1.1); }   /* take off: stretch */
+  45%  { transform: translateY(-14px) scale(1, 1); }        /* top of the hop */
+  75%  { transform: translateY(-5px)  scale(0.95, 1.06); }  /* coming down */
+  100% { transform: translateY(0)     scale(1.1, 0.88); }   /* land: squash */
+}
+@keyframes claude-hop-low {
+  0%   { transform: translateY(0)    scale(1.08, 0.9); }
+  45%  { transform: translateY(-7px) scale(0.95, 1.05); }
+  100% { transform: translateY(0)    scale(1.08, 0.9); }
+}
+
+/* dust puffs: two little pixel clouds kick out sideways when Claude lands */
+.buddy--claude.is-walk .buddy__body::before,
+.buddy--claude.is-walk .buddy__body::after,
+.buddy--claude.is-run .buddy__body::before,
+.buddy--claude.is-run .buddy__body::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  width: 3px;
+  height: 3px;
+  background: color-mix(in srgb, var(--fg) 35%, transparent);
+  box-shadow: 3px -3px 0 0 color-mix(in srgb, var(--fg) 25%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  animation: claude-dust-l 420ms steps(4, end) infinite;
+}
+.buddy--claude.is-walk .buddy__body::before,
+.buddy--claude.is-run .buddy__body::before { left: 2px; }
+.buddy--claude.is-walk .buddy__body::after,
+.buddy--claude.is-run .buddy__body::after { right: 2px; animation-name: claude-dust-r; }
+.buddy--claude.is-run .buddy__body::before,
+.buddy--claude.is-run .buddy__body::after { animation-duration: 240ms; }
+
+@keyframes claude-dust-l {
+  0%, 85% { opacity: 0; transform: translate(0, 0); }
+  90%     { opacity: 1; transform: translate(-2px, -1px); }
+  100%    { opacity: 0; transform: translate(-7px, -3px); }
+}
+@keyframes claude-dust-r {
+  0%, 85% { opacity: 0; transform: translate(0, 0); }
+  90%     { opacity: 1; transform: translate(2px, -1px); }
+  100%    { opacity: 0; transform: translate(7px, -3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .buddy--claude .buddy__sprite,
+  .buddy--claude .buddy__body::before,
+  .buddy--claude .buddy__body::after { animation: none !important; opacity: 0; }
+  .buddy--claude .buddy__sprite { opacity: 1; }
+}
+
+/* ---- Emote icons (! ? anger sweat note … Z sparkle) next to the head ---- */
+.buddy__emote {
+  position: absolute;
+  left: calc(100% - 2px);
+  top: -18px;
+  z-index: 0;                    /* behind the speech bubble */
+  pointer-events: none;
+  animation:
+    buddy-emote-pop 200ms steps(3, end),
+    buddy-emote-float 900ms steps(2, end) 200ms infinite alternate;
+}
+/* keep the icon at full size: the emote box sits at the button's edge, so it would
+   shrink to ~2px wide, and the global `svg { max-width: 100% }` shrinks the icon with it */
+.buddy__emote { width: max-content; }
+.buddy__emote svg { display: block; max-width: none; }
+.buddy__emote--anger { animation: buddy-emote-pop 200ms steps(3, end), buddy-emote-throb 500ms steps(2, end) 200ms infinite; }
+.buddy__emote--sweat { top: -8px; }
+.buddy__emote--dots { top: -6px; }
+@keyframes buddy-emote-pop {
+  from { transform: scale(0.3); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+@keyframes buddy-emote-float {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-4px); }
+}
+@keyframes buddy-emote-throb {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.25); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .buddy__emote { animation: none !important; }
+}
+
+/* ---- Jumping between cards ----------------------------------------------- */
+.buddy.is-jump { transition-timing-function: linear; }
+.buddy.is-jump .buddy__sprite { animation: none; }
+.buddy--claude.is-jump .buddy__sprite { transform: scale(0.92, 1.1); transform-origin: 50% 100%; }
+
+/* ---- Picked up with the mouse ------------------------------------------- */
+.buddy__btn { touch-action: none; user-select: none; -webkit-user-select: none; cursor: var(--cursor-grab); }
+.buddy__btn:active { cursor: var(--cursor-grabbing); }
+/* while dragging, the fist cursor shows everywhere (the pointer can leave the buddy) */
+html.is-grabbing-buddy, html.is-grabbing-buddy * { cursor: var(--cursor-grabbing) !important; }
+/* held: follows the pointer exactly (no easing), drawn above everything else */
+.buddy.is-held { transition: none; z-index: 8; }
+.buddy.is-held .buddy__sprite,
+.buddy.is-fall .buddy__sprite { animation: none; }
+/* swing around the hand holding the shirt */
+.buddy.is-held .buddy__body,
+.buddy.is-fall .buddy__body { transform-origin: 50% 30%; transition: transform 120ms ease-out; }
+.buddy.is-fall { z-index: 8; }
+/* landing: quick squash */
+.buddy.is-land .buddy__sprite { transform-origin: 50% 100%; animation: buddy-land 450ms steps(3, end); }
+@keyframes buddy-land {
+  0%   { transform: scale(1.18, 0.8); }
+  50%  { transform: scale(0.94, 1.06); }
+  100% { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .buddy.is-held .buddy__body, .buddy.is-fall .buddy__body { transition: none; }
+  .buddy.is-land .buddy__sprite { animation: none; }
+}
+
+/* ---- Claude as a vacuum cleaner ------------------------------------------ */
+.buddy.is-vacuum { z-index: 7; transition: transform 100ms linear; }
+.buddy--claude.is-vacuum .buddy__body { transform-origin: 50% 50%; }
+/* the motor: Claude rattles */
+.buddy--claude.is-vacuum .buddy__sprite { animation: buddy-vac 90ms steps(2, end) infinite; }
+@keyframes buddy-vac {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(1px, -1px); }
+}
+/* every mouthful: a quick gulp (cheeks puff, then swallow) */
+.buddy--claude.is-vacuum.is-gulp .buddy__sprite { animation: buddy-gulp 100ms steps(2, end) infinite; }
+@keyframes buddy-gulp {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.14, 0.9) translate(1px, -1px); }
+}
+/* swelling / deflating is smooth */
+.buddy--claude .buddy__body { transition: transform 160ms steps(3, end); }
+.buddy--claude.is-held .buddy__body,
+.buddy--claude.is-fall .buddy__body { transition: transform 120ms ease-out; }
+
+/* dust kicked up behind June Vic's running feet */
+.buddy--vic.is-vacuum .buddy__body { position: relative; }
+.buddy--vic.is-vacuum .buddy__body::before {
+  content: '';
+  position: absolute;
+  left: -2px;
+  bottom: 0;
+  width: 4px;
+  height: 4px;
+  background: color-mix(in srgb, var(--fg) 30%, transparent);
+  box-shadow:
+    -6px -4px 0 0 color-mix(in srgb, var(--fg) 22%, transparent),
+    -11px 0 0 0 color-mix(in srgb, var(--fg) 16%, transparent),
+    -4px -9px 0 -1px color-mix(in srgb, var(--fg) 14%, transparent);
+  pointer-events: none;
+  animation: buddy-vac-dust 260ms steps(3, end) infinite;
+}
+@keyframes buddy-vac-dust {
+  from { transform: translateX(0); opacity: 0.9; }
+  to   { transform: translateX(-12px) translateY(-3px); opacity: 0; }
+}
+/* June Vic: quick determined steps */
+.buddy--vic.is-vacuum .buddy__sprite { animation: buddy-type 200ms steps(2, end) infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .buddy.is-vacuum .buddy__sprite,
+  .buddy--vic.is-vacuum .buddy__body::before { animation: none; }
+  .buddy--claude .buddy__body { transition: none; }
+}

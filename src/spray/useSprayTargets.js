@@ -1,8 +1,12 @@
 // Keeps the engine's collision rects in sync with the page (plan §5).
-// Targets: page headings inside <main> and anything marked [data-spray-surface].
+// Targets: page headings and cards inside <main>, anything marked [data-spray-surface]
+// (solid boxes), plus horizontal lines: the top border of big sections (Say hi, the
+// footer, the hero floor), which paint and noodles can catch on.
 import { useEffect } from 'react';
 
-export const TARGET_SELECTOR = 'main h1, main h2, [data-spray-surface]';
+export const TARGET_SELECTOR = 'main h1, main h2, main .pixel-card, [data-spray-surface]';
+export const LINE_SELECTOR = '.say-hi, .site-footer, [data-buddy-platform], main hr';
+const LINE_H = 4;
 
 function measure() {
   const sx = window.scrollX;
@@ -20,7 +24,14 @@ function measure() {
       r = el.getBoundingClientRect();
     }
     if (r.width < 4 || r.height < 4) return;
-    rects.push({ l: r.left + sx, t: r.top + sy, r: r.right + sx, b: r.bottom + sy });
+    // `el` lets the engine follow each heading/card when the page reflows (resize)
+    rects.push({ el, l: r.left + sx, t: r.top + sy, r: r.right + sx, b: r.bottom + sy });
+  });
+  // lines: just a thin strip along the element's top edge (the rest stays open)
+  document.querySelectorAll(LINE_SELECTOR).forEach(el => {
+    const r = el.getBoundingClientRect();
+    if (r.width < 40) return;
+    rects.push({ el, line: true, l: r.left + sx, t: r.top + sy, r: r.right + sx, b: r.top + sy + LINE_H });
   });
   const de = document.documentElement;
   return { rects, docW: de.scrollWidth, docH: Math.max(de.scrollHeight, document.body.scrollHeight) };

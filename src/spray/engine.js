@@ -3,7 +3,8 @@
 // offset by the current scroll, so paint stays attached to the content.
 //
 // Modes
-//   string   silly-string strands (Verlet ropes) that drape on headings
+//   string   silly string: ONE continuous rope per spray (never breaks off) that
+//            drapes over headings, cards and section lines and snags on their edges
 //   paint    mist + drips that run down and pool on headings
 //   sand     grains that pour, pile up and slide off ledges
 //   confetti flakes that flutter down and settle
@@ -14,11 +15,15 @@
 //   palette  colors (section · neon · ink · pastel)
 // Reduced motion: no physics; every mode leaves static marks.
 
+import { sprayBus } from './sprayBus.js';
+
 const GRID = 4;               // one pixel of the pixel-art grid
 const SEG = 6;                // rest length between rope points
-const STRAND_POINTS = 20;
-const MAX_STRANDS = 60;
-const MAX_POINTS = 1500;
+const MAX_STRAND = 700;       // one spray = one continuous string; past this its far end is trimmed
+const MAX_STRANDS = 40;
+const MAX_POINTS = 3200;
+const STRING_W = 3;           // line width of the silly string (px)
+const STRING_R = 2;           // collision radius: it rests ON edges, not inside them
 const MAX_DOTS = 4000;
 const MAX_PARTICLES = 900;
 const MAX_LETTERS = 400;
@@ -136,6 +141,7 @@ export class SprayEngine {
     this.drips = [];         // { x, y, vy, left, color, lastY }
     this.particles = [];     // { kind, x, y, vx, vy, color, ch?, phase }
     this.letters = [];       // settled letters { x, y, ch, color }
+    this.sucked = [];        // paint bits / air flying into the vacuum { sx, sy, tx, ty, t, color, air }
     this.dots = new Map();   // "x,y" -> color (insertion order = age)
     this.targets = [];       // [{ l, t, r, b }] document coords
     this.docW = 0;
@@ -159,6 +165,7 @@ export class SprayEngine {
     this.colors = { ...FALLBACK };
     this.readColors();
     this.resize();
+    sprayBus.attach(this);
   }
 
   get flow() { return FLOWS[this.flowId] || FLOWS.balanced; }
@@ -190,11 +197,91 @@ export class SprayEngine {
   }
 
   setTargets(rects, docW, docH) {
-    this.targets = rects;
+    // Re-measured on scroll too: only react when the layout really changed (≥ 1px),
+    // otherwise settled paint would wake up and creep every time you scroll.
+    const prev = this.targets;
+    const same = prev.length === rects.length && prev.every((o, i) => {
+      const n = rects[i];
+      return o.el === n.el && Math.abs(o.l - n.l) < 1 && Math.abs(o.t - n.t) < 1 && Math.abs(o.r - n.r) < 1 && Math.abs(o.b - n.b) < 1;
+    });
     this.docW = docW;
     this.docH = docH;
+    if (same) return;
+    this.reflow(prev, rects);
+    this.targets = rects;
     for (const s of this.strands) { s.sleep = false; s.still = 0; }
     this.requestFrame();
+  }
+
+  /**
+   * The page reflowed (window resized, fonts loaded…): headings and cards moved, so
+   * move the paint with them. Every piece of paint belongs to the target nearest to
+   * it (paint sits on/around headings) and keeps its place relative to that target:
+   * same offset from its top edge, same fraction across its width (and the same
+   * distance past its edge if it hangs over the side). Whole strands move together.
+   */
+  reflow(prev, next) {
+    if (!prev.length || !next.length) return;
+    if (!this.dots.size && !this.strands.length && !this.letters.length && !this.drips.length && !this.particles.length) return;
+    const byEl = new Map();
+    for (const r of next) if (r.el) byEl.set(r.el, r);
+    const owners = [];
+    let moved = false;
+    for (const o of prev) {
+      const n = o.el && byEl.get(o.el);
+      if (!n) continue;   // target is gone (e.g. hidden at this width): its paint stays put
+      if (n.l !== o.l || n.t !== o.t || n.r !== o.r || n.b !== o.b) moved = true;
+      owners.push({ o, n });
+    }
+    if (!moved || !owners.length) return;
+
+    const ownerOf = (x, y) => {
+      let best = null, bestD = Infinity;
+      for (const w of owners) {
+        const r = w.o;
+        const dx = Math.max(r.l - x, 0, x - r.r);
+        const dy = y < r.t ? (r.t - y) * 0.7 : Math.max(0, y - r.b);   // paint mostly sits on top
+        const d = dx + dy;
+        if (d < bestD) { bestD = d; best = w; }
+      }
+      return best;
+    };
+    const mapX = ({ o, n }, x) => {
+      if (x < o.l) return n.l - (o.l - x);
+      if (x > o.r) return n.r + (x - o.r);
+      const ow = o.r - o.l;
+      return ow > 0 ? n.l + ((x - o.l) / ow) * (n.r - n.l) : n.l;
+    };
+    const mapY = ({ o, n }, y) => (y > o.b ? y + (n.b - o.b) : y + (n.t - o.t));
+    const movePoint = (p, w = ownerOf(p.x, p.y)) => {
+      if (!w) return;
+      const x = mapX(w, p.x), y = mapY(w, p.y);
+      if ('px' in p) { p.px += x - p.x; p.py += y - p.y; }
+      p.x = x; p.y = y;
+    };
+
+    // static dots: rebuild the grid map at the new positions (keeps age order)
+    if (this.dots.size) {
+      const old = [...this.dots];
+      this.dots.clear();
+      for (const [key, color] of old) {
+        const c = key.indexOf(',');
+        const p = { x: +key.slice(0, c), y: +key.slice(c + 1) };
+        movePoint(p);
+        this.dots.set(`${snap(p.x)},${snap(p.y)}`, color);
+      }
+    }
+    for (const s of this.strands) {
+      if (!s.pts.length || s === this.active) continue;
+      const mid = s.pts[Math.floor(s.pts.length / 2)];
+      const w = ownerOf(mid.x, mid.y);
+      for (const p of s.pts) movePoint(p, w);
+      s.sleep = false; s.still = 0;
+    }
+    for (const d of this.drips) { movePoint(d); d.lastY = null; }
+    for (const p of this.particles) movePoint(p);
+    for (const l of this.letters) { movePoint(l); l.x = snap(l.x); l.y = snap(l.y); }
+    if (this.letters.length) this.dropUnsupported();
   }
 
   setMode(mode) { this.mode = MODES.includes(mode) ? mode : 'string'; }
@@ -238,6 +325,7 @@ export class SprayEngine {
     this.pointer.y = clientY;
     this.sprayColor = this.nextColor();
     this.shakeUntil = performance.now() + HOLD_SHAKE_MS;
+    sprayBus.emit('start', { mode: this.mode });
     this.active = null;
     this.nextStrandAt = 0;
     this.lastDripAt = 0;
@@ -255,6 +343,7 @@ export class SprayEngine {
   end() {
     if (!this.spraying) return;
     this.spraying = false;
+    sprayBus.emit('end', { mode: this.mode });
     if (this.active) this.active.pinned = false;
     this.active = null;
     this.requestFrame();
@@ -266,26 +355,14 @@ export class SprayEngine {
     this.particles = [];
     this.letters = [];
     this.dots.clear();
+    this.sucked = [];
     this.active = null;
     this.requestFrame();
   }
 
-  /** Scrolling makes free strand ends lag behind the content, so they swing. */
-  onScroll(dy) {
-    if (this.reduced || !dy) { this.requestFrame(); return; }
-    const kick = Math.max(-5, Math.min(5, dy * 0.12));
-    const top = window.scrollY - 200;
-    const bottom = window.scrollY + this.h + 200;
-    for (const s of this.strands) {
-      const head = s.pts[0];
-      if (!head || head.y < top || head.y > bottom) continue;
-      for (let i = 0; i < s.pts.length; i++) {
-        if (s.pinned && i === s.pts.length - 1) continue;
-        s.pts[i].py -= kick * (0.4 + Math.random() * 0.6);
-      }
-      s.sleep = false;
-      s.still = 0;
-    }
+  /** Scrolling just redraws: paint is stored in page coordinates, so it stays
+      exactly where it landed (no swinging). */
+  onScroll() {
     this.requestFrame();
   }
 
@@ -304,6 +381,116 @@ export class SprayEngine {
   destroy() {
     if (this.raf) cancelAnimationFrame(this.raf);
     this.raf = 0;
+    sprayBus.detach(this);
+  }
+
+  // ---- buddies: count / vacuum paint (page coordinates) -------------------
+  /** How much paint is inside the box { l, t, r, b }. */
+  countIn(box) {
+    const inBox = (x, y) => x >= box.l && x <= box.r && y >= box.t && y <= box.b;
+    let n = 0;
+    for (const key of this.dots.keys()) {
+      const c = key.indexOf(',');
+      if (inBox(+key.slice(0, c), +key.slice(c + 1))) n++;
+    }
+    for (const s of this.strands) for (const p of s.pts) if (inBox(p.x, p.y)) n++;
+    for (const l of this.letters) if (inBox(l.x, l.y)) n += 3;
+    for (const p of this.particles) if (inBox(p.x, p.y)) n++;
+    return n;
+  }
+
+  /** Remove paint for which hit(x, y) is true. Strings are cut where the
+      sucked-up part was (the pieces left over stay where they are). */
+  removeWhere(hit, collect = null) {
+    let n = 0;
+    for (const [key, color] of [...this.dots]) {
+      const c = key.indexOf(',');
+      const x = +key.slice(0, c) + GRID / 2, y = +key.slice(c + 1) + GRID / 2;
+      if (hit(x, y)) { this.dots.delete(key); n++; collect?.(x, y, color); }
+    }
+    const strands = [];
+    for (const s of this.strands) {
+      if (s === this.active) { strands.push(s); continue; }
+      let piece = [];
+      const pieces = [];
+      for (const p of s.pts) {
+        if (hit(p.x, p.y)) { n++; collect?.(p.x, p.y, s.color); if (piece.length) { pieces.push(piece); piece = []; } }
+        else piece.push(p);
+      }
+      if (piece.length) pieces.push(piece);
+      if (pieces.length === 1 && pieces[0].length === s.pts.length) { strands.push(s); continue; }
+      for (const pts of pieces) if (pts.length > 1) strands.push({ ...s, pts, pinned: false, sleep: false, still: 0 });
+    }
+    this.strands = strands;
+    const keepL = this.letters.filter(l => { const h = hit(l.x + 4, l.y - 4); if (h) collect?.(l.x + 4, l.y - 4, l.color); return !h; });
+    n += (this.letters.length - keepL.length) * 3;
+    this.letters = keepL;
+    const keepP = this.particles.filter(p => { const h = hit(p.x, p.y); if (h) collect?.(p.x, p.y, p.color); return !h; });
+    n += this.particles.length - keepP.length;
+    this.particles = keepP;
+    this.drips = this.drips.filter(d => !hit(d.x, d.y));
+    if (n && this.letters.length) this.dropUnsupported();
+    if (n) this.requestFrame();
+    return n;
+  }
+
+  /** Is a settled letter resting on something: a ledge, the page bottom, or a letter below it? */
+  letterSupported(l) {
+    for (const r of this.targets) {
+      if (l.x + 4 > r.l && l.x + 4 < r.r && Math.abs(l.y - snap(r.t - GRID)) <= GRID) return true;
+    }
+    if (this.docH && l.y >= snap(this.docH - GRID) - GRID) return true;
+    return this.letters.some(o => o !== l && Math.abs(o.x - l.x) < 10 && o.y > l.y && o.y - l.y <= 16 + GRID);
+  }
+
+  /** Letters left floating (the ones under them were vacuumed, or the layout moved)
+      fall again and land on whatever is below. */
+  dropUnsupported() {
+    const falling = [];
+    for (let pass = 0, changed = true; changed && pass < 40; pass++) {
+      changed = false;
+      for (let i = this.letters.length - 1; i >= 0; i--) {
+        if (this.letterSupported(this.letters[i])) continue;
+        falling.push(this.letters.splice(i, 1)[0]);
+        changed = true;
+      }
+    }
+    if (this.reduced) {
+      // no animation: drop them straight onto the closest ledge below
+      for (const l of falling) this.particles.push({ kind: 'letter', x: l.x, y: l.y, vx: 0, vy: 0, color: l.color, ch: l.ch, phase: 0 });
+      while (this.particles.some(p => p.kind === 'letter')) if (!this.stepParticles()) break;
+    } else {
+      for (const l of falling) this.particles.push({ kind: 'letter', x: l.x, y: l.y, vx: 0, vy: 0, color: l.color, ch: l.ch, phase: 0 });
+    }
+    if (falling.length) this.requestFrame();
+  }
+
+  /** Suck up paint near (x, y): the bits visibly fly into the nozzle, with air streaks. */
+  vacuum(x, y, r) {
+    const r2 = r * r;
+    const bits = [];
+    const n = this.removeWhere(
+      (px, py) => (px - x) * (px - x) + (py - y) * (py - y) <= r2,
+      (px, py, color) => { if (bits.length < 50 && Math.random() < 0.7) bits.push([px, py, color]); },
+    );
+    for (const [px, py, color] of bits) this.sucked.push({ sx: px, sy: py, tx: x, ty: y, t: rand(-0.3, 0), color, air: false });
+    for (let i = 0; i < 3; i++) {
+      const a = Math.random() * Math.PI * 2, d = r * rand(0.8, 1.4);
+      this.sucked.push({ sx: x + Math.cos(a) * d, sy: y + Math.sin(a) * d, tx: x, ty: y, t: rand(-0.2, 0), air: true });
+    }
+    if (this.sucked.length > 400) this.sucked.splice(0, this.sucked.length - 400);
+    this.requestFrame();
+    return n;
+  }
+
+  stepSucked() {
+    if (!this.sucked.length) return false;
+    this.sucked = this.sucked.filter(s => (s.t += s.air ? 0.11 : 0.08) < 1);
+    return this.sucked.length > 0;
+  }
+
+  vacuumBox(box) {
+    return this.removeWhere((x, y) => x >= box.l && x <= box.r && y >= box.t && y <= box.b);
   }
 
   /** Advance one frame. Returns true while anything still moves. */
@@ -326,6 +513,7 @@ export class SprayEngine {
       moving = this.stepDrips() || moving;
       moving = this.stepParticles() || moving;
     }
+    moving = this.stepSucked() || moving;
     return this.spraying || moving;
   }
 
@@ -407,28 +595,27 @@ export class SprayEngine {
     while (this.particles.length > MAX_PARTICLES) this.particles.shift();
   }
 
+  /** While the can is held, keep feeding the SAME string: it never breaks off. */
   emitString(now, x, y) {
     const f = this.flow;
     let s = this.active;
-    if (s && s.pts.length >= STRAND_POINTS) {
-      s.pinned = false;
-      this.active = s = null;
-      this.nextStrandAt = now + 70;
-    }
     if (!s) {
-      if (now < this.nextStrandAt) return;
       s = { pts: [], color: this.nextColor(), pinned: true, sleep: false, still: 0, curl: (Math.random() < 0.5 ? -1 : 1) * f.curl };
-      this.strandDir = -Math.PI / 2 + rand(-f.spread, f.spread) * this.canCfg.fan;
+      this.strandDir = -Math.PI / 2 + rand(-f.spread, f.spread) * this.canCfg.fan * 0.5;
       this.strands.push(s);
       this.active = s;
-      this.enforceBudget();
     }
-    this.strandDir += s.curl;                                // curly flow loops the strand
-    const speed = rand(f.speed[0], f.speed[1]);
+    // the stream sways a little, like a real can (and loops with the curly flow)
+    this.strandDir += s.curl * 0.5 + rand(-0.07, 0.07);
+    const lim = f.spread * this.canCfg.fan;
+    this.strandDir = Math.max(-Math.PI / 2 - lim, Math.min(-Math.PI / 2 + lim, this.strandDir));
+    const speed = rand(f.speed[0], f.speed[1]) * 1.2;   // big spray: shoots out far
     const ang = this.strandDir + rand(-f.jitter, f.jitter);
     const vx = Math.cos(ang) * speed;
     const vy = Math.sin(ang) * speed;
     s.pts.push({ x, y, px: x - vx, py: y - vy });
+    if (s.pts.length > MAX_STRAND) s.pts.shift();       // trim the far end, keep it one piece
+    s.sleep = false;
     this.enforceBudget();
   }
 
@@ -436,7 +623,8 @@ export class SprayEngine {
     let total = 0;
     for (const s of this.strands) total += s.pts.length;
     while (this.strands.length > 1 && (this.strands.length > MAX_STRANDS || total > MAX_POINTS)) {
-      const idx = this.strands[0] === this.active ? 1 : 0;
+      const idx = this.strands.findIndex(s => s !== this.active);   // oldest finished string goes first
+      if (idx < 0) break;
       total -= this.strands[idx].pts.length;
       this.strands.splice(idx, 1);
     }
@@ -451,24 +639,31 @@ export class SprayEngine {
     return null;
   }
 
+  /** String point vs boxes and lines. The string is sticky: it grips the edge it
+      lands on and slides only slowly down the sides, so it snags and hangs. */
   collide(p) {
+    const R = STRING_R;
     for (const r of this.targets) {
-      if (p.x <= r.l || p.x >= r.r || p.y <= r.t || p.y >= r.b) continue;
-      if (p.py <= r.t + 1) {
-        // landed on top: rest there with friction (this is the "drape")
-        p.y = r.t;
-        p.px = p.x - (p.x - p.px) * 0.35;
+      const l = r.l - R, t = r.t - R, rr = r.r + R, b = r.b + R;
+      if (p.x <= l || p.x >= rr) continue;
+      // crossed the top edge this frame (also stops fast points falling through thin lines)
+      if (p.py <= t && p.y >= t) {
+        p.y = t;
+        p.px = p.x - (p.x - p.px) * 0.2;   // grip
         p.py = p.y;
-      } else {
-        const dl = p.x - r.l, dr = r.r - p.x, dt = p.y - r.t, db = r.b - p.y;
-        const m = Math.min(dl, dr, dt, db);
-        if (m === dt) p.y = r.t;
-        else if (m === db) p.y = r.b;
-        else if (m === dl) p.x = r.l;
-        else p.x = r.r;
+        continue;
+      }
+      if (p.y <= t || p.y >= b) continue;
+      const dl = p.x - l, dr = rr - p.x, dt = p.y - t, db = b - p.y;
+      const m = Math.min(dl, dr, dt, db);
+      if (m === dt) { p.y = t; p.px = p.x - (p.x - p.px) * 0.2; p.py = p.y; }
+      else if (m === db) p.y = b;
+      else {
+        p.x = m === dl ? l : rr;
+        p.py = p.y - (p.y - p.py) * 0.45;   // rubs along the side: hangs instead of sliding off
       }
     }
-    if (this.docH && p.y > this.docH - 2) { p.y = this.docH - 2; p.px = p.x - (p.x - p.px) * 0.5; }
+    if (this.docH && p.y > this.docH - R) { p.y = this.docH - R; p.px = p.x - (p.x - p.px) * 0.5; }
     if (p.x < 0) p.x = 0;
     else if (this.docW && p.x > this.docW) p.x = this.docW;
   }
@@ -606,11 +801,21 @@ export class SprayEngine {
         p.y += p.vy;
         const r = this.ledgeHit(p.x, prevY, p.y);
         if (r || (this.docH && p.y >= this.docH - GRID)) {
-          // stack on top of letters already resting at this spot
+          // land on the ledge; if that spot is taken, tumble to a free spot beside
+          // the pile first (keeps piles low), and only stack up when there's none
           const lx = snap(p.x);
           let restY = snap(r ? r.t - GRID : this.docH - GRID);
-          while (this.letters.some(l => Math.abs(l.x - lx) < 10 && l.y === restY)) restY -= 16;
-          this.letters.push({ x: lx, y: restY, ch: p.ch, color: p.color });
+          const taken = (x, y) => this.letters.some(l => Math.abs(l.x - x) < 10 && l.y === y);
+          const fits = x => !r || (x > r.l && x < r.r - 8);
+          let x = lx;
+          if (taken(x, restY)) {
+            const side = Math.random() < 0.5 ? -1 : 1;
+            for (const dx of [12 * side, -12 * side, 24 * side, -24 * side]) {
+              if (fits(lx + dx) && !taken(lx + dx, restY)) { x = lx + dx; break; }
+            }
+          }
+          while (taken(x, restY)) restY -= 16;
+          this.letters.push({ x, y: restY, ch: p.ch, color: p.color });
           if (this.letters.length > MAX_LETTERS) this.letters.shift();
           continue;
         }
@@ -643,21 +848,23 @@ export class SprayEngine {
       ctx.fillRect(x, y, GRID, GRID);
     }
 
-    // strands: walk each segment in grid steps and stamp squares
+    // silly string: one smooth, rounded line through each rope (curves between points)
+    ctx.lineWidth = STRING_W;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     for (const s of this.strands) {
       const pts = s.pts;
       if (pts.length < 2) continue;
-      fill(s.color);
-      for (let i = 0; i < pts.length - 1; i++) {
+      ctx.strokeStyle = this.colors[s.color] || s.color || this.colors.primary;
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x - sx, pts[0].y - sy);
+      for (let i = 1; i < pts.length - 1; i++) {
         const a = pts[i], b = pts[i + 1];
-        const ax = a.x - sx, ay = a.y - sy;
-        if ((ax < -40 || ax > w + 40 || ay < -40 || ay > h + 40) && (b.y - sy < -40 || b.y - sy > h + 40)) continue;
-        const steps = Math.max(1, Math.ceil(Math.max(Math.abs(b.x - a.x), Math.abs(b.y - a.y)) / GRID));
-        for (let k = 0; k < steps; k++) {
-          const t = k / steps;
-          ctx.fillRect(snap(a.x + (b.x - a.x) * t) - sx, snap(a.y + (b.y - a.y) * t) - sy, GRID, GRID);
-        }
+        ctx.quadraticCurveTo(a.x - sx, a.y - sy, (a.x + b.x) / 2 - sx, (a.y + b.y) / 2 - sy);
       }
+      const z = pts[pts.length - 1];
+      ctx.lineTo(z.x - sx, z.y - sy);
+      ctx.stroke();
     }
 
     // drip heads (taller squares)
@@ -679,6 +886,31 @@ export class SprayEngine {
       } else {
         ctx.fillRect(x, y, GRID, GRID);
       }
+    }
+
+    // paint bits and air being sucked into the vacuum: they speed up as they get close
+    // and swirl a little on the way
+    if (this.sucked.length) {
+      for (const s of this.sucked) {
+        if (s.t <= 0) continue;
+        const k = s.t * s.t;
+        const swirl = Math.sin(s.t * Math.PI) * 7;
+        const dx = s.tx - s.sx, dy = s.ty - s.sy, len = Math.hypot(dx, dy) || 1;
+        const x = s.sx + dx * k - (dy / len) * swirl - sx;
+        const y = s.sy + dy * k + (dx / len) * swirl - sy;
+        if (s.air) {
+          ctx.globalAlpha = 0.5 * (1 - s.t);
+          ctx.fillStyle = this.colors.fg;
+          ctx.fillRect(Math.round(x), Math.round(y), 3, 3);
+        } else {
+          const size = Math.max(2, Math.round(GRID * (1 - s.t * 0.5)));
+          ctx.globalAlpha = 1;
+          ctx.fillStyle = this.colors[s.color] || s.color || this.colors.primary;
+          ctx.fillRect(Math.round(x), Math.round(y), size, size);
+        }
+      }
+      ctx.globalAlpha = 1;
+      current = null;
     }
 
     // letters (falling + settled)

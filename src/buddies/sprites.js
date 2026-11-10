@@ -20,11 +20,11 @@ export const vicPalette = {
 const vicTop = [
   '....HHHHHHH.....',
   '...HHHHHHHHHH...',
-  '..HHHhHHHHHhHH..',
+  '..HHhHHHHHHhHH..',   // hair highlights, symmetric
   '..HHHHHHHHHHHH..',
   '..HHSSHHSSSHHH..',
   '..HSSSSSSSSSSH..',
-  '..HSEESSSEESSH..',
+  '..HSSEESSEESSH..',   // eyes close together, centred
   '..sSSSSSSSSSSs..',
   '...SSSSSSSSSS...',   // no nose shading: keeps a clean gap above the mouth
   '...SSSMSSMSSS...',   // smile corners (cols 6 and 9)
@@ -56,11 +56,59 @@ const vicWave = [
   setPx(vicStand, [...armUp, [7, 15, 'S'], [8, 15, 'S'], [9, 14, 'B'], [10, 14, 'B'], [11, 14, 'B'], [12, 14, 'B']]),
 ];
 
+// Facial expressions: row overrides for the face (rows 5, 6, 9, 10).
+// Only columns 2–13 are replaced, so a raised waving hand (col 14+) is kept.
+const vicFaces = {
+  happy:     { 5: '..HSSESSSSESSH..', 6: '..HSESESSESESH..', 9: '...SSSMMMMSSS...', 10: '....sSSMMSSs....' },  // ^ ^ eyes, big smile
+  surprised: { 5: '..HSSEESSEESSH..', 6: '..HSSEESSEESSH..', 9: '...SSSSMMSSSS...', 10: '....sSSMMSSs....' },  // tall eyes, O mouth
+  angry:     { 5: '..HSEESSSSEESH..', 6: '..HSSEESSEESSH..', 9: '...SSSSMMSSSS...', 10: '....sSMSSMSs....' },  // slanted brows over the eyes, frown
+  sad:       { 5: '..HSSSESSESSSH..', 6: '..HSSESSSSESSH..', 9: '...SSSSMMSSSS...', 10: '....sSMSSMSs....' },  // inner brows raised, eyes low, frown
+  neutral:   { 9: '...SSSSSSSSSS...', 10: '....sSSMMSSs....' },                                              // flat mouth
+};
+
+// Held up by the shirt (dragged with the mouse): arms shoot up beside the head,
+// the shirt rides up (belly + navel showing) and the legs kick in turn.
+const vicArmsUp = [
+  [7, 1, 'S'], [8, 1, 'S'], [9, 1, 'B'], [10, 1, 'B'], [11, 1, 'B'], [12, 1, 'B'], [13, 1, 'B'],
+  [7, 14, 'S'], [8, 14, 'S'], [9, 14, 'B'], [10, 14, 'B'], [11, 14, 'B'], [12, 14, 'B'], [13, 14, 'B'],
+];
+const vicHeldTop = setPx(vicTop, vicArmsUp).map((row, r) =>
+  r === 15 ? '..BBBBBBBBBBBB..'        // shirt hem pulled up
+  : r === 16 ? '...SSSSsSSSSS...'      // belly with a navel
+  : row);
+const vicHeld = [
+  [...vicHeldTop, '..PPP......PPP..', '.KKK........KKK.'],
+  [...vicHeldTop, '....PPP..PPP....', '....KKK.KKK.....'],
+];
+
+// Vacuuming: both hands out in front at chest height (the far arm is hidden
+// behind the body), legs running.
+const vicVacTop = setPx(vicTop, [
+  [14, 15, 'S'], [15, 14, 'B'], [15, 15, 'S'], [16, 14, '.'],   // arm + hands forward
+  [15, 1, '.'], [16, 1, '.'],                                    // other arm tucked away
+]);
+const vicVacuum = [
+  [...vicVacTop, '..PPP......PPP..', '.KKK........KKK.'],
+  [...vicVacTop, '....PPP..PPP....', '....KKK.KKK.....'],
+];
+
 export const vic = {
   palette: vicPalette,
+  faces: vicFaces,
+  faceCols: [2, 13],
   blinkChar: 's',            // eyes → skin-shade line while blinking
   stand: vicStand,
-  poses: { wave: vicWave },  // array of frames = animated pose
+  // laptop: June Vic types with alternating hands raised (the laptop prop sits beside him)
+  poses: {
+    wave: vicWave,
+    held: vicHeld,
+    fall: vicHeld[0],
+    vacuum: vicVacuum,
+    laptop: [
+      setPx(vicStand, [[14, 1, 'S'], [15, 1, 'B'], [14, 14, 'B'], [15, 14, 'S']]),
+      setPx(vicStand, [[14, 1, 'B'], [15, 1, 'S'], [14, 14, 'S'], [15, 14, 'B']]),
+    ],
+  },  // array of frames = animated pose
   walk: [
     [...vicTop, '..PPP......PPP..', '.KKK........KKK.'],
     [...vicTop, '....PPP..PPP....', '....KKK.KKK.....'],
@@ -112,17 +160,34 @@ function parseSpriteText(text) {
 const claudeFrames = parseSpriteText(claudeSpriteText);
 const claudeStand = claudeFrames.stand;
 
+// Claude's expressions (eye rows 2–3, columns 2–11).
+const claudeFaces = {
+  happy:     { 2: '..OOEOOOOEOO..', 3: 'OOOEOEOOEOEOOO' },   // ^ ^
+  surprised: { 2: '..OEEOOOOEEO..', 3: 'OOOEEOOOOEEOOO' },   // big eyes
+  angry:     { 2: '..OOOEOOEOOO..', 3: 'OOOOEOOOOEOOOO' },   // inner brows, eyes low
+  sad:       { 2: '..OOOOOOOOOO..', 3: 'OOOOEOOOOEOOOO' },   // eyes low
+  neutral:   {},
+};
+
 export const claude = {
   palette: claudePalette,
+  faces: claudeFaces,
+  faceCols: [2, 11],
   blinkChar: 'o',
   stand: claudeStand,
   poses: {
     nap: claudeFrames.nap || claudeStand,
     // typing: eyes on the laptop, arms tapping in turn
     laptop: [claudeFrames.type1 || claudeStand, claudeFrames.type2 || claudeStand],
+    // dragged with the mouse: legs kick in turn
+    held: [claudeFrames.walk || claudeStand, claudeFrames.walk2 || claudeStand],
+    // used as a vacuum by June Vic: legs kick the same way
+    vacuum: [claudeFrames.walk || claudeStand, claudeFrames.walk2 || claudeStand],
+    fall: claudeFrames.walk || claudeStand,
   },
-  // 4-legged gait: frame A and frame B alternate which pair of legs is down
-  walk: [claudeFrames.walk || claudeStand, claudeFrames.walk2 || claudeStand],
+  // Legs don't animate: Claude uses the standing pose while walking/running.
+  // (The [walk]/[walk2] frames in claude-sprite.txt are kept; put them back here to re-enable.)
+  walk: [claudeStand],
 };
 
 /* ---- Laptop prop (Claude's "Laptop" action) ------------------------------ */
@@ -139,10 +204,19 @@ const CODE = [            // what ends up on screen (10 px wide, D = empty, blan
   'DDWWWWDBBD',
 ];
 const blankLine = 'DDDDDDDDDD';
+// Laptop shape (14 × 11): lid with screen on top, wider keyboard deck below seen
+// slightly from above (keys + trackpad), darker front edge.
+const DECK = [
+  '.KKKKKKKKKKKK.',   // hinge / back of the deck
+  'KkKkKkKkKkKkKK',   // keys
+  'KKkKkKkKkKkKKK',   // keys (offset row)
+  'KKKKKTTTTKKKKK',   // trackpad
+  'MMMMMMMMMMMMMM',   // front edge
+];
 const screen = (lines, cursorAt) => {
   const rows = lines.map(l => l.split(''));
   if (cursorAt) rows[cursorAt[0]][cursorAt[1]] = 'C';
-  return ['GGGGGGGGGGGG', ...rows.map(r => `G${r.join('')}G`), 'GGGGGGGGGGGG', 'KKKKKKKKKKKK', '.kkkkkkkkkk.'];
+  return ['.GGGGGGGGGGGG.', ...rows.map(r => `.G${r.join('')}G.`), ...DECK];
 };
 // Reveal the code 2 "characters" (pixels) at a time, skipping empty space.
 function typingFrames() {
@@ -162,16 +236,31 @@ function typingFrames() {
   for (let k = 0; k < 3; k++) { frames.push(screen(done)); frames.push(screen(done, end)); }
   return frames;
 }
-const closed = ['............', '............', '............', '............', '............', '............', 'GGGGGGGGGGGG', 'KKKKKKKKKKKK', '.kkkkkkkkkk.'];
-const half = ['............', '............', '............', '............', 'GGGGGGGGGGGG', 'GDDDDDDDDDDG', 'GGGGGGGGGGGG', 'KKKKKKKKKKKK', '.kkkkkkkkkk.'];
+const empty = '..............';
+// closed: lid lying flat on the deck · half: lid tilting up
+const closed = [empty, empty, empty, empty, empty, '.GGGGGGGGGGGG.', ...DECK];
+const half = [empty, empty, empty, '.GGGGGGGGGGGG.', '.GDDDDDDDDDDG.', '.GGGGGGGGGGGG.', ...DECK];
 
 export const laptop = {
   palette: {
     G: '#1c2030', D: '#06080f', P: '#a78bfa', B: '#5b8def', Y: '#f7d44a',
-    W: '#dbe7ff', C: '#5cf2c8', K: '#b6bdcc', k: '#7d8597',
+    W: '#dbe7ff', C: '#5cf2c8',
+    K: '#c3c9d6', k: '#6f7789', T: '#a3aabb', M: '#5a6170',   // deck · keys · trackpad · front edge
   },
   opening: [closed, half],
   typing: typingFrames(),
+};
+
+/* ---- Emote icons (pop up next to a buddy's head) ------------------------- */
+export const emotes = {
+  '!': { palette: { Y: '#f7d44a' }, grid: ['YY', 'YY', 'YY', 'YY', '..', 'YY'] },
+  '?': { palette: { B: '#5b8def' }, grid: ['.BBB.', 'B...B', '...B.', '..B..', '.....', '..B..'] },
+  anger: { palette: { R: '#e5484d' }, grid: ['RR.RR', 'R...R', '.....', 'R...R', 'RR.RR'] },
+  sweat: { palette: { B: '#7cc8ff', W: '#ffffff' }, grid: ['..B..', '.BBB.', 'BBWBB', 'BBBBB', '.BBB.'] },
+  note: { palette: { P: '#a78bfa' }, grid: ['..PPP', '..P.P', '..P.P', 'PPP.P', 'PPP..'] },
+  dots: { palette: { K: '#6f7789' }, grid: ['K.K.K'] },
+  zz: { palette: { B: '#5b8def' }, grid: ['BBBB', '..B.', '.B..', 'BBBB'] },
+  sparkle: { palette: { Y: '#f7d44a' }, grid: ['..Y..', '..Y..', 'YYYYY', '..Y..', '..Y..'] },
 };
 
 /* ---- Heart ---------------------------------------------------------------- */
@@ -228,4 +317,16 @@ export const worldIcons = {
       '.####.####.',
     ],
   },
+};
+
+/* ---- Bug Attack only: fighting poses + Super Saiyan June Vic ---------------- */
+// side kick: the front leg shoots out at hip height (the other leg plants)
+const vicKick = [...vicTop.slice(0, 17), '...PPPPPPPPPPPPK', '...PPP..........', '...KKK..........'];
+// golden, spikier hair
+const ssjTop = vicTop.map((r, i) => (i === 0 ? '..H.HH.HH.HH.H..' : i === 1 ? '..HHHHHHHHHHHH..' : r));
+export const vicFight = {
+  kick: vicKick,
+  ssj: [...ssjTop, ...vicLegs],
+  ssjKick: [...ssjTop.slice(0, 17), '...PPPPPPPPPPPPK', '...PPP..........', '...KKK..........'],
+  ssjPalette: { ...vicPalette, H: '#f7c52b', h: '#fff3a0' },
 };

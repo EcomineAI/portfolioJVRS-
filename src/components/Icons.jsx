@@ -36,3 +36,7 @@ export const MoonIcon = props => (
 export const PlusIcon = props => (
   <svg viewBox="0 0 24 24" {...stroke} strokeWidth="2.5" {...props}><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
 );
+
+export const DownloadIcon = props => (
+  <svg viewBox="0 0 24 24" {...stroke} strokeWidth="2.5" {...props}><path d="M12 3v12" /><polyline points="6 10 12 16 18 10" /><path d="M4 20h16" /></svg>
+);

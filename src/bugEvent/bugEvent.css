@@ -1,0 +1,794 @@
+/* ==========================================================================
+   Bug Attack event (BugEvent.jsx) — styled with the site's own pixel theme
+   (card colours, 4px dark borders, hard shadows; no neon).
+   z-index: cracked bg -1 · page damage / falling cards 41 · buddies 42 ·
+            this overlay 44 · widgets 45 · header 50
+   ========================================================================== */
+
+/* ---- header button ------------------------------------------------------- */
+.bug-btn svg { width: 22px; height: 22px; }
+.bug-btn:hover svg { animation: bug-btn-wiggle 240ms steps(2, end) infinite; }
+.bug-btn.is-on { background: #ff4d4d; color: #fff; }
+.bug-btn.is-on svg { animation: bug-btn-wiggle 160ms steps(2, end) infinite; }
+@keyframes bug-btn-wiggle { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
+
+/* ---- overlay ----------------------------------------------------------------- */
+.bug-event { position: fixed; inset: 0; z-index: 44; pointer-events: none; overflow: hidden; }
+.bug-event__dim { position: absolute; inset: 0; background: #04070f; transition: opacity 120ms steps(2, end); }
+.bug-event__alarm {
+  position: absolute; inset: 0;
+  box-shadow: inset 0 0 0 6px #ff4d4d, inset 0 0 120px 20px color-mix(in srgb, #ff4d4d 40%, transparent);
+  animation: bug-alarm 700ms steps(2, end) infinite;
+}
+@keyframes bug-alarm { 50% { opacity: 0.15; } }
+.bug-event__flash { position: absolute; inset: 0; background: #fff; animation: bug-flash 300ms steps(3, end) forwards; }
+@keyframes bug-flash { from { opacity: 0.6; } to { opacity: 0; } }
+@keyframes bug-fade-in { from { opacity: 0; } }
+/* smoke rolling at the bottom + drifting pixel clouds */
+.bug-event__smoke {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 60vh;
+  background: linear-gradient(to top, color-mix(in srgb, #2b2f38 85%, transparent), color-mix(in srgb, #3b404a 40%, transparent) 55%, transparent);
+  transition: opacity 400ms steps(4, end);
+}
+.bug-event__smoke i {
+  position: absolute; bottom: 10%; width: 160px; height: 60px;
+  background: color-mix(in srgb, #4b5263 70%, transparent);
+  box-shadow: 40px -30px 0 10px color-mix(in srgb, #4b5263 60%, transparent), 100px -10px 0 0 color-mix(in srgb, #3b404a 70%, transparent), -30px -18px 0 4px color-mix(in srgb, #5b6273 50%, transparent);
+  animation: bug-cloud 9s steps(30, end) infinite;
+}
+.bug-event__smoke i:nth-child(1) { left: -10%; animation-duration: 11s; }
+.bug-event__smoke i:nth-child(2) { left: 20%; bottom: 30%; animation-duration: 8s; animation-delay: -3s; }
+.bug-event__smoke i:nth-child(3) { left: 50%; bottom: 5%; animation-duration: 12s; animation-delay: -6s; }
+.bug-event__smoke i:nth-child(4) { left: 75%; bottom: 40%; animation-duration: 9s; animation-delay: -1s; }
+.bug-event__smoke i:nth-child(5) { left: 35%; bottom: 55%; animation-duration: 14s; animation-delay: -8s; }
+@keyframes bug-cloud { from { translate: -120px 0; } to { translate: 220px -60px; } }
+.bug-shadow { position: absolute; left: 0; top: 0; opacity: 0.32; filter: brightness(0) blur(1px); }
+html.bug-punch main { scale: 1.015; }
+
+/* ---- the stage: a solid pixel platform in the site theme ------------------ */
+.bug-stage {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 46px, color-mix(in srgb, var(--fg) 10%, transparent) 46px 50px),
+    repeating-linear-gradient(0deg, transparent 0 20px, color-mix(in srgb, var(--fg) 10%, transparent) 20px 24px),
+    var(--card);
+  border-top: var(--border-w) solid var(--border);
+  box-shadow: 0 -6px 0 color-mix(in srgb, var(--fg) 18%, transparent);
+  animation: bug-stage-rise 700ms steps(7, end);
+}
+@keyframes bug-stage-rise { from { transform: translateY(100%); } to { transform: none; } }
+.bug-puddle {
+  position: absolute; left: 0; top: 0; height: 10px; translate: 0 -100%;
+  background: #7fbf3a; border: 3px solid var(--border);
+}
+.bug-puddle i { position: absolute; bottom: 100%; width: 8px; height: 12px; background: #c6ff4a; border: 2px solid var(--border); border-bottom: 0; animation: bug-flicker 220ms steps(2, end) infinite; }
+.bug-puddle i:nth-child(1) { left: 10%; }
+.bug-puddle i:nth-child(2) { left: 45%; height: 18px; animation-delay: -0.1s; }
+.bug-puddle i:nth-child(3) { left: 78%; }
+@keyframes bug-flicker { 50% { transform: scaleY(0.6); translate: 2px 0; } }
+.bug-shock {
+  position: absolute; left: 0; top: 0; width: 40px; height: 30px; translate: -50% -100%;
+  border: 5px solid var(--border); border-bottom: 0; border-radius: 50% 50% 0 0;
+  background: color-mix(in srgb, var(--card) 60%, transparent);
+}
+
+/* ---- cracked background (behind the content) ------------------------------ */
+.bug-bgfx { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.bug-bgfx svg { position: absolute; inset: 0; }
+.bug-bgcrack {
+  fill: none; stroke: #0b0b10; stroke-width: 5; stroke-linecap: square;
+  stroke-dasharray: 1; stroke-dashoffset: 1;
+  animation: bug-crack-grow 900ms steps(9, end) forwards;
+}
+@keyframes bug-crack-grow { to { stroke-dashoffset: 0; } }
+.bug-void, .bug-chunk { position: absolute; opacity: 0; }
+.bug-void { background: #0b0b10; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--fg) 40%, transparent); animation: bug-in 120ms steps(2, end) forwards; }
+.bug-chunk { background: var(--bg); border: 2px solid color-mix(in srgb, var(--fg) 40%, transparent); animation: bug-chunk-fall 1s steps(7, end) forwards; }
+@keyframes bug-in { to { opacity: 1; } }
+@keyframes bug-chunk-fall {
+  0% { opacity: 1; transform: none; }
+  15% { opacity: 1; transform: translate(2px, 3px) rotate(4deg); }
+  100% { opacity: 0; transform: translate(10px, 140px) rotate(28deg); }
+}
+.bug-bgfx.is-repairing .bug-bgcrack {   /* the crack un-draws, lit by a repair light */
+  stroke: var(--primary); filter: drop-shadow(0 0 3px var(--primary));
+  animation: bug-crack-heal 900ms steps(9, end) var(--hd, 0s) both !important;
+}
+@keyframes bug-crack-heal { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 1; } }
+.bug-bgfx.is-repairing .bug-void { opacity: 1; animation: bug-void-heal 700ms steps(4, end) var(--hd, 0s) both !important; }   /* holes fill in pixel by pixel */
+@keyframes bug-void-heal { from { clip-path: inset(0); } to { clip-path: inset(50%); } }
+.bug-bgfx.is-repairing .bug-chunk { animation: bug-chunk-return 700ms steps(7, end) var(--hd, 0s) both !important; }   /* fallen tiles fly back up */
+@keyframes bug-chunk-return { 0% { opacity: 1; transform: translate(10px, 140px) rotate(28deg); } 80% { opacity: 1; transform: none; } 100% { opacity: 0; transform: none; } }
+.bug-bgfx.is-repairing .bug-amb { transition: none; }
+@keyframes bug-heal { to { opacity: 0; scale: 0.5; } }
+
+/* ---- texts --------------------------------------------------------------------- */
+.bug-event__banner, .bug-event__big, .bug-event__stamp { position: absolute; left: 50%; margin: 0; font-family: var(--font-pixel); white-space: nowrap; translate: -50% 0; }
+.bug-event__banner {
+  top: calc(var(--header-h) + 100px);
+  padding: 12px 18px; font-size: clamp(0.75rem, 2.2vw, 1.15rem);
+  color: var(--fg); background: var(--card); border: var(--border-w) solid var(--border); box-shadow: var(--shadow-md);
+  animation: bug-banner 2.2s steps(8, end) forwards;
+}
+@keyframes bug-banner { 0% { transform: translateY(-40px); opacity: 0; } 10%, 85% { transform: none; opacity: 1; } 100% { transform: translateY(-20px); opacity: 0; } }
+.bug-event__big {
+  top: 36vh; font-size: clamp(2rem, 8vw, 4.5rem);
+  color: var(--card); text-shadow: 5px 5px 0 var(--border), -3px -3px 0 var(--border), 3px -3px 0 var(--border), -3px 3px 0 var(--border);
+  animation: bug-big 900ms steps(6, end) forwards;
+}
+.bug-event__big.is-ko { color: #ff4d4d; font-size: clamp(3rem, 12vw, 7rem); animation-duration: 1.6s; }
+@keyframes bug-big { 0% { transform: scale(2.2); opacity: 0; } 25% { transform: scale(1); opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+.bug-event__stamp {
+  top: 30vh; padding: 14px 22px; font-size: clamp(1rem, 4vw, 2rem);
+  color: var(--fg); background: var(--card); border: 6px solid var(--border); box-shadow: 8px 8px 0 var(--border);
+  rotate: -6deg; animation: bug-stamp 380ms steps(4, end);
+}
+@keyframes bug-stamp { from { transform: scale(3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.bug-event__progress, .bug-event__toast {
+  position: absolute; left: 50%; translate: -50% 0; margin: 0;
+  padding: 8px 14px; font-family: var(--font-ui); font-size: var(--text-lg); white-space: nowrap;
+  color: var(--fg); background: var(--card); border: var(--border-w) solid var(--border); box-shadow: var(--shadow-sm);
+}
+.bug-event__progress { top: calc(var(--header-h) + 18px); }
+.bug-event__toast { bottom: 120px; animation: buddy-pop 240ms steps(3, end); }
+.bug-namecard {
+  position: absolute; top: 40vh; left: 0; right: 0;
+  display: flex; align-items: baseline; justify-content: center; flex-wrap: wrap; gap: 4px 18px;
+  padding: 16px; background: var(--card); color: var(--fg);
+  border-block: var(--border-w) solid var(--border); box-shadow: 0 8px 0 color-mix(in srgb, var(--fg) 25%, transparent);
+  animation: bug-namecard 1.6s steps(8, end) forwards;
+}
+.bug-namecard__vs { font-family: var(--font-pixel); font-size: 1rem; color: #ff4d4d; }
+.bug-namecard__name { font-family: var(--font-pixel); font-size: clamp(0.9rem, 3vw, 1.6rem); }
+.bug-namecard__meta { font-family: var(--font-ui); font-size: var(--text-lg); color: var(--muted-fg); }
+@keyframes bug-namecard { 0% { transform: translateX(-100%); } 15%, 85% { transform: none; } 100% { transform: translateX(100%); opacity: 0; } }
+
+/* ---- HUD: team HP + lives, bug HP ------------------------------------------- */
+.bug-hud { position: absolute; top: calc(var(--header-h) + 12px); left: 12px; right: 12px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.bug-hp {
+  --hp: var(--primary);
+  display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+  background: var(--card); border: 3px solid var(--border); box-shadow: var(--shadow-sm);
+  font-family: var(--font-ui); font-size: var(--text-sm); color: var(--fg);
+}
+.bug-hp--e403 { --hp: #8b5cf6; }
+.bug-hp--halluc { --hp: #2fbfa0; }
+.bug-hp--rollback { --hp: #ff7a1a; }
+.bug-hp.is-rage { --hp: #ff4d4d; animation: bug-alarm 500ms steps(2, end) infinite; }
+.bug-hp__bar { display: block; width: clamp(80px, 16vw, 200px); height: 14px; background: color-mix(in srgb, var(--fg) 12%, var(--card)); border: 2px solid var(--border); }
+.bug-hp__bar span { display: block; height: 100%; background: repeating-linear-gradient(90deg, var(--hp) 0 8px, color-mix(in srgb, var(--hp) 75%, #000) 8px 10px); transition: width 120ms steps(2, end); }
+.bug-hp__lives { color: #ff4d4d; letter-spacing: 2px; }
+.bug-hp__lives s { color: color-mix(in srgb, var(--fg) 30%, transparent); text-decoration: none; }
+
+/* ---- the bug (humanoid) --------------------------------------------------------- */
+.bug-boss { position: absolute; left: 0; top: 0; translate: 0 -100%; }
+.bug-boss__hit { position: absolute; inset: 0; padding: 0; background: none; border: 0; pointer-events: auto; cursor: var(--cursor-pointer); display: flex; align-items: flex-end; justify-content: center; }
+.bug-boss__body { position: relative; display: block; transform-origin: 50% 100%; }
+.bug-boss__body svg { display: block; filter: drop-shadow(0 0 4px color-mix(in srgb, #ff2a2a 45%, transparent)) drop-shadow(2px 3px 0 #000); }
+.bug-boss.is-idle .bug-boss__body svg { animation: bug-breathe 900ms steps(2, end) infinite; }
+@keyframes bug-breathe { 50% { translate: 0 -2px; } }
+.bug-boss.is-hit .bug-boss__body svg { filter: brightness(2.4) saturate(0.2); }
+.bug-boss.is-punch .bug-boss__body { animation: bug-lean 200ms steps(2, end); }
+@keyframes bug-lean { 50% { rotate: calc(8deg); } }
+.bug-boss.is-bite-page .bug-boss__body svg, .bug-boss.is-bite .bug-boss__body svg { animation: bug-chomp 140ms steps(2, end) infinite; }
+@keyframes bug-chomp { 0%, 100% { translate: 0 0; } 50% { translate: 2px 4px; } }
+.bug-boss.is-rage .bug-boss__body svg { filter: drop-shadow(0 0 8px #ff2a2a) drop-shadow(2px 3px 0 #000); animation: bug-rage 160ms steps(2, end) infinite; }
+@keyframes bug-rage { 50% { translate: 2px -1px; } }
+.bug-boss.is-stunned .bug-boss__body svg { animation: bug-dizzy 300ms steps(2, end) infinite; }
+@keyframes bug-dizzy { 0%, 100% { rotate: -6deg; } 50% { rotate: 6deg; } }
+.bug-boss.is-breath .bug-boss__body svg, .bug-boss.is-spit .bug-boss__body svg { animation: bug-rage 90ms steps(2, end) infinite; }
+.bug-boss.is-down .bug-boss__body { transition: transform 300ms steps(4, end); }
+.bug-boss__talk { z-index: 3; }
+/* the chunk it lifts over its head before throwing */
+.bug-boss__chunk {
+  position: absolute; left: 50%; top: -26px; width: 40px; height: 26px; translate: -50% 0;
+  background: var(--card); border: 3px solid var(--border); box-shadow: 3px 3px 0 var(--border);
+}
+
+/* projectiles */
+.bug-proj { position: absolute; left: 0; top: 0; translate: -50% -50%; }
+.bug-proj--acid { width: 14px; height: 14px; background: #7fbf3a; border: 3px solid var(--border); }
+.bug-proj--debris { width: 34px; height: 22px; background: var(--card); border: 3px solid var(--border); box-shadow: 3px 3px 0 var(--border); }
+.bug-token {
+  position: absolute; left: 0; top: 0; translate: -50% -100%;
+  padding: 1px 4px; font-family: var(--font-ui); font-size: 14px;
+  color: var(--fg); background: #ffb38a; border: 2px solid var(--border);
+}
+/* DEPLOY beam */
+.bug-beam { position: absolute; top: 0; width: 0; }
+.bug-beam__target { position: absolute; left: 0; width: 60px; height: 60px; translate: -50% -50%; border: 4px dashed #ff4d4d; animation: bug-spin 600ms steps(8, end) infinite; }
+.bug-beam.is-firing::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 64px; translate: -50% 0;
+  background: repeating-linear-gradient(0deg, var(--card) 0 8px, color-mix(in srgb, var(--primary) 40%, var(--card)) 8px 16px);
+  border-inline: var(--border-w) solid var(--border);
+  animation: bug-beam 450ms steps(5, end) forwards;
+}
+@keyframes bug-beam { 0% { scale: 0.2 1; } 40% { scale: 1 1; } 100% { scale: 0.1 1; opacity: 0; } }
+
+/* ---- fighters + armour ----------------------------------------------- */
+.bug-fighter { position: absolute; left: 0; top: 0; translate: 0 -100%; }
+.bug-fighter__body { position: relative; display: block; }
+.bug-fighter__body > svg { display: block; }
+.bug-fighter--vic .bug-fighter__body svg { filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000); }
+.bug-armor { position: absolute; left: 0; top: 0; pointer-events: none; animation: bug-armor-on 260ms steps(3, end); }
+.bug-armor--claude { top: -6px; }
+@keyframes bug-armor-on { from { translate: 0 -30px; opacity: 0; } to { translate: 0 0; opacity: 1; } }
+.bug-fighter.is-run .bug-fighter__body, .bug-fighter.is-xkick .bug-fighter__body { animation: bug-run 200ms steps(2, end) infinite; }
+@keyframes bug-run { 50% { translate: 0 -3px; } }
+.bug-fighter--claude.is-run .bug-fighter__body { animation: claude-hop-low 240ms steps(5, end) infinite; transform-origin: 50% 100%; }
+.bug-fighter.is-hurt .bug-fighter__body, .bug-fighter.is-inv .bug-fighter__body { animation: bug-hurt 120ms steps(2, end) infinite; }
+@keyframes bug-hurt { 50% { opacity: 0.35; } }
+.bug-fighter.is-grabbed .bug-fighter__body { animation: buddy-wiggle 140ms steps(2, end) infinite; }
+.bug-fighter.is-down .bug-fighter__body { transform-origin: 50% 100%; }
+.bug-fighter.is-cheer .bug-fighter__body { animation: buddy-hop 400ms steps(4, end) infinite; }
+.bug-fighter--claude.is-spin .bug-fighter__body, .bug-fighter--claude.is-thrown .bug-fighter__body { animation: bug-spin 240ms steps(8, end) infinite; transform-origin: 50% 55%; }
+@keyframes bug-spin { to { rotate: 360deg; } }
+.bug-fighter--claude.is-ride .bug-fighter__body, .bug-fighter--claude.is-carried .bug-fighter__body, .bug-fighter--claude.is-tokens .bug-fighter__body { animation: buddy-wiggle 160ms steps(2, end) infinite; transform-origin: 50% 100%; }
+.bug-fighter--claude.is-vacuumed .bug-fighter__body { transform-origin: 50% 50%; transition: transform 120ms steps(2, end); }
+.bug-fighter--claude.is-vacuumed .bug-fighter__body > svg { animation: buddy-vac 90ms steps(2, end) infinite; }
+.bug-fighter--claude.is-vacuumed.is-gulp .bug-fighter__body > svg { animation: buddy-gulp 100ms steps(2, end) infinite; }
+.bug-fighter--claude.is-hop .bug-fighter__body { animation: bug-spin 400ms steps(8, end) 1; transform-origin: 50% 50%; }
+.bug-fighter.is-laptop .bug-fighter__body, .bug-fighter.is-typing .bug-fighter__body, .bug-fighter--vic.is-vacuum .bug-fighter__body { animation: buddy-type 200ms steps(2, end) infinite; }
+.bug-fighter--vic.is-deploy .bug-fighter__body { animation: bug-run 120ms steps(2, end) infinite; }
+.bug-fighter .buddy__bubble { z-index: 2; }
+.buddy__bubble.is-typing { font-family: var(--font-ui); }
+.bug-laptop { position: absolute; left: 0; top: 0; translate: 0 -100%; }
+
+
+.bug-wave {
+  position: absolute; left: 0; top: 0; translate: 0 -100%;
+  padding: 4px 8px; font-family: var(--font-ui); font-size: var(--text-base); white-space: nowrap;
+  color: var(--fg); background: var(--card); border: 3px solid var(--border); box-shadow: 3px 3px 0 var(--border);
+}
+.bug-prompt {
+  position: absolute; left: 0; top: 0; translate: -50% -50%;
+  padding: 3px 8px; font-family: var(--font-ui); font-size: var(--text-sm); white-space: nowrap;
+  color: var(--fg); background: var(--card); border: 2px solid var(--border); box-shadow: 3px 3px 0 var(--primary);
+}
+
+/* fallen letters (land on the stage) */
+.bug-letter { position: absolute; left: 0; top: 0; line-height: 1; white-space: pre; text-shadow: 2px 2px 0 color-mix(in srgb, #000 30%, transparent); }
+
+/* page-change pixel transition */
+.bug-wipe { position: absolute; inset: 0; pointer-events: auto; }
+.bug-wipe { will-change: transform; contain: strict; }
+.bug-wipe i { position: absolute; width: 96px; height: 96px; background: var(--wipe, var(--border)); will-change: scale; }
+.bug-wipe.is-in i { scale: 0; animation: bug-wipe-in 300ms steps(3, end) forwards; }
+.bug-wipe.is-out i { animation: bug-wipe-out 300ms steps(3, end) forwards; }
+@keyframes bug-wipe-in { to { scale: 1; } }
+@keyframes bug-wipe-out { from { scale: 1; } to { scale: 0; } }
+
+/* game over */
+.bug-gameover {
+  position: absolute; left: 50%; top: 30vh; translate: -50% 0;
+  display: grid; gap: 12px; justify-items: center; text-align: center;
+  padding: 24px 28px; pointer-events: auto;
+  color: var(--fg); background: var(--card); border: 6px solid var(--border); box-shadow: 8px 8px 0 var(--border);
+  font-family: var(--font-ui); font-size: var(--text-lg);
+  animation: bug-stamp 380ms steps(4, end);
+}
+.bug-gameover p { margin: 0; }
+.bug-gameover__title { font-family: var(--font-pixel); font-size: clamp(1.4rem, 5vw, 2.4rem); color: #ff4d4d; }
+.bug-gameover__actions { display: flex; gap: 12px; }
+
+/* ---- effects ---------------------------------------------------------------- */
+.bug-fx { position: absolute; left: 0; top: 0; white-space: nowrap; pointer-events: none; }
+.fx-dmg { font-family: var(--font-pixel); font-size: 1rem; color: #ffd166; text-shadow: 2px 2px 0 #000; }
+.fx-dmg--big { font-size: 1.4rem; color: #ff9f1c; }
+.fx-dmg--team { color: #ff4d4d; }
+.fx-err { font-family: var(--font-ui); font-size: var(--text-base); color: var(--fg); background: var(--card); padding: 1px 6px; border: 2px solid var(--border); }
+.fx-err--acid { color: #4f9a1f; }
+.fx-clank-text { color: var(--primary); }
+.fx-big { font-family: var(--font-pixel); font-size: 1.3rem; color: var(--card); text-shadow: 3px 3px 0 var(--border), -2px -2px 0 var(--border), 2px -2px 0 var(--border), -2px 2px 0 var(--border); }
+.fx-pow { color: #ffd166; }
+.fx-chomp { font-size: 1rem; color: #ff7a1a; }
+.fx-crack { font-size: 2rem; }
+.fx-prompt-hit { font-family: var(--font-ui); font-size: var(--text-base); color: var(--fg); background: var(--card); padding: 1px 6px; border: 2px solid var(--border); box-shadow: 2px 2px 0 var(--primary); }
+.fx-check { font-family: var(--font-pixel); font-size: 1.6rem; color: #2f9e44; text-shadow: 3px 3px 0 var(--border); }
+.fx-steam { font-family: var(--font-ui); font-size: var(--text-base); color: #fff; text-shadow: 2px 2px 0 #4b5263; }
+.fx-star { font-size: 18px; color: #ffd166; text-shadow: 2px 2px 0 #000; }
+.fx-px { width: 7px; height: 7px; background: #8b5cf6; }
+.fx-px--halluc { background: #2fbfa0; }
+.fx-px--rollback { background: #ff7a1a; }
+.fx-px--minion, .fx-px--elite { background: #3ddc5a; }
+.fx-debris { width: 9px; height: 9px; background: var(--card); border: 2px solid var(--border); }
+.fx-debris--dark { background: var(--border); }
+.fx-flame { width: 12px; height: 12px; background: #ff4d1a; border: 2px solid #7a1e10; }
+.fx-flame--y { background: #ffd166; }
+.fx-air { width: 4px; height: 4px; background: color-mix(in srgb, var(--fg) 45%, transparent); }
+.fx-clank { width: 24px; height: 24px; border: 3px solid #ffd166; rotate: 45deg; }
+.fx-armor { width: 48px; height: 22px; background: #c3c9d6; border: 3px solid var(--border); box-shadow: inset 0 -6px 0 #4c6ef6; }
+.fx-armor--claude { width: 36px; }
+.fx-suck { width: 12px; height: 8px; background: #6b7280; }
+.fx-suck--edgefire { background: #ff7a1a; }
+.fx-suck--letter, .fx-suck--sticker { width: auto; height: auto; padding: 0 3px; font-family: var(--font-pixel); font-size: 0.6rem; color: var(--fg); background: var(--card); border: 2px solid var(--border); }
+.fx-dust { width: 32px; height: 6px; background: color-mix(in srgb, #9aa3b5 60%, transparent); }
+.fx-x { width: 120px; height: 120px; }
+.fx-x::before, .fx-x::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 12px; translate: -50% 0; background: var(--card); border: 3px solid var(--border); }
+.fx-x::before { rotate: 45deg; }
+.fx-x::after { rotate: -45deg; }
+.fx-legs { width: 4px; height: 12px; background: #1b1426; box-shadow: 10px 2px 0 0 #1b1426, 20px 0 0 0 #1b1426, 30px 3px 0 0 #1b1426; animation: bug-legs 140ms steps(2, end) infinite; }
+@keyframes bug-legs { 50% { translate: 0 -5px; } }
+
+/* ---- page damage (page coordinates) -------------------------------------- */
+.bug-damage { position: absolute; top: 0; left: 0; width: 100%; height: 0; z-index: 41; pointer-events: none; }
+.bug-dmg { position: absolute; left: 0; top: 0; }
+/* big jagged bite out of the edge */
+.bug-dmg--bite {
+  background: var(--bg);
+  clip-path: polygon(0 0, 100% 0, 100% 30%, 88% 30%, 88% 55%, 76% 55%, 76% 80%, 60% 80%, 60% 100%, 40% 100%, 40% 80%, 24% 80%, 24% 55%, 12% 55%, 12% 30%, 0 30%);
+  filter: drop-shadow(0 3px 0 var(--fg)) drop-shadow(0 -1px 0 var(--fg));
+}
+/* cracks spreading through a card */
+.bug-dmg--crack { overflow: visible; }
+.bug-dmg--crack polyline { fill: none; stroke: var(--fg); stroke-width: 3; stroke-linecap: square; stroke-dasharray: 1; stroke-dashoffset: 1; animation: bug-crack-grow 500ms steps(5, end) forwards; }
+.bug-dmg--crack polyline { stroke-dasharray: 600; stroke-dashoffset: 600; }
+@keyframes bug-crack-grow { to { stroke-dashoffset: 0; } }
+/* pixel fire running along the top edge */
+.bug-dmg--edgefire { height: 30px; }
+.bug-dmg--edgefire i {
+  position: absolute; bottom: 0; width: 12px;
+  background:
+    linear-gradient(to top, #ff4d1a 0 40%, #ff9f1c 40% 70%, #ffd166 70%);
+  clip-path: polygon(33% 0, 66% 0, 66% 25%, 100% 25%, 100% 100%, 0 100%, 0 50%, 33% 50%);
+  animation: bug-fire 240ms steps(2, end) infinite;
+}
+@keyframes bug-fire { 50% { scale: 1 0.75; translate: 1px 0; } }
+.bug-dmg--plume { width: 40px; height: 80px; }
+.bug-dmg--plume i {
+  position: absolute; left: 8px; bottom: 0; width: 24px; height: 20px;
+  background: color-mix(in srgb, #3b404a 75%, transparent);
+  box-shadow: 10px -4px 0 2px color-mix(in srgb, #4b5263 60%, transparent);
+  animation: bug-plume 1.8s steps(9, end) infinite;
+}
+.bug-dmg--plume i:nth-child(2) { animation-delay: -0.45s; }
+.bug-dmg--plume i:nth-child(3) { animation-delay: -0.9s; }
+.bug-dmg--plume i:nth-child(4) { animation-delay: -1.35s; }
+@keyframes bug-plume { from { translate: 0 0; scale: 0.6; opacity: 0.9; } to { translate: 14px -100px; scale: 1.8; opacity: 0; } }
+.bug-dmg--sticker {
+  padding: 3px 8px; font-family: var(--font-pixel); font-size: 0.6rem; color: #fff;
+  background: #ff4d4d; border: 2px solid var(--border); box-shadow: 3px 3px 0 var(--border); white-space: nowrap;
+  animation: buddy-pop 200ms steps(3, end);
+}
+.bug-dmg--hole { border: 4px dashed color-mix(in srgb, var(--fg) 45%, transparent); background: repeating-linear-gradient(45deg, transparent 0 12px, color-mix(in srgb, var(--fg) 8%, transparent) 12px 16px); }
+.bug-damage.is-repairing .bug-dmg { animation: bug-heal 700ms steps(5, end) forwards; }
+.bug-damage.is-repairing .bug-dmg--bite, .bug-damage.is-repairing .bug-dmg--patch, .bug-damage.is-repairing .bug-dmg--hole { animation: bug-void-heal 700ms steps(4, end) forwards; }   /* bites close up */
+.bug-damage.is-repairing .bug-dmg--edgefire { animation: bug-fire-out 600ms steps(4, end) forwards; transform-origin: 50% 100%; }   /* fire shrinks into the edge */
+@keyframes bug-fire-out { to { scale: 1 0; } }
+.bug-damage.is-repairing .bug-dmg--plume { animation: bug-plume-out 800ms steps(5, end) forwards; }   /* smoke drifts away */
+@keyframes bug-plume-out { to { translate: 0 -50px; opacity: 0; } }
+.bug-damage.is-repairing .bug-dmg--sticker { animation: bug-peel 800ms steps(6, end) forwards; transform-origin: 0 0; }   /* stickers peel off */
+@keyframes bug-peel { 30% { rotate: 14deg; } to { rotate: 50deg; translate: 0 140px; opacity: 0; } }
+
+/* ---- real page elements (all undone at the end) ---------------------------- */
+.bug-glitch { animation: bug-el-glitch 1.6s steps(2, end) infinite; }
+@keyframes bug-el-glitch { 0%, 90%, 100% { translate: 0 0; } 93% { translate: 3px 0; } 96% { translate: -3px 1px; } }
+.bug-rumble { animation: bug-rumble 80ms steps(2, end) infinite; }
+@keyframes bug-rumble { 0%, 100% { translate: 0 0; } 50% { translate: 2px -1px; } }
+.bug-gone { visibility: hidden; }
+.bug-flyback { animation: bug-flyback 700ms steps(7, end); }
+@keyframes bug-flyback { from { translate: 0 110vh; rotate: 25deg; } to { translate: 0 0; rotate: 0deg; } }
+.bug-fallbox { position: absolute; top: 0; left: 0; width: 100%; height: 0; z-index: 41; pointer-events: none; }
+.bug-falling { box-sizing: border-box; overflow: hidden; pointer-events: none; transform-origin: 50% 50%; }
+html.bug-shake main, html.bug-shake .site-footer { animation: bug-shake 90ms steps(2, end) infinite; }
+@keyframes bug-shake { 0%, 100% { translate: 0 0; } 50% { translate: 4px -3px; } }
+
+/* ==========================================================================
+   v5: lock, camera + letterbox, armies, wings, shields, combo, finisher,
+   aftermath, last stand (tears → Super Saiyan), ending
+   ========================================================================== */
+.bug-cam { position: absolute; inset: 0; }
+
+/* LOCKED: internal links look sealed while the fight runs */
+html.bug-locked a[href^="/"]:not(.bug-event a) { opacity: 0.45; cursor: not-allowed; filter: grayscale(1); }
+.bug-locked-note {
+  position: absolute; margin: 0; translate: -50% -140%; padding: 6px 10px; white-space: nowrap;
+  font-family: var(--font-ui); font-size: var(--text-base); color: #fff; background: #ff4d4d;
+  border: 3px solid var(--border); box-shadow: 3px 3px 0 var(--border);
+  animation: buddy-pop 200ms steps(3, end);
+}
+
+/* sound: mute toggle + volume slider (top centre, between the HP bars) */
+.bug-sound {
+  position: absolute; left: 50%; top: calc(var(--header-h) + 12px); translate: -50% 0;
+  display: flex; align-items: center; pointer-events: auto;
+  background: var(--card); border: 3px solid var(--border); box-shadow: var(--shadow-sm);
+}
+.bug-sound .bug-mute { position: static; translate: none; border: 0; box-shadow: none; }
+.bug-mute {
+  position: absolute; left: 50%; top: calc(var(--header-h) + 12px); translate: -50% 0; width: 40px; height: 34px; padding: 0;
+  font-size: 18px; line-height: 1; pointer-events: auto; cursor: var(--cursor-pointer, pointer);
+  background: var(--card); color: var(--fg); border: 3px solid var(--border); box-shadow: var(--shadow-sm);
+}
+.bug-mute:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+
+/* cinematic letterbox */
+.bug-letterbox i { position: absolute; left: 0; right: 0; height: 9vh; background: #04070f; transition: translate 280ms steps(4, end); }
+.bug-letterbox i:first-child { top: var(--header-h); translate: 0 calc(-100% - var(--header-h)); }
+.bug-cam .bug-stage { left: -100vw; right: -100vw; }
+.bug-letterbox i:last-child { bottom: 0; translate: 0 100%; }
+.bug-letterbox.is-on i { translate: 0 0; }
+
+/* combo counter */
+.bug-combo {
+  position: absolute; right: 24px; top: calc(var(--header-h) + 80px); margin: 0;
+  font-family: var(--font-pixel); font-size: 1rem; color: var(--card);
+  text-shadow: 3px 3px 0 var(--border), -2px -2px 0 var(--border), 2px -2px 0 var(--border), -2px 2px 0 var(--border);
+  animation: bug-combo-pop 160ms steps(2, end);
+}
+.bug-combo b { font-size: 2.2rem; color: #ffd166; margin-right: 6px; }
+@keyframes bug-combo-pop { from { scale: 1.5; } }
+
+/* HUD: army pips */
+.bug-hp__pips { display: flex; gap: 3px; }
+.bug-hp__pips i { width: 8px; height: 10px; background: color-mix(in srgb, var(--fg) 20%, transparent); border: 2px solid var(--border); }
+.bug-hp__pips i.is-on { background: #3ddc5a; }
+.bug-hp__army { font-family: var(--font-pixel); font-size: 0.7rem; color: #3ddc5a; text-shadow: 1px 1px 0 var(--border); white-space: nowrap; }
+
+/* a broken card hanging by one corner, swinging (real element; undone by the fix-up) */
+.bug-hanging { animation: bug-hang 1.6s ease-in-out infinite alternate !important; z-index: 1; position: relative; }
+.bug-hanging--l { transform-origin: 2% 2%; --hang: 1; }
+.bug-hanging--r { transform-origin: 98% 2%; --hang: -1; }
+@keyframes bug-hang { from { rotate: calc(var(--hang) * 9deg); } to { rotate: calc(var(--hang) * 15deg); } }
+/* small bugs crawling on the background stay below the buddies */
+.bug-boss.is-ceil, .bug-boss.is-wall, .bug-boss.is-bg { z-index: 0; }
+.bug-boss.is-ceil .bug-boss__body svg, .bug-boss.is-wall .bug-boss__body svg, .bug-boss.is-bg .bug-boss__body svg { animation: bug-run 120ms steps(2, end) infinite; }
+
+/* bugs: armies, wings, shield, decoys */
+.bug-boss.is-untouchable .bug-boss__hit { cursor: not-allowed; }
+.bug-boss.is-decoy .bug-boss__body { opacity: 0.75; animation: bug-decoy 200ms steps(2, end) infinite; }
+@keyframes bug-decoy { 50% { opacity: 0.45; translate: 2px 0; } }
+.bug-boss--minion .bug-boss__body svg, .bug-boss--elite .bug-boss__body svg { filter: drop-shadow(2px 2px 0 #000); }
+.bug-boss--minion.is-walk .bug-boss__body svg { animation: bug-run 160ms steps(2, end) infinite; }
+.bug-boss--elite .bug-boss__body svg { filter: drop-shadow(0 0 4px #ff2a2a) drop-shadow(2px 2px 0 #000); }
+.bug-boss.is-dive .bug-boss__body { rotate: 25deg; }
+.bug-wings { position: absolute; left: 50%; bottom: 55%; translate: -60% 0; z-index: -1; }
+.bug-wings svg { display: block; filter: none !important; animation: none !important; }
+.bug-wings--big { bottom: 60%; }
+.bug-boss.is-watch .bug-boss__body svg { animation: bug-breathe 1.4s steps(2, end) infinite; }
+.bug-shield {
+  position: absolute; left: 50%; top: 10%; translate: -50% 0; z-index: 2; padding: 6px 8px; text-align: center;
+  font-family: var(--font-pixel); font-size: 0.55rem; line-height: 1.4; color: #fff;
+  background: color-mix(in srgb, #7a5cc4 70%, transparent); border: 3px solid #b48cff; box-shadow: 0 0 0 3px var(--border);
+  animation: bug-alarm 600ms steps(2, end) infinite;
+}
+.bug-shield i { display: block; font-style: normal; color: #ffd166; letter-spacing: 2px; }
+.bug-boss__chunk.is-bar { width: auto; height: auto; padding: 2px 6px; font-family: var(--font-ui); font-size: 14px; white-space: nowrap; color: var(--fg); }
+.bug-proj--bar { padding: 2px 6px; font-family: var(--font-ui); font-size: 14px; white-space: nowrap; color: var(--fg); background: var(--card); border: 3px solid var(--border); box-shadow: 3px 3px 0 #7a5cc4; }
+.bug-proj--cite { padding: 2px 6px; font-family: var(--font-ui); font-size: 14px; white-space: nowrap; color: #0d2a2a; background: #c9fff0; border: 2px solid var(--border); box-shadow: 2px 2px 0 #2fbfa0; }
+
+/* buddies: fighting poses, armour bits, letters going home */
+.bug-fighter.pose-punch .bug-fighter__body, .bug-fighter.pose-headbutt .bug-fighter__body { translate: calc(var(--dir) * 6px) 0; }
+.bug-fighter.pose-kick .bug-fighter__body, .bug-fighter.is-flykick .bug-fighter__body, .bug-fighter.is-jumpkick .bug-fighter__body { rotate: calc(var(--dir) * -8deg); }
+.bug-fighter.pose-upper .bug-fighter__body { translate: 0 -8px; }
+.bug-fighter--claude.pose-spin .bug-fighter__body { animation: bug-spin 200ms steps(8, end) infinite; transform-origin: 50% 55%; }
+.bug-armorbit { position: absolute; left: 0; top: 0; background: #c3c9d6; border: 2px solid var(--border); box-shadow: inset 0 -3px 0 #4c6ef6; }
+.bug-letter.is-returning { text-shadow: 0 0 6px #ffd166; }
+
+/* fx */
+.fx-impact {
+  width: 36px; height: 36px; background: #fff;
+  clip-path: polygon(50% 0, 62% 35%, 100% 22%, 70% 50%, 100% 78%, 62% 65%, 50% 100%, 38% 65%, 0 78%, 30% 50%, 0 22%, 38% 35%);
+  filter: drop-shadow(2px 2px 0 #000);
+}
+.fx-impact--big { width: 54px; height: 54px; margin: -9px; background: #ffd166; }
+.fx-speed { width: 120px; height: 60px; background: repeating-linear-gradient(0deg, transparent 0 8px, color-mix(in srgb, var(--fg) 45%, transparent) 8px 11px); }
+.fx-boom { width: 320px; height: 320px; border-radius: 50%; border: 14px solid #ffd166; box-shadow: 0 0 0 10px #ff7a1a, inset 0 0 0 12px #ff4d1a; animation: bug-boom 700ms steps(6, end) forwards; }
+.fx-boom--sm { width: 160px; height: 160px; border-width: 8px; box-shadow: 0 0 0 6px #ff7a1a, inset 0 0 0 8px #ff4d1a; }
+@keyframes bug-boom { from { scale: 0.1; } to { scale: 1.2; opacity: 0; } }
+.fx-ember { width: 5px; height: 5px; background: #ff9f1c; box-shadow: 0 0 4px #ff4d1a; }
+.fx-tear { width: 5px; height: 8px; background: #7cc8ff; border: 1px solid #1a4f8a; }
+.fx-rock { width: 12px; height: 10px; background: #6b7280; border: 2px solid var(--border); }
+.fx-bolt { width: 18px; height: 100vh; background: #fff3a0; filter: drop-shadow(0 0 6px #f7c52b); clip-path: polygon(40% 0, 100% 0, 60% 35%, 100% 35%, 20% 100%, 45% 50%, 0 50%); }
+.fx-afterimage { width: 48px; height: 66px; background: color-mix(in srgb, #f7c52b 45%, transparent); }
+.fx-heal { width: 8px; height: 8px; background: #8cffb0; box-shadow: 0 0 6px #fff3a0; }
+.fx-ghost { width: 66px; height: 72px; background: color-mix(in srgb, #ff7a1a 35%, transparent); border: 2px dashed #ff7a1a; }
+.fx-floorcrack { width: 60px; height: 10px; background: #0b0b10; clip-path: polygon(0 50%, 20% 0, 40% 60%, 60% 10%, 80% 70%, 100% 30%, 100% 100%, 0 100%); }
+.fx-floorcrack--big { width: 180px; height: 16px; }
+.fx-err--block { color: #fff; background: #7a5cc4; }
+.fx-err--heal { color: #fff; background: #ff7a1a; }
+
+/* finisher: screen crack */
+.bug-screencrack { position: absolute; inset: 0; }
+.bug-screencrack polyline { fill: none; stroke: #fff; stroke-width: 4; filter: drop-shadow(2px 2px 0 #000); }
+.bug-screencrack.is-fading { opacity: 0; transition: opacity 600ms steps(4, end); }
+
+/* aftermath: damage survey + coloured stage wipe */
+.bug-survey {
+  position: absolute; left: 50%; top: 22vh; margin: 0; translate: -50% 0; rotate: -4deg; padding: 10px 16px;
+  font-family: var(--font-pixel); font-size: clamp(0.9rem, 3vw, 1.5rem); color: #fff; background: #ff4d4d; white-space: nowrap;
+  border: 5px solid var(--border); box-shadow: 6px 6px 0 var(--border); animation: bug-stamp 300ms steps(4, end);
+}
+.bug-wipe__label {
+  position: absolute; left: 50%; top: 45%; margin: 0; translate: -50% -50%;
+  font-family: var(--font-pixel); font-size: clamp(1.6rem, 6vw, 3.4rem); color: #fff;
+  text-shadow: 4px 4px 0 #04070f; animation: bug-big 1.6s steps(6, end) forwards;
+}
+
+/* last stand */
+html.bug-sad main, html.bug-sad .bug-bgfx, html.bug-sad .bug-damage { filter: grayscale(0.7) brightness(0.85); }
+.bug-fighter--vic.is-cry .bug-fighter__body { animation: bug-sob 260ms steps(2, end) infinite; }
+@keyframes bug-sob { 50% { translate: 1px 1px; } }
+.bug-tears { position: absolute; inset: 0; pointer-events: none; }
+.bug-tears i { position: absolute; top: 33%; width: 3px; height: 22%; background: #7cc8ff; opacity: 0.85; }
+.bug-tears i:first-child { left: 22%; }
+.bug-tears i:last-child { left: 72%; }
+.bug-aura { position: absolute; pointer-events: none; }
+.bug-fighter--vic.is-ssj .bug-fighter__body > svg { filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000); }
+.bug-fighter--vic.is-power .bug-fighter__body { animation: bug-rage 70ms steps(2, end) infinite; }
+.bug-fighter--vic.is-ssjfly .bug-fighter__body { rotate: calc(var(--dir) * 20deg); }
+.bug-fighter--vic.is-heal .bug-fighter__body > svg { filter: drop-shadow(0 0 8px #8cffb0); }
+
+/* ending: victory pose, results card, fast-forward, shine, dance */
+.bug-fighter.is-pose .bug-fighter__body { animation: bug-breathe 700ms steps(2, end) infinite; }
+.bug-fighter--claude.is-dance .bug-fighter__body { animation: buddy-hop 300ms steps(4, end) infinite; transform-origin: 50% 100%; }
+.bug-results {
+  position: absolute; left: 50%; top: 18vh; translate: -50% 0; min-width: min(340px, calc(100vw - 32px));
+  padding: 18px 22px; color: var(--fg); background: var(--card);
+  border: 6px solid var(--border); box-shadow: 8px 8px 0 var(--border);
+  font-family: var(--font-ui); font-size: var(--text-lg);
+  animation: bug-results-in 400ms steps(5, end);
+}
+@keyframes bug-results-in { from { translate: -50% -60vh; } }
+.bug-results__title { margin: 0 0 10px; font-family: var(--font-pixel); font-size: 1.1rem; text-align: center; }
+.bug-results dl { display: grid; grid-template-columns: 1fr auto; gap: 4px 18px; margin: 0; }
+.bug-results dt { color: var(--muted-fg); }
+.bug-results dd { margin: 0; text-align: right; }
+.bug-results__rank { margin: 14px 0 0; text-align: center; font-family: var(--font-pixel); font-size: 1rem; }
+.bug-results__rank b { display: inline-block; margin-left: 8px; font-size: 2.6rem; color: #ffd166; text-shadow: 4px 4px 0 var(--border); animation: bug-stamp 300ms steps(4, end) 1.1s both; }
+.bug-results__rank.is-S b { color: #ff4dd2; }
+.bug-ff {
+  position: absolute; right: 16px; top: calc(var(--header-h) + 18px); margin: 0; padding: 6px 10px;
+  font-family: var(--font-pixel); font-size: 0.8rem; color: var(--fg); background: var(--card);
+  border: 3px solid var(--border); animation: bug-alarm 500ms steps(2, end) infinite;
+}
+.bug-shine {
+  position: absolute; inset: 0;
+  background: linear-gradient(105deg, transparent 40%, color-mix(in srgb, #fff 55%, transparent) 48% 52%, transparent 60%);
+  animation: bug-shine 1.1s steps(11, end) forwards;
+}
+@keyframes bug-shine { from { translate: -100% 0; } to { translate: 100% 0; } }
+
+/* ==========================================================================
+   v6: card decals, telegraphs, dodges, swarm arrivals, stage 1 extras,
+   the sky battle (storm, clashes, beam struggle)
+   ========================================================================== */
+/* card decals live inside the card, so they tilt / swing / fall with it */
+.bug-decal-host { position: relative; }
+.bug-decals { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; overflow: visible; }
+.bug-decals .bug-dmg { position: absolute; left: 0; top: 0; }
+
+/* telegraph: a "!" pops over a bug about to attack */
+.bug-tele {
+  position: absolute; left: 50%; top: -30px; translate: -50% 0; z-index: 4;
+  font-family: var(--font-pixel); font-size: 1.3rem; color: #ffd166; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;
+  animation: bug-tele 150ms steps(2, end) infinite;
+}
+@keyframes bug-tele { 50% { translate: -50% -4px; } }
+.bug-dropshadow { position: absolute; left: 0; top: 0; width: 44px; height: 8px; border-radius: 50%; background: color-mix(in srgb, #000 45%, transparent); transform-origin: 50% 50%; }
+
+/* dodges, shake-off, bubble shield, vanish */
+.bug-fighter.is-dodge .bug-fighter__body { transform-origin: 50% 55%; }
+.bug-fighter.is-shakeoff .bug-fighter__body { animation: bug-spin 120ms steps(6, end) infinite; transform-origin: 50% 55%; }
+.bug-bubble-shield {
+  position: absolute; left: -16px; right: -16px; top: -16px; bottom: -6px; z-index: 3; pointer-events: none;
+  border: 3px solid #7cc8ff; border-radius: 50%; background: color-mix(in srgb, #7cc8ff 18%, transparent);
+  box-shadow: 0 0 10px #7cc8ff; animation: bug-alarm 400ms steps(2, end) infinite;
+}
+.bug-fighter.is-vanish, .bug-boss.is-vanish { opacity: 0; }
+.bug-boss.is-latch .bug-boss__body svg { animation: bug-chomp 120ms steps(2, end) infinite; }
+.bug-boss.is-juggled .bug-boss__body { animation: bug-spin 300ms steps(8, end) infinite; transform-origin: 50% 50%; }
+.bug-boss--blocked .bug-boss__body svg { filter: drop-shadow(0 0 3px #8b5cf6) drop-shadow(2px 2px 0 #000); }
+
+/* stage 1: the ripped-off card club, the laser, the [Retry] button */
+.bug-club { pointer-events: none; z-index: 43; box-shadow: 6px 6px 0 color-mix(in srgb, #000 40%, transparent); }
+.bug-laser { position: absolute; height: 12px; background: #ff4d4d; box-shadow: 0 0 10px #ff4d4d, 0 0 0 3px #7a0f18; }
+.bug-laser.is-warn { height: 2px; background: repeating-linear-gradient(90deg, #ff4d4d 0 10px, transparent 10px 18px); box-shadow: none; animation: bug-alarm 120ms steps(2, end) infinite; }
+.bug-retry {
+  position: absolute; z-index: 5; pointer-events: auto; cursor: var(--cursor-pointer, pointer);
+  font-size: var(--text-sm); animation: buddy-pop 200ms steps(3, end), bug-tele 300ms steps(2, end) infinite 200ms;
+}
+
+/* stage 2: the chat reply that hatches TokenBugs */
+.bug-chat {
+  position: absolute; left: 0; top: 0; width: 280px; padding: 8px 10px; z-index: 2;
+  font-family: var(--font-ui); font-size: 14px; line-height: 18px; color: var(--fg);
+  background: var(--card); border: 3px solid #2fbfa0; box-shadow: 4px 4px 0 var(--border);
+}
+.bug-chat p { margin: 0; white-space: nowrap; }
+.bug-chat p:first-child { color: #2fbfa0; }
+.bug-chat p.is-hatched { opacity: 0.35; text-decoration: line-through; }
+.bug-hatch {
+  position: absolute; left: 0; top: 0; padding: 0 4px; white-space: nowrap;
+  font-family: var(--font-ui); font-size: 13px; color: #0d2a2a; background: #c9fff0; border: 2px solid var(--border);
+  animation: bug-hatch 550ms steps(6, end) forwards;
+}
+@keyframes bug-hatch { 70% { filter: none; } 85% { filter: hue-rotate(90deg) saturate(3); scale: 0.7; } 100% { scale: 0.2; opacity: 0.4; } }
+
+/* stage 3: Askademic's booking badge */
+.bug-badge {
+  position: absolute; left: 0; top: 0; z-index: 3; padding: 4px 8px; white-space: nowrap;
+  font-family: var(--font-pixel); font-size: 0.7rem; color: #fff; background: #ff4d4d;
+  border: 3px solid var(--border); box-shadow: 3px 3px 0 var(--border); animation: bug-tele 200ms steps(2, end) infinite;
+}
+.bug-letter.is-kicked { text-shadow: 0 0 6px #ffd166, 2px 2px 0 #000; }
+
+/* sky battle: storm, clash rings, fists, the beam struggle */
+.bug-storm { position: absolute; inset: 0; pointer-events: none; transition: opacity 1.2s steps(6, end); }
+.bug-storm.is-fading { opacity: 0; }
+.bug-storm__clouds {
+  position: absolute; left: 0; right: 0; top: 0; height: 22vh;
+  background:
+    radial-gradient(ellipse 18% 60% at 10% 30%, #1a1f2b 60%, transparent 61%),
+    radial-gradient(ellipse 22% 70% at 35% 20%, #222838 60%, transparent 61%),
+    radial-gradient(ellipse 20% 65% at 62% 28%, #1a1f2b 60%, transparent 61%),
+    radial-gradient(ellipse 24% 70% at 88% 22%, #222838 60%, transparent 61%),
+    linear-gradient(to bottom, #0e121b, transparent);
+  animation: bug-cloud 14s steps(40, end) infinite alternate;
+}
+.bug-storm__rain {
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(105deg, transparent 0 22px, color-mix(in srgb, #9fc4ff 35%, transparent) 22px 24px);
+  background-size: 100% 60px; animation: bug-rain 260ms steps(4, end) infinite;
+}
+@keyframes bug-rain { to { background-position: -16px 60px; } }
+.fx-bolt--storm { width: 26px; }
+.fx-ring { width: 180px; height: 180px; border-radius: 50%; border: 8px solid #fff; box-shadow: 0 0 0 4px #ffd166, inset 0 0 0 4px #ffd166; animation: bug-boom 500ms steps(5, end) forwards; }
+.fx-ring--big { width: 320px; height: 320px; }
+.fx-fist { width: 22px; height: 18px; background: #f2c9a0; border: 3px solid var(--border); box-shadow: -10px 0 0 color-mix(in srgb, #fff 40%, transparent); }
+.bug-boss.is-sky .bug-boss__body::after, .bug-boss.is-beam .bug-boss__body::after {
+  content: ''; position: absolute; left: 30%; right: 30%; bottom: -16px; height: 18px;
+  background: linear-gradient(to bottom, #ff4d1a, #ffd166 60%, transparent); clip-path: polygon(0 0, 100% 0, 70% 100%, 50% 60%, 30% 100%);
+  animation: bug-fire 90ms steps(2, end) infinite;
+}
+.bug-boss { opacity: calc(1 - var(--dis, 0)); }
+.bug-kbeam { position: absolute; height: 28px; translate: 0 -50%; z-index: 3; animation: bug-run 80ms steps(2, end) infinite; }
+.bug-kbeam--vic { background: linear-gradient(to bottom, #f7c52b, #fff3a0 45%, #fff 50%, #fff3a0 55%, #f7c52b); box-shadow: 0 0 14px #f7c52b; }
+.bug-kbeam--vic.is-win { height: 80px; box-shadow: 0 0 30px #fff3a0; }
+.bug-kbeam--boss { background: linear-gradient(to bottom, #ff4d1a, #ffb020 45%, #fff 50%, #ffb020 55%, #ff4d1a); box-shadow: 0 0 14px #ff7a1a; }
+.bug-kclash {
+  position: absolute; width: 64px; height: 64px; translate: -50% -50%; z-index: 4; border-radius: 50%;
+  background: radial-gradient(circle, #fff 30%, #ffd166 55%, transparent 70%); animation: bug-kclash 70ms steps(2, end) infinite;
+}
+@keyframes bug-kclash { 50% { scale: 1.25; } }
+/* ==========================================================================
+   v6.1: pixel-flame Super Saiyan aura, DBZ impact frames, speed lines, epic beams
+   ========================================================================== */
+/* the aura: 4 pixel flame frames (bugSprites.js AURA_FRAMES), flickering behind June Vic */
+.bug-aura {
+  left: 50%; right: auto; top: auto; bottom: -10px; z-index: -1;
+  translate: -50% 0; transform-origin: 50% 100%;
+  background: none; clip-path: none;
+  opacity: var(--aura, 1); scale: calc(0.55 + var(--aura, 1) * 0.55);
+  animation: bug-aura-pulse 140ms steps(2, end) infinite;
+}
+.bug-aura { width: max-content; }
+.bug-aura svg { display: block; max-width: none; }
+@keyframes bug-aura-pulse { 50% { translate: -50% -3px; } }
+
+/* DBZ impact frame: the whole screen inverts for a frame */
+.bug-impactframe { position: absolute; inset: 0; z-index: 6; backdrop-filter: invert(1) contrast(1.6); background: color-mix(in srgb, #fff 8%, transparent); }
+/* speed lines rushing toward the centre during the sky battle */
+.bug-speedlines {
+  position: absolute; inset: -20%; pointer-events: none; opacity: 0.22;
+  background: repeating-conic-gradient(from 0deg at 50% 50%, transparent 0deg 4deg, color-mix(in srgb, #fff 70%, transparent) 4deg 4.6deg, transparent 4.6deg 9deg);
+  mask-image: radial-gradient(circle at 50% 50%, transparent 28%, #000 70%);
+  animation: bug-speedlines 120ms steps(2, end) infinite;
+}
+@keyframes bug-speedlines { 50% { rotate: 2deg; scale: 1.03; } }
+
+/* sparks, enemy fists, boss afterimages */
+.fx-spark { width: 6px; height: 6px; background: #fff; box-shadow: 0 0 6px #ffd166; }
+.fx-spark--gold { background: #ffd83b; box-shadow: 0 0 8px #ffb21f; }
+.fx-fist--boss { background: #3a0f0a; box-shadow: 10px 0 0 color-mix(in srgb, #ff7a1a 50%, transparent); }
+.fx-afterimage--boss { width: 66px; height: 72px; background: color-mix(in srgb, #ff4d1a 40%, transparent); }
+
+/* THE BEAM STRUGGLE, 10× */
+.bug-kbeam { height: 40px; filter: drop-shadow(0 0 10px currentColor) drop-shadow(0 0 24px currentColor); animation: bug-kbeam-wobble 60ms steps(2, end) infinite; }
+@keyframes bug-kbeam-wobble { 50% { scale: 1 1.18; } }
+.bug-kbeam--vic { color: #ffd83b; background: linear-gradient(to bottom, #f7a21b, #ffd83b 25%, #fff3a0 42%, #fff 50%, #fff3a0 58%, #ffd83b 75%, #f7a21b); }
+.bug-kbeam--vic.is-win { height: 190px; color: #fff3a0; }
+.bug-kbeam--boss { color: #ff7a1a; background: linear-gradient(to bottom, #c2200b, #ff4d1a 25%, #ffb020 42%, #fff 50%, #ffb020 58%, #ff4d1a 75%, #c2200b); }
+.bug-kclash {
+  width: 130px; height: 130px;
+  background:
+    radial-gradient(circle, #fff 22%, #fff3a0 34%, #ffd83b 46%, color-mix(in srgb, #ff7a1a 60%, transparent) 58%, transparent 70%);
+  box-shadow: 0 0 40px 10px color-mix(in srgb, #ffd83b 70%, transparent);
+}
+.bug-kclash::before {
+  content: ''; position: absolute; inset: -60px; border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, color-mix(in srgb, #fff 85%, transparent) 0deg 3deg, transparent 3deg 22deg);
+  mask-image: radial-gradient(circle, transparent 30%, #000 45%, transparent 72%);
+  animation: bug-spin 400ms linear infinite;
+}
+
+/* ==========================================================================
+   v6.2: the sky escalates with the fight, Claude's last fight, boss moves
+   ========================================================================== */
+/* Claude's power-up + his last fight */
+.fx-spark--orange { background: #ff8a4c; box-shadow: 0 0 6px #d9532b; }
+.fx-ring--orange { border-color: #ffe9d6; box-shadow: 0 0 0 4px #ff8a4c, inset 0 0 0 4px #ff8a4c; }
+.fx-tok { padding: 0 3px; font-family: var(--font-ui); font-size: 12px; color: #1a0705; background: #ffb38a; border: 2px solid var(--border); }
+.fx-px--claude { background: #d77757; }
+.fx-afterimage--claude { width: 42px; height: 42px; background: color-mix(in srgb, #ff8a4c 45%, transparent); }
+.bug-fighter--claude.is-held .bug-fighter__body { animation: buddy-wiggle 160ms steps(2, end) infinite; transform-origin: 50% 0; }
+.bug-fighter--claude.is-cpower .bug-fighter__body { animation: bug-rage 70ms steps(2, end) infinite; }
+.bug-fighter--vic.is-buried .bug-fighter__body { animation: bug-rage 90ms steps(2, end) infinite; }
+.bug-fighter--vic.is-kneel .bug-fighter__body { animation: bug-sob 500ms steps(2, end) infinite; }
+/* boss moves */
+.bug-boss.is-spin .bug-boss__body { animation: bug-spin 200ms steps(8, end) 2; transform-origin: 50% 60%; }
+.bug-boss.is-block .bug-boss__body svg { filter: drop-shadow(0 0 0 #fff) drop-shadow(2px 3px 0 #000); }
+.bug-boss.is-hold .bug-boss__body svg { animation: bug-rage 140ms steps(2, end) infinite; }
+
+/* ---- v6.3: EPIC = more cracks, glitches, bugs crawling in the background ---- */
+/* ambient bugs behind the page (inside the cracked background layer) */
+.bug-amb { position: absolute; left: 0; top: 0; opacity: 0.8; transform-origin: 50% 50%; }
+.bug-amb svg { display: block; max-width: none; filter: drop-shadow(0 0 2px #ff3b2a); }
+/* glitch burst, in the site's own dot-matrix theme: rows of 8px blocks jump sideways, dead pixels blink */
+.bug-glitchrows { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+.bug-glitchrows i {
+  position: absolute; left: 0; right: 0; translate: var(--dx) 0; opacity: 0.6;
+  background: repeating-linear-gradient(90deg, var(--fg) 0 8px, transparent 8px 16px, var(--card) 16px 32px, transparent 32px 40px, var(--border) 40px 48px, transparent 48px 72px);
+  animation: bug-row-jump 110ms steps(1, end) infinite;
+}
+.bug-glitchrows i.is-1 { background: repeating-linear-gradient(90deg, var(--primary) 0 8px, transparent 8px 24px, var(--fg) 24px 32px, transparent 32px 56px); }
+.bug-glitchrows i.is-2 { background: repeating-linear-gradient(90deg, var(--card) 0 16px, var(--border) 16px 24px, transparent 24px 48px); opacity: 0.85; }
+@keyframes bug-row-jump { 0% { translate: var(--dx) 0; } 50% { translate: calc(var(--dx) * -1) 0; } }
+.bug-glitchrows b {
+  position: absolute; width: 8px; height: 8px; background: var(--fg);
+  box-shadow: 8px 0 0 var(--fg), 0 8px 0 var(--border), 16px 8px 0 var(--fg), 8px 16px 0 var(--primary);
+  animation: bug-alarm 80ms steps(2, end) infinite;
+}
+.bug-glitchrows b.is-1 { background: var(--primary); box-shadow: 8px 8px 0 var(--fg), 16px 0 0 var(--card); }
+.bug-glitchrows b.is-2 { background: var(--card); box-shadow: -8px 0 0 var(--border), 8px 8px 0 var(--fg), 0 16px 0 var(--fg); }
+/* a card glitching: it jumps in 4px steps and its content drops out for a frame */
+.bug-glitch-px { animation: bug-px-jitter 90ms steps(1, end) 5 !important; }
+.bug-glitch-px > * { animation: bug-dropout 450ms steps(1, end); }
+@keyframes bug-px-jitter { 0% { translate: 4px 0; } 33% { translate: -4px 4px; } 66% { translate: 0 -4px; } 100% { translate: 0 0; } }
+@keyframes bug-dropout { 40% { opacity: 0; } 50% { opacity: 1; } }
+/* pixel noise over a glitching card, and the error stamp */
+.fx-pxnoise {
+  background:
+    repeating-linear-gradient(0deg, transparent 0 8px, color-mix(in srgb, var(--fg) 25%, transparent) 8px 12px),
+    repeating-linear-gradient(90deg, transparent 0 12px, color-mix(in srgb, var(--primary) 30%, transparent) 12px 16px);
+  animation: bug-row-jump 70ms steps(1, end) infinite; --dx: 4px;
+}
+.fx-glitchstamp {
+  padding: 2px 6px; font-family: var(--font-pixel); font-size: 0.6rem; color: var(--card);
+  background: var(--fg); border: 2px solid var(--border); box-shadow: 3px 3px 0 var(--primary);
+  animation: bug-alarm 90ms steps(2, end) infinite;
+}
+.fx-check--sm { font-size: 1rem; color: var(--primary); }
+
+/* small boxes: a pixel-noise decal when cracked; pixel debris when they shatter */
+.bug-dmg--noise {
+  background: repeating-linear-gradient(0deg, transparent 0 6px, color-mix(in srgb, var(--fg) 18%, transparent) 6px 8px),
+              repeating-linear-gradient(90deg, transparent 0 10px, color-mix(in srgb, var(--fg) 12%, transparent) 10px 12px);
+  animation: bug-alarm 600ms steps(2, end) infinite;
+}
+.bug-armorbit.is-px { border-width: 1px; box-shadow: none; }
+
+/* RollbackKing carrying Claude up into the sky: red thrusters */
+.bug-boss.is-hold.is-airborne .bug-boss__body::after {
+  content: ''; position: absolute; left: 30%; right: 30%; bottom: -16px; height: 18px;
+  background: linear-gradient(to bottom, #ff4d1a, #ffd166 60%, transparent); clip-path: polygon(0 0, 100% 0, 70% 100%, 50% 60%, 30% 100%);
+  animation: bug-fire 90ms steps(2, end) infinite;
+}
+
+/* ---- reduced motion: no flashing, shaking, slow-mo or wobble ------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .bug-event *, .bug-damage *, .bug-bgfx * { animation: none !important; transition: none !important; }
+  .bug-bgcrack, .bug-dmg--crack polyline { stroke-dashoffset: 0; }
+  .bug-void { opacity: 1; }
+  .bug-chunk { display: none; }
+  .bug-glitch, .bug-rumble, .bug-flyback { animation: none; }
+  .bug-hanging { animation: none !important; rotate: calc(var(--hang) * 12deg); }
+  .bug-storm__rain, .bug-kbeam, .bug-kclash, .bug-kclash::before, .bug-aura, .bug-speedlines { animation: none !important; }
+  .bug-impactframe { display: none; }
+  .bug-glitchrows { display: none; }
+  .bug-glitch-px, .bug-glitch-px > * { animation: none !important; }
+  .bug-bgfx.is-repairing .bug-bgcrack, .bug-bgfx.is-repairing .bug-void, .bug-bgfx.is-repairing .bug-chunk { animation: none !important; opacity: 0; }
+  html.bug-shake main, html.bug-shake .site-footer { animation: none; }
+  html.bug-punch main { scale: none; }
+  html.bug-sad main, html.bug-sad .bug-bgfx, html.bug-sad .bug-damage { filter: none; }
+}

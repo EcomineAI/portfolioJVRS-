@@ -3,6 +3,8 @@ import { useScrollToTop } from '../../hooks/useScrollToTop.js';
 import { useTheme } from '../../hooks/useTheme.js';
 import { SprayProvider } from '../../spray/SprayContext.jsx';
 import SprayLayer from '../../spray/SprayLayer.jsx';
+import BuddyWorld from '../../buddies/BuddyWorld.jsx';
+import BugEvent from '../../bugEvent/BugEvent.jsx';
 import Chatbot from '../../widgets/Chatbot.jsx';
 import NowPlaying from '../../widgets/NowPlaying.jsx';
 import Footer from './Footer.jsx';
@@ -27,6 +29,10 @@ export default function Layout() {
       </main>
       {!hideSayHi && <SayHi />}
       <Footer />
+      {/* Pixel buddies: roam every page, standing on top of cards */}
+      <BuddyWorld />
+      {/* Bug Attack: just-for-fun boss fight (green bug button in the header) */}
+      <BugEvent />
       <NowPlaying />
       <Chatbot />
       <SprayLayer />

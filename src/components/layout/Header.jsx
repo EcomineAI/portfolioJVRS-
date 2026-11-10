@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import { navItems, profile } from '../../data/profile.js';
 import { MoonIcon, SunIcon } from '../Icons.jsx';
 import SprayButton from '../../spray/SprayButton.jsx';
+import BugButton from '../../bugEvent/BugButton.jsx';
 
 export function Logo({ className = '' }) {
   return (
@@ -44,6 +45,7 @@ export default function Header({ theme, onToggleTheme }) {
         </nav>
 
         <div className="site-header__tools">
+          <BugButton />
           <SprayButton />
           <button
             type="button"
