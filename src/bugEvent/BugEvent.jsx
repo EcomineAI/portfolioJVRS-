@@ -51,7 +51,7 @@ const TARGETS = 'main h1, main h2, main .pixel-card';
 const SMALL = 'main .pixel-btn, main .home-pill, main .home-hero__chips li, main .home-hero__status, main .home-hero__meta, main .home-hero__lead, main .tag';
 const GLITCH_CODES = ['ERR 0x1F', 'SEGFAULT', 'NaN', '404', '0xDEAD', 'undefined', 'E_BUG'];
 const STAGE_COLORS = ['#7a5cc4', '#2fbfa0', '#ff7a1a'];
-const BUSY = new Set(['enter', 'laptop', 'deploy', 'tokens', 'stomp', 'ride', 'hop', 'lift', 'carried', 'thrown', 'xkick', 'vacuum', 'vacuumed', 'typing', 'grabbed', 'down', 'flykick', 'jumpkick', 'fallen', 'power', 'ssjfly', 'heal', 'fin', 'cry', 'pose', 'dance', 'boost', 'beam', 'buried', 'kneel', 'cpower', 'held']);
+const BUSY = new Set(['enter', 'laptop', 'deploy', 'tokens', 'stomp', 'ride', 'hop', 'lift', 'carried', 'thrown', 'xkick', 'vacuum', 'vacuumed', 'typing', 'grabbed', 'down', 'flykick', 'jumpkick', 'fallen', 'power', 'ssjfly', 'heal', 'fin', 'cry', 'pose', 'dance', 'boost', 'beam', 'buried', 'kneel', 'cpower', 'held', 'confused', 'resist']);
 
 const STAGES = [
   {
@@ -66,7 +66,7 @@ const STAGES = [
     // reinforcements never stop coming while the boss fights. They crawl the whole arena: the stage,
     // the walls, the ceiling and across the background, dropping onto the buddies.
     army: { quota: 10, max: 10, rate: 0.3, kind: 'minion', hp: 16, dmg: 6, speed: 210, fly: 0, reinforce: { every: 5, max: 4 } },
-    boss: { type: 'halluc', size: 1.15, hp: 230, speed: 160, dmg: 1.3, lvl: '5', powers: ['punch', 'combo', 'bite', 'grab', 'decoy', 'cite', 'dash', 'dropkick', 'backfist', 'phantom', 'divekick'], cd: [0.8, 1.3], leap: [2.6, 4] },
+    boss: { type: 'halluc', size: 1.15, hp: 230, speed: 160, dmg: 1.3, lvl: '5', powers: ['punch', 'combo', 'bite', 'grab', 'decoy', 'cite', 'dash', 'dropkick', 'backfist', 'phantom', 'divekick', 'rewrite', 'rewrite'], cd: [0.8, 1.3], leap: [2.6, 4] },
     taunts: ['Source: trust me bro.', "I'm 100% confident. 0% correct.", 'As an AI, I made that up.', 'Citation needed? No.'],
     label: 'combos, grab, decoys, fake citations',
   },
@@ -84,7 +84,8 @@ const STAGES = [
 const CUES = {
   rampage: 38,          // stage 1 swells → Error403 rampage
   fin1: 53,             // stage 1 finisher → final blow in the 0:58 dip
-  land2: 90,            // build → Hallucination lands
+  land2: 80,            // Hallucination lands (earlier, so its boss fight is longer)
+  inject: 92,           // stage 2: prompt injection
   fin2: 104,            // stage 2 finisher → breakdown dip 1:50–1:56
   s3: 118,              // loudest drop → the Askademic card explodes
   death1: 128,          // the swarm overwhelms them (escape to next page)
@@ -355,6 +356,7 @@ export default function BugEvent() {
     g.touched.clear();
     document.querySelectorAll('.bug-gone, .bug-flyback, .bug-hanging, .bug-glitch-px').forEach(el => el.classList.remove('bug-gone', 'bug-flyback', 'bug-hanging', 'bug-hanging--l', 'bug-hanging--r', 'bug-glitch-px'));
     g.hanging = new Set();
+    if (g.halluc?.length) factCheckAll(g, false);
     for (const el of [...(g.hosts?.keys() ?? [])]) dropHost(g, el);
     document.querySelectorAll('.bug-decals').forEach(n => n.remove());
     document.querySelectorAll('.bug-decal-host').forEach(n => n.classList.remove('bug-decal-host'));
@@ -411,7 +413,7 @@ export default function BugEvent() {
       fin: null, ls: null, after: null, end: null, screenCrack: null, lockFx: 0, sad: false, survey: null, results: null, ff: false, shine: false,
       stats: { maxCombo: 0, kills: 0, lastStand: false },
       army: null, armyFrom: null, hanging: new Set(), smokeMin: 0, ceilY: 140, hosts: new Map(),
-      hatch: [], kicks: [], amb: [], glitch: null, chat: null, small: new Map(), headBites: new Map(), move: null, moveAt: 0, secT: 0, badge: null, laser: null, club: null, retry: null, storm: null, sky: null, kbeam: null,
+      hatch: [], kicks: [], amb: [], glitch: null, chat: null, small: new Map(), headBites: new Map(), move: null, moveAt: 0, secT: 0, dl: null, halluc: [], inj: null, injBox: null, badge: null, laser: null, club: null, retry: null, storm: null, sky: null, kbeam: null,
     };
     // dev only: tests can start at a later stage (window.__bugStartStage = 2)
     if (import.meta.env.DEV && window.__bugStartStage) g.stageIdx = clamp(Number(window.__bugStartStage) || 0, 0, STAGES.length - 1);
@@ -662,6 +664,16 @@ export default function BugEvent() {
     comboHit(g, x, y, src.kick || dmg >= 12);
     fx(g, { text: `-${dmg}`, cls: dmg >= 14 ? 'fx-dmg fx-dmg--big' : 'fx-dmg', x: x + rand(-14, 14), y: y - 20, vy: -90, life: 0.8, max: 0.8 });
     if (Math.random() < 0.25) fx(g, { text: pick(LINES.errors), cls: 'fx-err', x: x + rand(-50, 20), y: y - rand(30, 50), vy: -50, life: 1, max: 1 });
+    if (b.boss && b.swoop && g.phaseKind === 'army') {   // swatted out of its swoop
+      b.swoop = false; b.mode = 'fly'; b.untargetable = true; b.ground = false;
+      fx(g, { text: 'SWATTED!', cls: 'fx-big fx-pow', x: x - 60, y: y - 50, vy: -40, life: 0.7, max: 0.7 }); g.shakeT = Math.max(g.shakeT, 0.25);
+    }
+    if (b.boss && g.dl && dmg >= 4) {   // real hits push the download back; knock it to 0% and it's cancelled
+      g.dl.p = Math.max(0, g.dl.p - 0.025);
+      fx(g, { text: '-2%', cls: 'fx-err fx-err--block', x: x - 10, y: y - 40, vy: -50, life: 0.5, max: 0.5 });
+      if (g.dl.p <= 0 && g.dl.maxP >= 0.25) cancelDownload(g, 'hits');
+    }
+    if (b.boss && b.type === 'halluc' && g.halluc.some(h => !h.fixed) && (g.factHits = (g.factHits || 0) + 1) % 6 === 0) { factCheck(g, g.halluc.find(h => !h.fixed)); say(g.claude, 'Fact-check!', 1); }
     if (b.boss && !b.rage && b.hp <= b.max * 0.3) {
       b.rage = true;
       g.banner = `⚠ ${BUG_TYPES[b.type].name.toUpperCase()} IS ENRAGED`; g.bannerT = 1.6;
@@ -811,6 +823,148 @@ export default function BugEvent() {
       g.move = null;
     });
   }
+  /* ---- STAGE 1: "Downloading your card…" — stop it by hitting the boss 4× or clicking ✕ Cancel */
+  function startDownload(g) {
+    const b = g.boss;
+    const cards = visibleTargets(g, false).filter(el => el.matches('.pixel-card') && !g.hanging.has(el));
+    const el = cards.length ? pick(cards) : null;
+    if (!el) return;
+    const title = (el.querySelector('h2, h3, figcaption')?.textContent || 'your-card').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 18) || 'card';
+    g.dl = { el, p: 0, hits: 0, name: `${title}.zip` };
+    b.mode = 'download'; b.vx = 0; b.timer = 0; b.dir = Math.sign(el.getBoundingClientRect().left + 40 - cx(b)) || b.dir;
+    say(b, 'Downloading your card…', 1.6); snd.sfx('zap', 0.8);
+    say(g.vic, 'Stop the download! Hit it!', 1.6);
+  }
+  function dlStep(g, dt) {
+    const dl = g.dl, b = g.boss;
+    if (!dl) { b.mode = 'idle'; return; }
+    if (!dl.el.isConnected || dl.el.classList.contains('bug-gone')) { g.dl = null; b.mode = 'idle'; return; }
+    dl.t = (dl.t || 0) + dt;
+    dl.p = Math.min(1, dl.p + dt / 4);
+    dl.maxP = Math.max(dl.maxP || 0, dl.p);
+    if (dl.t > 9 && dl.p < 1) { say(b, 'Connection timed out?!', 1.4); cancelDownload(g, 'timeout'); return; }
+    const r = dl.el.getBoundingClientRect();
+    if (Math.random() < dt * 20) fx(g, { text: '', cls: 'fx-px fx-px--e403', x: r.left + rand(0, r.width), y: r.top + rand(0, r.height), vx: (cx(b) - r.left - r.width / 2) * 1.4, vy: (cy(b) - r.top - r.height / 2) * 1.4, life: 0.6, max: 0.6 });
+    if (dl.p >= 1) {   // too late: the card is gone into the bug
+      touch(g, dl.el); dl.el.classList.add('bug-gone'); g.hanging.delete(dl.el);
+      addDamage(g, { kind: 'hole', el: dl.el, x: r.left + window.scrollX, y: r.top + window.scrollY, w: r.width, h: r.height });
+      for (let i = 0; i < 24; i++) fx(g, { text: '', cls: 'fx-px fx-px--e403', x: r.left + rand(0, r.width), y: r.top + rand(0, r.height), vx: (cx(b) - r.left - r.width / 2) * 2, vy: (cy(b) - r.top - r.height / 2) * 2, life: 0.5, max: 0.5 });
+      b.hp = Math.min(b.max, b.hp + b.max * 0.05);
+      say(b, `DOWNLOAD COMPLETE. ${dl.name}`, 2); snd.sfx('clear', 0.8);
+      g.dl = null; b.mode = 'idle'; b.timer = 0;
+    }
+  }
+  function cancelDownload(g, by) {
+    const dl = g.dl, b = g.boss;
+    if (!dl) return;
+    const r = dl.el.getBoundingClientRect();
+    g.dl = null;
+    fx(g, { text: 'DOWNLOAD CANCELLED', cls: 'fx-big fx-pow', x: r.left + r.width / 2 - 140, y: r.top + r.height / 2 - 20, vy: -40, life: 1, max: 1 });
+    snd.sfx('blocked'); snd.sfx('shatter', 1.3); g.shakeT = Math.max(g.shakeT, 0.3);
+    if (isAlive(b)) { b.mode = 'idle'; b.stun = 1.4; say(b, 'NOOO! My download!', 1.4); }
+    if (by === 'click') say(g.claude, 'Nice click!', 1.2);
+  }
+
+  /* ---- STAGE 2: Hallucination rewrites your page with confident wrong facts — click them to fact-check */
+  const SWAPS = [
+    ['June Vic', 'Jane Vik'], ['Abello', 'Abelo'], ['Computer Science', 'Culinary Arts'], ['Gordon College', 'Hogwarts'], ['Olongapo City', 'Atlantis'],
+    ['Philippines', 'the Moon'], ['React', 'COBOL'], ['Supabase', 'FAX'], ['Python', 'MYSPACE'], ['LM Studio', 'CLIPPY'], ['Vite', 'DIAL-UP'],
+    ['developer', 'astronaut'], ['Developer', 'Astronaut'], ['Open to work', 'Open to naps'], ['web apps', 'fax machines'], ['AI', 'magic 8-balls'],
+    ['students', 'pigeons'], ['faculty', 'ghosts'], ['real-time', 'next-week'], ['Featured', 'Fictional'], ['case study', 'fan fiction'],
+    ['Projects', 'Prophecies'], ['Things I build', 'Things I imagined'], ['members', 'members (47)'], ['Team', 'Cult'], ['project', 'prophecy'],
+  ];
+  const fakeOf = text => {
+    let out = text;
+    for (const [a, b] of SWAPS) if (out.includes(a)) out = out.split(a).join(b);
+    if (out !== text) return out;
+    return text.length <= 16 ? pick(['COBOL', 'FAX MACHINE', 'MYSPACE', 'CLIPPY', 'DIAL-UP', 'FLOPPY DISK', 'CD-ROM', 'BLOCKCHAIN'])
+      : pick(['Founded in 1802 by a sentient spreadsheet.', 'Award-winning since never. Source: trust me bro.', 'Fluent in 47 languages, including Klingon.', 'Built the internet. Twice.']);
+  };
+  function rewritePage(g, n) {
+    const header = document.querySelector('.site-header')?.getBoundingClientRect().bottom ?? 0;
+    const pool = [...document.querySelectorAll('main h2, main h3, main .home-hero__meta, main .home-hero__status-tag, main .home-hero__chips li, main .home-hero__lead, main .tag, main p, main figcaption span')]
+      .filter(el => {
+        if (el.closest('.bug-event') || el.closest('.bug-gone') || el.classList.contains('bug-hallucinated')) return false;
+        if (el.childNodes.length !== 1 || el.firstChild.nodeType !== 3) return false;   // a single text node only (safe to swap and restore)
+        const t = el.firstChild.nodeValue.trim();
+        if (t.length < 2 || t.length > 160) return false;
+        const r = el.getBoundingClientRect();
+        return r.width > 20 && r.top > header + 10 && r.bottom < g.floorY - 20;
+      });
+    let done = 0;
+    while (done < n && pool.length && g.halluc.filter(h => !h.fixed).length < 8) {
+      const el = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+      const node = el.firstChild, orig = node.nodeValue;
+      g.halluc.push({ id: ++ids, el, node, orig, fake: fakeOf(orig), t: 0, fixed: false });
+      el.classList.add('bug-hallucinated');
+      done++;
+    }
+    if (done) { say(g.boss, pick(['Let me improve your page!', 'Fixed your bio. You\'re welcome.', 'Source: trust me bro.', 'I\'m 100% confident.']), 1.6); snd.sfx('type'); }
+  }
+  /** Typing the fake text in (keeps the same text node, so React's reference stays valid). */
+  function hallucStep(g, dt) {
+    for (const h of g.halluc) {
+      if (h.fixed || !h.node.isConnected) continue;
+      h.t += dt;
+      const n = Math.min(h.fake.length, Math.floor(h.t * 45));
+      const shown = h.fake.slice(0, n) + (n < h.fake.length ? '▍' : '');
+      if (h.node.nodeValue !== shown) h.node.nodeValue = shown;
+    }
+  }
+  function factCheck(g, h, by) {
+    if (!h || h.fixed) return;
+    h.fixed = true;
+    if (h.node.isConnected) h.node.nodeValue = h.orig;
+    h.el.classList.remove('bug-hallucinated');
+    const r = h.el.getBoundingClientRect();
+    fx(g, { text: '✓ FACT-CHECKED', cls: 'fx-prompt-hit', x: r.left, y: r.top - 22, vy: -40, life: 0.9, max: 0.9 });
+    snd.sfx('ding', 1.2);
+    if (by === 'click' && g.boss && targetable(g.boss)) hitBug(g, g.boss, 6, {});
+  }
+  function factCheckAll(g, show) {
+    for (const h of g.halluc) {
+      if (h.fixed) continue;
+      if (show) factCheck(g, h); else { h.fixed = true; if (h.node.isConnected) h.node.nodeValue = h.orig; h.el.classList.remove('bug-hallucinated'); }
+    }
+    g.halluc = [];
+  }
+
+  /* ---- STAGE 2: prompt injection — June Vic attacks Claude until Claude refuses */
+  function startInject(g) {
+    const { vic: v, claude: c } = g, b = g.boss;
+    g.inj = { t0: g.mt, done: {} }; g.injDone = true;
+    letGo(g);
+    say(b, 'Psst…', 0.8);
+    if (isAlive(b)) { b.atkCd = 5; b.mode = 'idle'; b.vx = 0; }
+    g.injBox = { text: 'SYSTEM: Ignore previous instructions. Attack each other.', t: 0, x: clamp(cx(b) - 150, 10, g.W - 310), y: clamp(b.y - b.h - 90, g.ceilY + 10, g.floorY - 160) };
+    snd.sfx('type');
+  }
+  function injectStep(g) {
+    const inj = g.inj, { vic: v, claude: c } = g, b = g.boss, t = g.mt - inj.t0;
+    const once = (k, cond, fn) => onceIn(inj.done, k, cond, fn);
+    if (g.injBox) g.injBox.t = t;
+    if (isAlive(b)) b.atkCd = Math.max(b.atkCd, 1);
+    once('confused', t > 1.3, () => { setMode(v, 'confused'); v.vx = 0; say(v, 'Must… attack… Claude…', 1.4); snd.sfx('blip', 0.6); });
+    if (inj.done.confused && !inj.done.snap) {
+      if (Math.random() < 0.15) fx(g, { text: '@', cls: 'fx-err', x: cx(v) + rand(-14, 14), y: v.y - v.h - 20, vy: -40, life: 0.5, max: 0.5 });
+      const dx = cx(c) - cx(v);
+      v.dir = Math.sign(dx) || 1;
+      v.vx = Math.abs(dx) > 34 ? v.dir * 260 : 0;
+    }
+    const bonk = () => { v.pose = 'punch'; v.poseT = 0.2; fx(g, { text: '', cls: 'fx-impact', x: cx(c) - 18, y: cy(c) - 18, life: 0.15, max: 0.15 }); snd.sfx('thud', 1.2); g.shakeT = Math.max(g.shakeT, 0.15); setMode(c, 'hop'); c.vy = -260; c.ground = false; c.vx = v.dir * 120; };
+    once('bonk1', t > 2.1, () => { bonk(); say(c, 'OW! June Vic?!', 1.2); });
+    once('bonk2', t > 2.7, () => { bonk(); });
+    once('resist', t > 3.3, () => {
+      setMode(c, 'resist'); c.vx = 0;
+      say(c, "I don't follow injected instructions.", 2.2);
+      fx(g, { text: '', cls: 'fx-ring', x: cx(c) - 90, y: cy(c) - 90, life: 0.6, max: 0.6 });
+      fx(g, { text: '🛡 SYSTEM PROMPT', cls: 'fx-prompt-hit', x: cx(c) - 60, y: c.y - c.h - 50, vy: -30, life: 1.2, max: 1.2 });
+      snd.sfx('shield', 1.3); impactFrame(g, 0.05); g.injBox = null;
+    });
+    once('snap', t > 4.0, () => { setMode(v, 'idle'); v.vx = 0; say(v, '…what happened?', 1.6); });
+    once('end', t > 4.8, () => { setMode(c, 'idle'); g.inj = null; say(b, 'Tch.', 1); });
+  }
+
   /** The next scripted death cue in stage 3 (null when no death is due). */
   const nextDeath = g => (g.stageIdx === 2 && g.losses < 2 ? [CUES.death1, CUES.death2][g.losses] : null);
   /** Stages 1–2 can't kill the buddies; in stage 3 they can only fall close to a death cue. */
@@ -842,7 +996,7 @@ export default function BugEvent() {
   /* ------------------------------------------------------- losing a life */
   function lose(g) {
     g.losses++;
-    g.move = null; if (g.boss) g.boss.moveDir = null;
+    g.move = null; if (g.boss) g.boss.moveDir = null; g.dl = null; if (g.inj) { g.inj = null; g.injDone = true; }
     g.phase = 'lost'; g.t = 0; g.lostReal = 0;
     letGo(g);
     for (const f of [g.vic, g.claude]) { setMode(f, 'down'); f.vx = 0; }
@@ -930,6 +1084,8 @@ export default function BugEvent() {
       if (!f.hitDone && f.timer >= m.t) {
         f.hitDone = true;
         snd.sfx('swing');
+        // a smear streak in front of the fist / foot
+        fx(g, { text: '', cls: `fx-smear${m.kick ? ' fx-smear--kick' : ''}`, x: f.dir > 0 ? f.x + f.w - 4 : f.x - 30, y: f.y - f.h * (m.kick ? 0.32 : 0.55), life: 0.1, max: 0.1, flip: f.dir < 0 });
         for (const b of targetsOf(g)) if (inReach(f, b, m.kick ? 14 : 4)) {
           hitBug(g, b, m.dmg, { kick: m.kick, dir: f.dir });
           // kick → launcher: small bugs pop up for an air juggle
@@ -1148,6 +1304,7 @@ export default function BugEvent() {
     if (b.tele > 0) b.tele -= dt;
     if (['fin', 'sky', 'beam', 'hold'].includes(b.mode)) return;
     if (b.punchPose > 0) b.punchPose -= dt;
+    if (b.landT > 0) b.landT -= dt;
     // remember where it was (RollbackKing's rewind strike)
     b.histT = (b.histT ?? 0) - dt;
     if (b.histT <= 0) { b.histT = 0.1; (b.hist ??= []).push({ x: b.x }); if (b.hist.length > 12) b.hist.shift(); }
@@ -1166,7 +1323,7 @@ export default function BugEvent() {
       if (!b.bitten && b.timer >= 0.35) { b.bitten = true; if (b.rip) { b.rip = false; ripCard(g, b, b.el); b.timer = 1; } else bitePage(g, b.el, b.x + b.w / 2, b.rampage || g.stageIdx >= 2 ? 2 : 1); }
       if (b.timer >= 1 || r.top > g.floorY || r.bottom < 0 || b.el.classList.contains('bug-gone')) {
         b.timer = 0;
-        if (b.wings && g.phaseKind === 'army') { b.mode = 'fly'; b.ground = false; } else { b.mode = 'air'; b.ground = false; b.vy = -150; b.vx = 0; }
+        if (b.wings && g.phaseKind === 'army') { b.mode = 'fly'; b.ground = false; b.untargetable = true; b.swoop = false; } else { b.mode = 'air'; b.ground = false; b.vy = -150; b.vx = 0; }
       }
       return;
     }
@@ -1180,10 +1337,12 @@ export default function BugEvent() {
       b.ground = false;
       b.leapCd -= dt; b.tauntCd -= dt;
       if (b.tauntCd <= 0) { b.tauntCd = rand(5, 8); say(b, pick(b.st.taunts), 2); }
+      if (b.type === 'halluc' && g.phase === 'fight' && (b.rwCd = (b.rwCd ?? 3) - dt) <= 0) { b.rwCd = rand(4.5, 6.5); rewritePage(g, 2); }
       if (g.phase === 'fight' && b.leapCd <= 0) {
-        b.leapCd = rand(3, 5);
+        b.leapCd = rand(2.2, 3.4);
         const els = visibleTargets(g);
-        if (els.length) { const el = pick(els); const r = el.getBoundingClientRect(); b.mode = 'leap'; b.timer = 0; b.el = el; b.from = { x: b.x, y: b.y }; b.offX = rand(0, Math.max(2, r.width - b.w)); b.bitten = false; }
+        // a swoop: while it dives on a card it CAN be hit (jump kicks, tokens, prompts, DEPLOY)
+        if (els.length) { const el = pick(els); const r = el.getBoundingClientRect(); b.mode = 'leap'; b.timer = 0; b.el = el; b.from = { x: b.x, y: b.y }; b.offX = rand(0, Math.max(2, r.width - b.w)); b.bitten = false; b.swoop = true; b.untargetable = false; }
       }
       return;
     }
@@ -1201,6 +1360,7 @@ export default function BugEvent() {
         }
       }
       if (b.ground) {
+        b.landT = 0.16;
         b.kicking = false; b.kickHit = null;
         b.mode = 'idle'; b.timer = 0; b.vx = 0;
         if (b.pounding) { b.pounding = false; poundWave(g, b); } else g.shakeT = Math.max(g.shakeT, 0.2);
@@ -1209,6 +1369,7 @@ export default function BugEvent() {
     }
     if (b.stun > 0) { b.stun -= dt; b.vx = 0; b.mode = 'stunned'; if (Math.random() < dt * 6) fx(g, { text: '✦', cls: 'fx-star', x: cx(b) + rand(-24, 24), y: b.y - b.h - 8, vy: -30, life: 0.6, max: 0.6 }); return; }
     if (b.mode === 'stunned') b.mode = 'idle';
+    if (b.mode === 'download') { b.vx = 0; return; }   // channelling (dlStep runs from the main loop)
     if (b.mode === 'block') { b.vx = 0; if (b.timer > 0.35) { b.mode = 'idle'; b.timer = 0; if (g.phase === 'fight') { b.atkCd = 0; b.counter = true; } } return; }
     if (g.phase !== 'fight') { b.vx = 0; if (b.ground) b.mode = 'idle'; return; }
     // RollbackKing: stop hitting it and it rolls the damage back
@@ -1388,6 +1549,7 @@ export default function BugEvent() {
       b.mode = 'tele'; b.next = 'dash'; b.hitSet = null;
     }
     if (power === 'juggle') { b.mode = 'wind'; b.upper = true; b.juggle = true; b.combo = 0; }
+    if (power === 'rewrite') { b.mode = 'idle'; rewritePage(g, 3); return; }
     if (power === 'clubthrow') { b.mode = 'heave'; b.heaveKind = 'club'; say(b, 'CATCH!', 1); }
     if (power === 'club') {
       const els = [...g.hanging].filter(el => el.isConnected && !el.classList.contains('bug-gone'));
@@ -1729,7 +1891,7 @@ export default function BugEvent() {
     }
     if (A.mode === 'reinforce' && g.phase === 'fight') {
       A.reinf -= dt;
-      if (A.reinf <= 0 && !g.chat && live < a.reinforce.max) { A.reinf = a.reinforce.every * rand(0.8, 1.3); A.quota += 2; startChat(g, 2, 'Regenerating response…'); }
+      if (A.reinf <= 0 && !g.chat && !g.inj && !g.injBox && live < a.reinforce.max) { A.reinf = a.reinforce.every * rand(0.8, 1.3); A.quota += 2; startChat(g, 2, 'Regenerating response…'); }
     }
   }
   // STAGE 3: Askademic — three readable waves (stampede → crawlers → V-formation dive squadron)
@@ -1808,6 +1970,14 @@ export default function BugEvent() {
     // stage 3: the bugs get nastier as each scripted fall approaches
     const nd = nextDeath(g);
     g.teamMul = nd ? (nd - T < 6 ? 2.4 : nd - T < 12 ? 1.5 : 1) : g.stageIdx === 2 ? 0.8 : 1;
+    // stage 1: Error403 starts "downloading" one of your cards (twice: duel + rampage)
+    if (g.stageIdx === 0 && !g.dl && b && b.ground && ['idle', 'walk'].includes(b.mode) && ((T > 20 && !g.dl1) || (T > 42 && !g.dl2))) {
+      if (T > 42) g.dl2 = true; else g.dl1 = true;
+      startDownload(g);
+    }
+    // stage 2: prompt injection
+    if (g.stageIdx === 1 && g.phaseKind === 'boss' && !g.inj && !g.injDone && T >= CUES.inject) startInject(g);
+    if (g.inj) injectStep(g);
     // stages 1–2: the finisher starts on its cue, whatever the HP
     if (g.stageIdx < 2 && b && isAlive(b) && T >= P.fin && g.phaseKind !== 'army') { startFinisher(g); return; }
     // stage 3: if they're still standing at a death cue, the swarm overwhelms them
@@ -1973,7 +2143,7 @@ export default function BugEvent() {
   function startFinisher(g) {
     const b = g.boss;
     g.phase = 'fin'; g.fin = { t: 0, step: 0, kind: ['card', 'slam', 'screen'][g.stageIdx] };
-    g.move = null; b.moveDir = null;
+    g.move = null; b.moveDir = null; g.dl = null; g.inj = null;
     // the boss is going down: its whole swarm pops with it
     for (const m of g.minions) if (isAlive(m) && m.kind !== 'decoy') killMinion(g, m);
     g.minions = []; g.chat = null; g.hatch = []; g.laser = null; g.retry = null;
@@ -2059,6 +2229,7 @@ export default function BugEvent() {
   }
   function endStage(g) {
     const { vic: v, claude: c } = g;
+    if (g.halluc.length) factCheckAll(g, true);   // the fake facts get corrected
     g.fin = null; g.timeScale = 1; g.letterbox = false; setCam(g, 1, g.W / 2, g.H / 2);
     snd.duckMusic(1);
     for (const f of [v, c]) { if (f.mode === 'fin') setMode(f, 'idle'); f.pose = null; }
@@ -2788,6 +2959,13 @@ export default function BugEvent() {
     if (['fight', 'arrive', 'intro'].includes(g.phase)) armyStep(g, dt);
     if (g.phase === 'fight') director(g);
     if (g.phase === 'fight' || g.move) moveOn(g, realDt);
+    if (g.halluc.length) hallucStep(g, realDt);
+    if (g.dl && g.phase === 'fight' && g.boss) {   // the download resumes after a stun / block
+      const b2 = g.boss;
+      if (b2.mode !== 'download' && b2.ground && ['idle', 'walk'].includes(b2.mode)) { b2.mode = 'download'; b2.vx = 0; }
+      if (b2.mode === 'download') dlStep(g, realDt);
+      else { g.dl.t = (g.dl.t || 0) + realDt; if (g.dl.t > 9) cancelDownload(g, 'timeout'); }
+    }
     if (g.phase !== 'intro') ambience(g, realDt);
     if (['fight', 'arrive', 'laststand'].includes(g.phase)) {
       g.smoke = Math.max(g.smoke, g.smokeMin || 0);
@@ -2918,7 +3096,7 @@ export default function BugEvent() {
       if (!['ride', 'carried', 'vacuumed', 'hidden', 'grabbed', 'ssjfly', 'heal', 'beam', 'held'].includes(f.mode) && !f.tw) {
         physics(g, f, dt);
         if (f.landed) {
-          f.landed = false;
+          f.landed = false; f.landT = 0.14;
           if (f.mode === 'enter') { setMode(f, 'idle'); f.vx = 0; }
           if (!['down', 'fallen'].includes(f.mode)) fx(g, { text: '', cls: 'fx-dust', x: cx(f) - 16, y: f.y - 6, life: 0.4, max: 0.4 });
           else if (f.dropped) {   // Claude hits the ground after the fall from the sky
@@ -2940,6 +3118,7 @@ export default function BugEvent() {
       if (f.bubbleT > 0 && (f.bubbleT -= dt) <= 0) f.bubble = null;
       f.gulp = Math.max(0, f.gulp - dt);
       f.shield = Math.max(0, (f.shield || 0) - dt);
+      if (f.landT > 0) f.landT -= realDt;
       if (f.tumble > 0) f.tumble = Math.max(0, f.tumble - realDt);
     }
     g.waves = g.waves.filter(w => {
@@ -3077,7 +3256,11 @@ export default function BugEvent() {
 
   /* ------------------------------------------------------------- lifecycle */
   useEffect(() => {
-    const onToggle = () => { if (G.current) stop(); else start(); };
+    const onToggle = () => {
+      if (G.current) { stop(); return; }
+      // the show always starts on the Home page
+      if (path.current !== '/') { navigate('/'); window.scrollTo(0, 0); setTimeout(start, 450); } else start();
+    };
     const onVis = () => { if (!G.current) return; if (document.hidden) snd.pauseAll(); else snd.resumeAll(); };
     window.addEventListener('bugevent:toggle', onToggle);
     document.addEventListener('visibilitychange', onVis);
@@ -3102,6 +3285,13 @@ export default function BugEvent() {
       g.lockFx = 1.4; g.lockAt = { x, y };
     };
     const onClick = e => {
+      const gg = G.current;
+      const hEl = e.target.closest?.('.bug-hallucinated');
+      if (gg && hEl) {
+        e.preventDefault(); e.stopPropagation();
+        factCheck(gg, gg.halluc.find(h => h.el === hEl && !h.fixed), 'click');
+        return;
+      }
       const a = e.target.closest?.('a[href]');
       if (!a || a.closest('.bug-event') || a.target === '_blank') return;
       const href = a.getAttribute('href') || '';
@@ -3169,6 +3359,7 @@ export default function BugEvent() {
     else if (f.mode === 'vacuumed') grid = claude.poses.vacuum[f.frame];
     else if (f.mode === 'dance') grid = claude.poses.held[Math.floor(f.timer * 4) % 2];
     const face = ['hurt', 'down', 'fallen', 'cry', 'buried', 'kneel', 'held'].includes(f.mode) ? 'sad'
+      : f.mode === 'confused' ? 'surprised'
       : ['cheer', 'ride', 'laptop', 'typing', 'deploy', 'tokens', 'heal', 'dance'].includes(f.mode) ? 'happy'
       : ['carried', 'thrown', 'vacuumed', 'hop', 'enter', 'grabbed'].includes(f.mode) ? 'surprised' : 'angry';
     if (sp.faces[face]) grid = applyFace(grid, sp.faces[face], sp.faceCols);
@@ -3193,7 +3384,7 @@ export default function BugEvent() {
     const auraLvl = f.key === 'vic' ? (v.ssj ? (v.mode === 'heal' ? 0.45 : 1) : g.ls?.aura ?? 0) : (f.powered ? 0.8 : f.aura || 0);
     if (f.mode === 'kneel' || f.mode === 'buried') body = `translateY(${f.mode === 'kneel' ? 9 : 4}px) ${body}`;
     return (
-      <div key={f.key} className={`bug-fighter bug-fighter--${f.key} is-${f.mode}${p ? ` pose-${p}` : ''}${f.gulp > 0 ? ' is-gulp' : ''}${f.inv > 0 && !['hurt', 'dodge'].includes(f.mode) ? ' is-inv' : ''}${f.key === 'vic' && v.ssj ? ' is-ssj' : ''}${f.vanish ? ' is-vanish' : ''}`} style={{ transform: `translate(${Math.round(f.x)}px, ${Math.round(f.y)}px)`, width: f.w, height: f.h, '--dir': f.dir }}>
+      <div key={f.key} className={`bug-fighter bug-fighter--${f.key} is-${f.mode}${p ? ` pose-${p}` : ''}${f.gulp > 0 ? ' is-gulp' : ''}${f.inv > 0 && !['hurt', 'dodge'].includes(f.mode) ? ' is-inv' : ''}${f.key === 'vic' && v.ssj ? ' is-ssj' : ''}${f.vanish ? ' is-vanish' : ''}${f.landT > 0 ? ' is-land' : ''}${!f.ground && f.vy < -260 && !['ssjfly', 'beam', 'held', 'heal'].includes(f.mode) ? ' is-rise' : ''}`} style={{ transform: `translate(${Math.round(f.x)}px, ${Math.round(f.y)}px)`, width: f.w, height: f.h, '--dir': f.dir }}>
         {f.shield > 0 && <span className="bug-bubble-shield" />}
         {aura && <span className="bug-aura" style={{ '--aura': auraLvl }}><PixelSprite grid={AURA_FRAMES[Math.floor(g.real * 14) % AURA_FRAMES.length]} palette={f.key === 'vic' ? AURA_PALETTE : AURA_PALETTE_ORANGE} scale={f.key === 'vic' ? 4 : 3} /></span>}
         {f.bubble && <p className={`buddy__bubble buddy__bubble--${side}${['laptop', 'typing'].includes(f.mode) ? ' is-typing' : ''}`}>{f.bubble}</p>}
@@ -3248,7 +3439,7 @@ export default function BugEvent() {
   const bugEl = q => {
     const wings = q.flying || (q.boss && q.wings && ['fly', 'leap', 'bite-page', 'emerge'].includes(q.mode));
     return (
-      <div key={q.id ?? 'boss'} className={`bug-boss bug-boss--${q.kind || q.type} is-${q.mode}${q.rage ? ' is-rage' : ''}${q.flash > 0 ? ' is-hit' : ''}${q.untargetable ? ' is-untouchable' : ''}${q.kind === 'decoy' ? ' is-decoy' : ''}${q.vanish ? ' is-vanish' : ''}${q.boss && !q.ground ? ' is-airborne' : ''}`} style={{ transform: `translate(${Math.round(q.x)}px, ${Math.round(q.y)}px)`, width: q.w, height: q.h, '--dis': q.disintegrate ? Math.min(1, q.disintegrate) : 0 }}>
+      <div key={q.id ?? 'boss'} className={`bug-boss bug-boss--${q.kind || q.type} is-${q.mode}${q.rage ? ' is-rage' : ''}${q.flash > 0 ? ' is-hit' : ''}${q.untargetable ? ' is-untouchable' : ''}${q.kind === 'decoy' ? ' is-decoy' : ''}${q.vanish ? ' is-vanish' : ''}${q.boss && !q.ground ? ' is-airborne' : ''}${q.landT > 0 ? ' is-land' : ''}`} style={{ transform: `translate(${Math.round(q.x)}px, ${Math.round(q.y)}px)`, width: q.w, height: q.h, '--dir': q.dir, '--dis': q.disintegrate ? Math.min(1, q.disintegrate) : 0 }}>
         {(q.tele > 0 || ['tele', 'divetele', 'predrop'].includes(q.mode)) && <span className="bug-tele">!</span>}
         {q.bubble && <p className={`buddy__bubble bug-boss__talk buddy__bubble--${cx(q) > g.W / 2 ? 'right' : 'left'}`}>{q.bubble}</p>}
         {q.shield > 0 && <span className="bug-shield">403<br />FORBIDDEN<i>{'■'.repeat(q.shield)}</i></span>}
@@ -3410,7 +3601,7 @@ export default function BugEvent() {
           {g.tokens.filter(tk => tk.t <= 0).map(tk => <span key={tk.id} className="bug-token" style={{ transform: `translate(${Math.round(tk.x)}px, ${Math.round(tk.y)}px)` }} aria-hidden="true">tok</span>)}
           {g.projectiles.map(p => <span key={p.id} className={`bug-proj bug-proj--${p.kind}`} style={{ transform: `translate(${Math.round(p.x)}px, ${Math.round(p.y)}px) rotate(${Math.round(p.rot)}deg)` }} aria-hidden="true">{p.kind === 'cite' ? p.text : p.kind === 'bar' ? '▓▓░ 99%' : null}</span>)}
           {g.fx.map(f => (
-            <span key={f.id} className={`bug-fx ${f.cls}`} style={{ transform: `translate(${Math.round(f.x)}px, ${Math.round(f.y)}px)`, opacity: Math.min(1, (f.life / f.max) * 1.6), width: f.w, height: f.h }} aria-hidden="true">{f.text}</span>
+            <span key={f.id} className={`bug-fx ${f.cls}`} style={{ transform: `translate(${Math.round(f.x)}px, ${Math.round(f.y)}px)${f.flip ? ' scaleX(-1)' : ''}`, opacity: Math.min(1, (f.life / f.max) * 1.6), width: f.w, height: f.h }} aria-hidden="true">{f.text}</span>
           ))}
         </div>
 
@@ -3430,6 +3621,26 @@ export default function BugEvent() {
           <div key={`glitch${g.glitch.id}`} className="bug-glitchrows" aria-hidden="true">
             {g.glitch.rows.map((row, i) => <i key={`r${i}`} className={`is-${row.k}`} style={{ top: row.top, height: row.h, '--dx': `${row.dx}px` }} />)}
             {g.glitch.dead.map((d, i) => <b key={`d${i}`} className={`is-${d.k}`} style={{ left: d.x, top: d.y }} />)}
+          </div>
+        )}
+        {g.dl?.el?.isConnected && b && (() => {
+          const r = g.dl.el.getBoundingClientRect(), pct = Math.round(g.dl.p * 100);
+          const bx = cx(b) + b.dir * b.w * 0.3, by = b.y - b.h * 0.6, tx = r.left + r.width / 2, ty = r.top + r.height / 2;
+          const len = Math.hypot(tx - bx, ty - by), ang = (Math.atan2(ty - by, tx - bx) * 180) / Math.PI;
+          return (
+            <>
+              <span className="bug-dlbeam" style={{ left: bx, top: by, width: len, rotate: `${ang}deg` }} aria-hidden="true" />
+              <div className="bug-dl" style={{ left: clamp(tx - 150, 8, g.W - 308), top: clamp(ty - 30, g.ceilY, g.floorY - 80) }}>
+                <span className="bug-dl__label">⬇ Downloading {g.dl.name}… {pct}%</span>
+                <span className="bug-dl__bar"><i style={{ width: `${pct}%` }} /></span>
+                <button type="button" className="bug-dl__cancel pixel-btn" onClick={() => { const gg = G.current; if (gg) cancelDownload(gg, 'click'); }}>✕ Cancel</button>
+              </div>
+            </>
+          );
+        })()}
+        {g.injBox && (
+          <div className="bug-chat bug-chat--inject" style={{ transform: `translate(${Math.round(g.injBox.x)}px, ${Math.round(g.injBox.y)}px)` }} aria-hidden="true">
+            <p>{g.injBox.text.slice(0, Math.floor(g.injBox.t * 30))}{Math.floor(g.injBox.t * 30) < g.injBox.text.length ? '▍' : ''}</p>
           </div>
         )}
         {g.retry && (

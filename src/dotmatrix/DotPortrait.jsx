@@ -1,18 +1,11 @@
-// Dot-matrix portrait of June Vic from /jv.png.
-// The photo has a busy background (laptop, mic, shelf), so we crop to head + shoulders and
-// clip to a hand-traced silhouette before sampling. Coordinates are in the 2400×2400 source.
+// Dot-matrix portrait of June Vic from /pfp.jpg (profile.portrait).
+// The photo is a 411×411 studio shot on a plain white background, so the background is removed
+// automatically: a flood fill from the TOP and SIDE edges clears the near-white pixels (it never
+// starts from the bottom edge, so the white shirt between the lapels stays).
 import DotField from './DotField.jsx';
 import { profile } from '../data/profile.js';
 
-const CROP = { x: 1200, y: 230, w: 1200, h: 1500 };     // 4:5 portrait crop
-
-// Silhouette traced on the original photo (head, ear, neck, shoulders).
-const OUTLINE = [
-  [1366, 472], [1466, 360], [1615, 304], [1838, 288], [2037, 342], [2186, 453], [2251, 621],
-  [2259, 870], [2236, 1068], [2224, 1230], [2193, 1330], [2224, 1391], [2335, 1440], [2400, 1466],
-  [2400, 1730], [1490, 1730], [1478, 1566], [1416, 1478], [1373, 1317], [1323, 1118],
-  [1292, 969], [1286, 770], [1311, 596],
-];
+const CROP = { x: 41, y: 0, w: 329, h: 411 };     // 4:5 portrait crop of the 411×411 source
 
 let imgPromise;
 function loadImage(src) {
@@ -29,20 +22,34 @@ function loadImage(src) {
 }
 
 async function samplePortrait(ctx, cols, rows, theme) {
-  const img = await loadImage(profile.photo);
-  const sx = cols / CROP.w, sy = rows / CROP.h;
+  const img = await loadImage(profile.portrait || profile.photo);
 
-  // 1) draw the cropped photo, clipped to the silhouette
-  ctx.save();
-  ctx.beginPath();
-  OUTLINE.forEach(([x, y], i) => {
-    const px = (x - CROP.x) * sx, py = (y - CROP.y) * sy;
-    i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
-  });
-  ctx.closePath();
-  ctx.clip();
+  // 1) draw the cropped photo, then knock out the plain background
   ctx.drawImage(img, CROP.x, CROP.y, CROP.w, CROP.h, 0, 0, cols, rows);
-  ctx.restore();
+  {
+    const bg = ctx.getImageData(0, 0, cols, rows);
+    const px = bg.data;
+    const isBg = i => {
+      const r = px[i * 4], g = px[i * 4 + 1], b = px[i * 4 + 2];
+      return r > 214 && g > 214 && b > 214 && Math.max(r, g, b) - Math.min(r, g, b) < 26;
+    };
+    const seen = new Uint8Array(cols * rows);
+    const stack = [];
+    for (let x = 0; x < cols; x++) stack.push(x);                                   // top edge
+    for (let y = 0; y < rows; y++) stack.push(y * cols, y * cols + cols - 1);        // side edges
+    while (stack.length) {
+      const i = stack.pop();
+      if (seen[i] || !isBg(i)) continue;
+      seen[i] = 1;
+      px[i * 4 + 3] = 0;
+      const x = i % cols, y = (i / cols) | 0;
+      if (x > 0) stack.push(i - 1);
+      if (x < cols - 1) stack.push(i + 1);
+      if (y > 0) stack.push(i - cols);
+      if (y < rows - 1) stack.push(i + cols);
+    }
+    ctx.putImageData(bg, 0, 0);
+  }
 
   // 2) luminance → dot strength. Dark theme: bright = big dot. Light theme: dark = big dot.
   //    A floor keeps the silhouette visible where the photo is very dark/bright.

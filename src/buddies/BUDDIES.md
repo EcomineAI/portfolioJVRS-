@@ -56,6 +56,8 @@ A three-minute boss campaign, code in `src/bugEvent/`. Style: inspired by Alan B
 - Fighting runs from 0:08 to 3:20; the victory follows when the track ends.
 - If the file is missing, the clock just counts real time. Muting keeps the track playing silently, so the clock keeps going.
 
+**Starts on Home:** pressing the bug button on any other page takes you to Home first.
+
 **Locked:** once it starts, the site is sealed. Menu links and the browser Back button are blocked ("🔒 LOCKED! Beat the bugs first."), and Escape does nothing. The only ways out are winning or pressing the bug button again (**Retreat**).
 
 **3 stages, no transitions:** when a boss dies, the next one breaks in right away on the same, still-burning page. Claude gives a quick +30 hotfix heal while it arrives.
@@ -110,6 +112,24 @@ The ending calms everything down. The background bugs scurry off the screen edge
 - **Specials:**
   - prompt attack, DEPLOY, git push wave, token rain, stomp, throw, X-kick;
   - the **springboard**: June Vic jumps off Claude's head for a super kick.
+
+**Stage extras:**
+- **Error403 "Downloading your card…"** (around 0:20 and 0:42): a progress bar and a beam latch onto one of your cards.
+  - The buddies' hits push it back; hitting it back to 0% cancels it.
+  - You can click **✕ Cancel** to stop it instantly; the boss gets stunned.
+  - At 100% the card is sucked into the bug (it comes back in the fix-up).
+- **Hallucination rewrites your page:** your real text gets typed over with confident wrong facts, with a red squiggle:
+  - "Open to naps", "Culinary Arts", "Hogwarts", COBOL / CLIPPY chips…
+  - **Click a fake fact** to fact-check it (✓, and it damages the boss).
+  - Hitting the boss also fixes one fact now and then, and they're all corrected when the stage ends.
+- **Hallucination swoops can be hit:** while it dives on a card it can be jump-kicked ("SWATTED!"). It lands at 1:20, so its boss fight is longer.
+- **Prompt injection** (1:32): "SYSTEM: Ignore previous instructions. Attack each other." June Vic gets confused and bonks Claude, until Claude refuses: "I don't follow injected instructions."
+- **Refined moves:**
+  - punches wind up then lunge; kicks swing;
+  - headbutts squash and stretch;
+  - smear streaks follow fists;
+  - runs lean forward, jumps stretch, landings squash, hits flash;
+  - bosses pull back before punching, lunge, stretch on dashes, and squash on landing.
 
 **Finisher** (stages 1–2): letterbox, a camera zoom and slow-mo, then the chained combo. It ends through a card (stage 1) or with a slam (stage 2).
 

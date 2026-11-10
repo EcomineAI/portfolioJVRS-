@@ -586,7 +586,7 @@ html.bug-sad main, html.bug-sad .bug-bgfx, html.bug-sad .bug-damage { filter: gr
 .bug-laser.is-warn { height: 2px; background: repeating-linear-gradient(90deg, #ff4d4d 0 10px, transparent 10px 18px); box-shadow: none; animation: bug-alarm 120ms steps(2, end) infinite; }
 .bug-retry {
   position: absolute; z-index: 5; pointer-events: auto; cursor: var(--cursor-pointer, pointer);
-  font-size: var(--text-sm); animation: buddy-pop 200ms steps(3, end), bug-tele 300ms steps(2, end) infinite 200ms;
+  font-size: var(--text-sm); animation: buddy-pop 200ms steps(3, end), bug-btn-bob 300ms steps(2, end) infinite 200ms;
 }
 
 /* stage 2: the chat reply that hatches TokenBugs */
@@ -775,6 +775,87 @@ html.bug-sad main, html.bug-sad .bug-bgfx, html.bug-sad .bug-damage { filter: gr
   animation: bug-fire 90ms steps(2, end) infinite;
 }
 
+/* ==========================================================================
+   v6.5: stage 1 download, stage 2 hallucinated page + prompt injection, refined moves
+   ========================================================================== */
+/* "Downloading your card…" */
+.bug-dl {
+  position: absolute; z-index: 6; width: 300px; padding: 8px 10px; display: grid; gap: 6px; pointer-events: auto;
+  font-family: var(--font-ui); font-size: 14px; color: var(--fg);
+  background: var(--card); border: 3px solid var(--border); box-shadow: 4px 4px 0 #7a5cc4;
+  animation: buddy-pop 200ms steps(3, end);
+}
+.bug-dl__label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bug-dl__bar { display: block; height: 14px; background: color-mix(in srgb, var(--fg) 12%, var(--card)); border: 2px solid var(--border); }
+.bug-dl__bar i { display: block; height: 100%; background: repeating-linear-gradient(90deg, #7a5cc4 0 8px, #b48cff 8px 10px); transition: width 120ms steps(2, end); }
+.bug-dl__cancel { justify-self: end; font-size: var(--text-sm); cursor: var(--cursor-pointer, pointer); animation: bug-btn-bob 300ms steps(2, end) infinite; }
+@keyframes bug-btn-bob { 50% { translate: 0 -3px; } }
+.bug-dlbeam {
+  position: absolute; height: 4px; transform-origin: 0 50%; pointer-events: none;
+  background: repeating-linear-gradient(90deg, #b48cff 0 10px, transparent 10px 18px);
+  animation: bug-dlbeam 300ms steps(3, end) infinite;
+}
+@keyframes bug-dlbeam { to { background-position: -18px 0; } }
+
+/* hallucinated text: confident, wrong, and clickable to fact-check */
+.bug-hallucinated {
+  text-decoration: underline wavy #ff4d4d 2px; text-underline-offset: 3px;
+  background: color-mix(in srgb, #ff4d4d 10%, transparent); cursor: help !important;
+  animation: bug-halluc 1.2s steps(2, end) infinite;
+}
+@keyframes bug-halluc { 50% { background: color-mix(in srgb, #ff4d4d 22%, transparent); } }
+/* the prompt injection message */
+.bug-chat--inject { border-color: #ff4d4d; box-shadow: 4px 4px 0 var(--border), 0 0 0 3px color-mix(in srgb, #ff4d4d 30%, transparent); }
+.bug-chat--inject p { white-space: normal; color: #ff4d4d; font-family: var(--font-pixel); font-size: 0.65rem; line-height: 1.5; }
+.bug-fighter--vic.is-confused .bug-fighter__body { animation: bug-dizzy 260ms steps(2, end) infinite; }
+.bug-fighter--claude.is-resist .bug-fighter__body { animation: bug-rage 80ms steps(2, end) 6; }
+
+/* ---- refined moves: anticipation → lunge → recover, squash & stretch, smears ---- */
+.bug-fighter.pose-punch .bug-fighter__body, .bug-fighter.is-atk.pose-punch .bug-fighter__body { animation: bug-mv-punch 190ms steps(5, end); translate: none; }
+@keyframes bug-mv-punch {
+  0% { translate: calc(var(--dir) * -4px) 0; scale: 1.04 0.96; }
+  40% { translate: calc(var(--dir) * 10px) 0; scale: 1.1 0.93; }
+  100% { translate: 0 0; scale: 1 1; }
+}
+.bug-fighter.pose-kick .bug-fighter__body { animation: bug-mv-kick 260ms steps(6, end); }
+@keyframes bug-mv-kick {
+  0% { rotate: calc(var(--dir) * 8deg); translate: calc(var(--dir) * -3px) 0; }
+  45% { rotate: calc(var(--dir) * -16deg); translate: calc(var(--dir) * 9px) -5px; }
+  100% { rotate: 0deg; translate: 0 0; }
+}
+.bug-fighter.pose-headbutt .bug-fighter__body { animation: bug-mv-headbutt 180ms steps(5, end); transform-origin: 50% 100%; }
+@keyframes bug-mv-headbutt {
+  0% { scale: 0.9 1.1; translate: calc(var(--dir) * -4px) 0; }
+  45% { scale: 1.18 0.86; translate: calc(var(--dir) * 12px) 0; }
+  100% { scale: 1 1; translate: 0 0; }
+}
+.bug-fighter.pose-upper .bug-fighter__body { animation: bug-mv-upper 240ms steps(5, end); transform-origin: 50% 100%; }
+@keyframes bug-mv-upper { 0% { scale: 1.1 0.88; } 50% { scale: 0.9 1.16; translate: 0 -10px; } 100% { scale: 1 1; translate: 0 0; } }
+/* running leans into the direction, landings squash, take-offs stretch */
+.bug-fighter.is-run .bug-fighter__body { rotate: calc(var(--dir) * 6deg); }
+.bug-fighter.is-land .bug-fighter__body { animation: bug-mv-land 140ms steps(4, end); transform-origin: 50% 100%; }
+@keyframes bug-mv-land { 0% { scale: 1.18 0.8; } 60% { scale: 0.96 1.05; } 100% { scale: 1 1; } }
+.bug-fighter.is-rise .bug-fighter__body { scale: 0.9 1.12; transform-origin: 50% 100%; }
+.bug-fighter.is-hurt .bug-fighter__body > svg { animation: bug-mv-hitflash 120ms steps(2, end); }
+@keyframes bug-mv-hitflash { 0% { filter: brightness(3) saturate(0); } 100% { filter: none; } }
+.fx-smear {
+  width: 30px; height: 10px; transform-origin: 0 50%;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, #fff 85%, transparent));
+  clip-path: polygon(0 40%, 100% 0, 100% 100%, 0 60%);
+}
+.fx-smear--kick { width: 38px; height: 14px; }
+
+/* bosses: wind-up pulls back, punches lunge, dashes stretch, landings squash */
+.bug-boss.is-wind .bug-boss__body, .bug-boss.is-tele .bug-boss__body { translate: calc(var(--dir) * -6px) 0; }
+.bug-boss.is-tele .bug-boss__body svg { animation: bug-rage 60ms steps(2, end) infinite; }
+.bug-boss.is-punch .bug-boss__body { animation: bug-mv-bpunch 200ms steps(5, end); transform-origin: 50% 100%; }
+@keyframes bug-mv-bpunch { 0% { translate: calc(var(--dir) * -6px) 0; } 35% { translate: calc(var(--dir) * 14px) 0; scale: 1.06 0.95; } 100% { translate: 0 0; scale: 1 1; } }
+.bug-boss.is-upper .bug-boss__body { animation: bug-mv-upper 300ms steps(6, end); transform-origin: 50% 100%; }
+.bug-boss.is-dash .bug-boss__body, .bug-boss.is-charge .bug-boss__body { scale: 1.12 0.9; transform-origin: 50% 100%; }
+.bug-boss.is-land .bug-boss__body { animation: bug-mv-land 160ms steps(4, end); transform-origin: 50% 100%; }
+.bug-boss.is-walk .bug-boss__body { rotate: calc(var(--dir) * 3deg); }
+.bug-boss.is-download .bug-boss__body svg { animation: bug-rage 100ms steps(2, end) infinite; filter: drop-shadow(0 0 6px #b48cff) drop-shadow(2px 3px 0 #000); }
+
 /* ---- reduced motion: no flashing, shaking, slow-mo or wobble ------------------ */
 @media (prefers-reduced-motion: reduce) {
   .bug-event *, .bug-damage *, .bug-bgfx * { animation: none !important; transition: none !important; }
@@ -786,6 +867,7 @@ html.bug-sad main, html.bug-sad .bug-bgfx, html.bug-sad .bug-damage { filter: gr
   .bug-storm__rain, .bug-kbeam, .bug-kclash, .bug-kclash::before, .bug-aura, .bug-speedlines { animation: none !important; }
   .bug-impactframe { display: none; }
   .bug-glitchrows { display: none; }
+  .bug-fighter__body, .bug-boss__body { rotate: none !important; scale: none !important; translate: none !important; }
   .bug-glitch-px, .bug-glitch-px > * { animation: none !important; }
   .bug-bgfx.is-repairing .bug-bgcrack, .bug-bgfx.is-repairing .bug-void, .bug-bgfx.is-repairing .bug-chunk { animation: none !important; opacity: 0; }
   html.bug-shake main, html.bug-shake .site-footer { animation: none; }
