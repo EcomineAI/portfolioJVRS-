@@ -32,7 +32,7 @@ import { claude, laptop, vic, vicFight } from '../buddies/sprites.js';
 import { navItems } from '../data/profile.js';
 import {
   ARMOR_PALETTE, ARMOR_PIECES, BUG_H, BUG_POSES, BUG_RAGE_PALETTE, BUG_TYPES, BUG_W,
-  MINION_FRAMES, MINION_H, MINION_W, WINGS, WING_PALETTE, AMB_PALETTE, AURA_FRAMES, AURA_PALETTE, AURA_PALETTE_ORANGE,
+  MINION_FRAMES, MINION_H, MINION_W, WINGS, WING_PALETTE, CLAUDE_WING_PALETTE, AMB_PALETTE, AURA_FRAMES, AURA_PALETTE, AURA_PALETTE_ORANGE,
 } from './bugSprites.js';
 import * as snd from './sound.js';
 import './bugEvent.css';
@@ -51,7 +51,7 @@ const TARGETS = 'main h1, main h2, main .pixel-card';
 const SMALL = 'main .pixel-btn, main .home-pill, main .home-hero__chips li, main .home-hero__status, main .home-hero__meta, main .home-hero__lead, main .tag';
 const GLITCH_CODES = ['ERR 0x1F', 'SEGFAULT', 'NaN', '404', '0xDEAD', 'undefined', 'E_BUG'];
 const STAGE_COLORS = ['#7a5cc4', '#2fbfa0', '#ff7a1a'];
-const BUSY = new Set(['enter', 'laptop', 'deploy', 'tokens', 'stomp', 'ride', 'hop', 'lift', 'carried', 'thrown', 'xkick', 'vacuum', 'vacuumed', 'typing', 'grabbed', 'down', 'flykick', 'jumpkick', 'fallen', 'power', 'ssjfly', 'heal', 'fin', 'cry', 'pose', 'dance', 'boost', 'beam', 'buried', 'kneel', 'cpower', 'held', 'confused', 'resist']);
+const BUSY = new Set(['enter', 'laptop', 'deploy', 'tokens', 'stomp', 'ride', 'hop', 'lift', 'carried', 'thrown', 'xkick', 'vacuum', 'vacuumed', 'typing', 'grabbed', 'down', 'flykick', 'jumpkick', 'fallen', 'power', 'ssjfly', 'heal', 'fin', 'cry', 'pose', 'dance', 'boost', 'beam', 'buried', 'kneel', 'cpower', 'held', 'confused', 'resist', 'inventfly', 'cflight', 'vcarried']);
 
 const STAGES = [
   {
@@ -84,8 +84,8 @@ const STAGES = [
 const CUES = {
   rampage: 38,          // stage 1 swells → Error403 rampage
   fin1: 53,             // stage 1 finisher → final blow in the 0:58 dip
-  land2: 80,            // Hallucination lands (earlier, so its boss fight is longer)
-  inject: 92,           // stage 2: prompt injection
+  land2: 88,            // Hallucination lands on the 1:28 chorus peak
+  inject: 95,           // stage 2: prompt injection (counter lands on the 1:38 peak)
   fin2: 104,            // stage 2 finisher → breakdown dip 1:50–1:56
   s3: 118,              // loudest drop → the Askademic card explodes
   death1: 128,          // the swarm overwhelms them (escape to next page)
@@ -1017,7 +1017,9 @@ export default function BugEvent() {
     c.swell = 0;
     if (['lift', 'laptop', 'deploy', 'xkick'].includes(v.mode)) setMode(v, 'idle');
     if (v.mode === 'grabbed') { setMode(v, 'hop'); v.vy = -260; v.ground = false; }
+    if (v.mode === 'vcarried') { setMode(v, 'hop'); v.vy = -180; v.ground = false; }
     if (['xkick', 'tokens'].includes(c.mode)) setMode(c, 'idle');
+    if (['cflight', 'inventfly'].includes(c.mode)) { setMode(c, 'hop'); c.vy = -180; c.ground = false; }
   }
   const reachOf = (f, b) => f.range + b.w * 0.35;
   const inReach = (f, b, extra = 0) => targetable(b) && f.ground && Math.abs(cx(b) - cx(f)) <= reachOf(f, b) + extra && b.y > f.y - f.h - 40;
@@ -1125,7 +1127,7 @@ export default function BugEvent() {
     const dx = cx(b) - cx(f);
     f.dir = Math.sign(dx) || f.dir;
     // flying target: jump kick
-    if (!b.ground && b.y < g.floorY - 50) {
+    if (!b.ground && b.y < g.floorY - 50 && !(g.stageIdx === 2 && g.losses >= 2)) {
       if (Math.abs(dx) < 140 && f.cd <= 0) { setMode(f, 'jumpkick'); launch(f, clamp(cx(b) - f.w / 2, 4, g.W - f.w - 4), b.y - b.h * 0.3, 0.38); f.cd = 0.9; snd.sfx('swing'); return; }
       // wall jump: run up the screen edge and kick off it
       if ((f.x < 30 || f.x > g.W - f.w - 30) && f.cd <= 0 && Math.abs(dx) < 420) { setMode(f, 'jumpkick'); launch(f, clamp(cx(b) - f.w / 2, 4, g.W - f.w - 4), b.y - b.h * 0.3, 0.5); f.cd = 1; snd.sfx('dash'); fx(g, { text: '', cls: 'fx-dust', x: f.x < 30 ? 0 : g.W - 32, y: f.y - f.h, life: 0.4, max: 0.4 }); say(f, 'Wall jump!', 0.9); return; }
@@ -1133,7 +1135,7 @@ export default function BugEvent() {
       return;
     }
     // flying kick from mid range (June Vic)
-    if (f.key === 'vic' && Math.abs(dx) > 150 && Math.abs(dx) < 340 && f.cd <= 0 && Math.random() < dt * 1.2) {
+    if (f.key === 'vic' && !(g.stageIdx === 2 && g.losses >= 2) && Math.abs(dx) > 150 && Math.abs(dx) < 340 && f.cd <= 0 && Math.random() < dt * 1.2) {
       setMode(f, 'flykick'); launch(f, clamp(cx(b) - f.dir * (b.w / 2) - f.w / 2, 4, g.W - f.w - 4), b.y - b.h * 0.4, 0.42); f.cd = 1; snd.sfx('dash');
       return;
     }
@@ -1216,6 +1218,123 @@ export default function BugEvent() {
       }
       if (c.ground && c.timer > 0.2) setMode(c, 'idle');
     }
+    if (v.mode === 'vcarried' && c.mode !== 'cflight') { setMode(v, 'hop'); v.vy = -180; v.ground = false; }
+    if (c.mode === 'inventfly') {
+      c.vx = 0;
+      if (c.timer >= 0.7 && c.timer < 1.5 && c.bubble !== '> npm i @claude/fly') say(c, '> npm i @claude/fly', 1.1);
+      else if (c.timer >= 1.5 && c.timer < 2.2 && c.bubble !== 'Flight module ready!') say(c, 'Flight module ready!', 1.1);
+      if (c.timer >= 2.2) {
+        g.claudeFly = true;
+        snd.sfx('power', 1.2);
+        fx(g, { text: 'FLIGHT UNLOCKED!', cls: 'fx-big fx-pow', x: cx(c) - 80, y: c.y - c.h - 44, vy: -45, life: 1.0, max: 1.0 });
+        setMode(c, 'cflight');
+        c.ground = false; c.vy = -220; c.atkCd = 0;
+      }
+      return;
+    }
+    if (c.mode === 'cflight') {
+      if (g.phase !== 'fight') {
+        if (v.mode === 'vcarried') { setMode(v, 'hop'); v.vy = -140; v.ground = false; }
+        setMode(c, 'hop'); c.vy = 0; c.ground = false; c.airBoostX = 0; c.airBoostY = 0;
+        return;
+      }
+      const rawList = targetsOf(g);
+      const list = g.stageIdx === 1 && g.phaseKind === 'army' ? rawList.filter(q => !q.boss) : rawList;
+      const airTgt = list.find(q => !q.ground);
+      const closestInList = list.length ? list.reduce((a, b) => (Math.abs(cx(b) - cx(c)) < Math.abs(cx(a) - cx(c)) ? b : a)) : null;
+      const tgt = g.stageIdx === 1 ? (airTgt || closestInList) : focusFor(g, c);
+      if (g.stageIdx === 2 && !BUSY.has(v.mode) && ['idle', 'run'].includes(v.mode)) { setMode(v, 'vcarried'); v.ground = false; }
+      const carrying = v.mode === 'vcarried';
+      const damp = Math.exp(-8 * dt);
+      c.airBoostX = (c.airBoostX || 0) * damp;
+      c.airBoostY = (c.airBoostY || 0) * damp;
+      if (tgt) c.dir = cx(tgt) >= cx(c) ? 1 : -1;
+      const tx = tgt ? cx(tgt) - c.dir * 34 : g.W * 0.5;
+      const ty = tgt ? clamp(tgt.y - (carrying ? v.h - 10 : 8), g.ceilY + c.h + 24, carrying ? g.floorY - v.h + 6 : g.floorY - 24) : clamp(g.floorY - 120, g.ceilY + c.h + 24, g.floorY - 40);
+      c.vx = clamp((tx - cx(c)) * 4.5 + c.airBoostX, -540, 540);
+      c.vy = clamp((ty - c.y) * 4.5 + c.airBoostY, -420, 420) + Math.sin(c.timer * 7) * 18;
+      c.x = clamp(c.x + c.vx * dt, 4, g.W - c.w - 4);
+      c.y = clamp(c.y + c.vy * dt, g.ceilY + c.h + 10, g.floorY - (carrying ? v.h - 6 : 8));
+      c.ground = false;
+      if (carrying) {
+        const swingX = (v.pose === 'kick' ? c.dir * 12 : v.pose === 'punch' ? c.dir * 7 : 0) - clamp(c.vx * 0.025, -8, 8);
+        const swingY = v.pose === 'upper' ? -10 : v.pose === 'kick' ? 3 : 0;
+        v.x = clamp(c.x + (c.w - v.w) / 2 + c.dir * 8 + swingX, 4, g.W - v.w - 4);
+        v.y = clamp(c.y + v.h - 8 + swingY, g.ceilY + v.h, g.floorY);
+        v.vx = 0; v.vy = 0; v.ground = false; v.dir = c.dir;
+      }
+      c.atkCd = Math.max(0, (c.atkCd || 0) - dt);
+      if (tgt && c.atkCd <= 0) {
+        const atkX = carrying ? cx(v) : cx(c), atkY = carrying ? cy(v) : cy(c);
+        const dxT = Math.abs(cx(tgt) - atkX), dyT = Math.abs(cy(tgt) - atkY);
+        const step = (c.airStep || 0) % (carrying ? 5 : 4);
+        const maxDx = tgt.w / 2 + (!carrying && step === 3 ? 170 : 62);
+        if (dxT < maxDx && dyT < tgt.h / 2 + 54) {
+          c.airStep = (c.airStep || 0) + 1;
+          c.atkCd = 0.4;
+          if (carrying) {
+            if (step === 0) {
+              v.pose = 'punch'; v.poseT = 0.2; c.pose = 'headbutt'; c.poseT = 0.2;
+              c.airBoostX = c.dir * 180;
+              fx(g, { text: '', cls: 'fx-smear', x: atkX - 10, y: atkY - 5, rot: c.dir < 0 ? 180 : 0, life: 0.14, max: 0.14 });
+              fx(g, { text: '', cls: 'fx-fist', x: atkX + c.dir * 18, y: atkY - 8, vx: c.dir * 140, life: 0.16, max: 0.16 });
+              hitBug(g, tgt, 9, { dir: c.dir });
+            } else if (step === 1) {
+              v.pose = 'kick'; v.poseT = 0.26;
+              c.airBoostX = c.dir * 250;
+              fx(g, { text: '', cls: 'fx-smear fx-smear--kick', x: atkX - 12, y: atkY - 6, rot: c.dir < 0 ? 180 : 0, life: 0.18, max: 0.18 });
+              hitBug(g, tgt, 13, { kick: true, dir: c.dir });
+            } else if (step === 2) {
+              v.pose = 'upper'; v.poseT = 0.26; c.pose = 'headbutt'; c.poseT = 0.22;
+              c.airBoostY = -240;
+              for (let i = 0; i < 6; i++) fx(g, { text: '', cls: 'fx-spark fx-spark--gold', x: cx(tgt) + rand(-12, 12), y: cy(tgt), vx: rand(-110, 110), vy: rand(-340, -140), life: 0.35, max: 0.35 });
+              hitBug(g, tgt, 13, { kick: true, dir: c.dir });
+            } else if (step === 3) {
+              v.pose = 'spin'; v.poseT = 0.26; c.pose = 'spin'; c.poseT = 0.26;
+              c.airBoostX = c.dir * 200;
+              fx(g, { text: '', cls: 'fx-afterimage fx-afterimage--claude', x: cx(c) - 21, y: c.y - c.h, life: 0.2, max: 0.2 });
+              fx(g, { text: '', cls: 'fx-afterimage', x: cx(v) - 24, y: v.y - v.h, life: 0.2, max: 0.2 });
+              snd.sfx('dash', 1.25);
+              for (const q of list) if (Math.hypot(cx(q) - atkX, cy(q) - atkY) < 115) hitBug(g, q, 11, { kick: true, dir: Math.sign(cx(q) - atkX) || c.dir });
+            } else {
+              v.pose = 'kick'; v.poseT = 0.28; c.pose = 'dive'; c.poseT = 0.28;
+              c.airBoostX = c.dir * 340; c.airBoostY = 140;
+              fx(g, { text: '', cls: 'fx-afterimage fx-afterimage--claude', x: cx(c) - 21, y: c.y - c.h, life: 0.22, max: 0.22 });
+              fx(g, { text: '', cls: 'fx-smear fx-smear--kick', x: atkX - 10, y: atkY - 12, rot: c.dir > 0 ? 25 : 155, life: 0.18, max: 0.18 });
+              hitBug(g, tgt, 15, { kick: true, dir: c.dir });
+              if (Math.random() < 0.35) say(v, pick(['Alley-oop!', 'Dropping in!', 'Air combo!']), 1.3);
+            }
+          } else {
+            if (step === 0) {
+              c.pose = 'headbutt'; c.poseT = 0.22;
+              c.airBoostX = c.dir * 260;
+              fx(g, { text: '', cls: 'fx-smear', x: atkX - 10, y: atkY - 5, rot: c.dir < 0 ? 180 : 0, life: 0.16, max: 0.16 });
+              fx(g, { text: '', cls: 'fx-afterimage fx-afterimage--claude', x: cx(c) - 21, y: c.y - c.h, life: 0.2, max: 0.2 });
+              hitBug(g, tgt, 10, { dir: c.dir });
+            } else if (step === 1) {
+              c.pose = 'spin'; c.poseT = 0.24;
+              c.airBoostX = c.dir * 160; c.airBoostY = -120;
+              for (let i = 0; i < 6; i++) fx(g, { text: '', cls: 'fx-spark fx-spark--orange', x: atkX, y: atkY, vx: Math.cos(i * Math.PI / 3) * 180, vy: Math.sin(i * Math.PI / 3) * 180, life: 0.3, max: 0.3 });
+              snd.sfx('dash', 1.2);
+              hitBug(g, tgt, 12, { kick: true, dir: c.dir });
+            } else if (step === 2) {
+              c.pose = 'dive'; c.poseT = 0.26;
+              c.airBoostX = c.dir * 320; c.airBoostY = 180;
+              fx(g, { text: '', cls: 'fx-afterimage fx-afterimage--claude', x: cx(c) - 21, y: c.y - c.h, life: 0.22, max: 0.22 });
+              fx(g, { text: '', cls: 'fx-smear fx-smear--kick', x: atkX - 10, y: atkY - 12, rot: c.dir > 0 ? 25 : 155, life: 0.18, max: 0.18 });
+              hitBug(g, tgt, 14, { kick: true, dir: c.dir });
+            } else {
+              c.pose = 'headbutt'; c.poseT = 0.22;
+              c.airBoostX = -c.dir * 200; c.airBoostY = -90;
+              g.prompts.push({ id: ++ids, x: atkX, y: atkY, vx: c.dir * 240, vy: -220, text: pick(LINES.prompts), life: 3.0 });
+              for (let i = 0; i < 5; i++) fx(g, { text: '', cls: 'fx-spark fx-spark--orange', x: atkX, y: atkY, vx: c.dir * rand(120, 240), vy: rand(-120, 120), life: 0.28, max: 0.28 });
+              snd.sfx('yeet', 1.4);
+            }
+          }
+        }
+      }
+      return;
+    }
     const b = c.target;
     if (c.mode === 'stomp') {
       if (!targetable(b)) { if (c.ground) setMode(c, 'idle'); }
@@ -1281,7 +1400,7 @@ export default function BugEvent() {
 
   /* -------------------------------------------------------------------- boss */
   function bossAI(g, b, dt) {
-    if (!b || b.mode === 'hidden' || b.mode === 'dead') return;
+    if (!b || b.mode === 'hidden' || b.mode === 'dead' || b.tw) return;
     b.flash = Math.max(0, b.flash - dt);
     b.timer += dt; b.frameT += dt;
     const st = b.stats;
@@ -1338,7 +1457,7 @@ export default function BugEvent() {
       b.leapCd -= dt; b.tauntCd -= dt;
       if (b.tauntCd <= 0) { b.tauntCd = rand(5, 8); say(b, pick(b.st.taunts), 2); }
       if (b.type === 'halluc' && g.phase === 'fight' && (b.rwCd = (b.rwCd ?? 3) - dt) <= 0) { b.rwCd = rand(4.5, 6.5); rewritePage(g, 2); }
-      if (g.phase === 'fight' && b.leapCd <= 0) {
+      if (g.phase === 'fight' && b.leapCd <= 0 && !(g.stageIdx === 1 && g.mt >= CUES.land2 - 1.5)) {
         b.leapCd = rand(2.2, 3.4);
         const els = visibleTargets(g);
         // a swoop: while it dives on a card it CAN be hit (jump kicks, tokens, prompts, DEPLOY)
@@ -1347,11 +1466,23 @@ export default function BugEvent() {
       return;
     }
     if (b.mode === 'watch') {
-      b.vx = 0; physics(g, b, dt); b.tauntCd -= dt;
+      b.vx = 0; physics(g, b, dt);
+      if (g.phase === 'fight' && g.stageIdx === 2 && g.losses >= 2) {
+        const rMax = Math.max(48, Math.min(120, Math.round(g.W * 0.12)));
+        const rMin = Math.min(g.W * 0.6, g.W - b.w - rMax);
+        b.x = clamp(b.x, rMin, g.W - b.w - rMax);
+        b.dir = -1;
+      }
+      b.tauntCd -= dt;
       if (b.tauntCd <= 0) { b.tauntCd = rand(4, 7); say(b, pick(['Not bad.', "Keep going. I'll wait.", b.st.taunts[0], 'My bugs will handle you.']), 2); }
       return;
     }
     physics(g, b, dt);
+    if (g.phase === 'fight' && g.stageIdx === 2 && g.losses >= 2) {
+      const rMax = Math.max(48, Math.min(120, Math.round(g.W * 0.12)));
+      const rMin = Math.min(g.W * 0.6, g.W - b.w - rMax);
+      b.x = clamp(b.x, rMin, g.W - b.w - rMax);
+    }
     if (b.mode === 'air') {
       if (b.kicking) {
         for (const f of [g.vic, g.claude]) if (!b.kickHit?.has(f.key) && f.x + f.w > b.x && f.x < b.x + b.w && f.y > b.y - b.h && f.y - f.h < b.y) {
@@ -1486,7 +1617,7 @@ export default function BugEvent() {
     // idle / walk: approach and choose an attack
     b.atkCd -= dt; b.leapCd -= dt; b.tauntCd -= dt;
     if (b.tauntCd <= 0 && !b.bubble) { b.tauntCd = rand(6, 10); say(b, pick(b.st.taunts), 2.2); }
-    if (b.leapCd <= 0) {
+    if (b.leapCd <= 0 && !(g.stageIdx === 2 && g.losses >= 2)) {
       b.leapCd = rand(...st.leap) * (b.rampage ? 0.4 : 1) * (b.rage ? 0.7 : 1);
       const els = visibleTargets(g);
       if (els.length) {
@@ -1505,7 +1636,8 @@ export default function BugEvent() {
     const extra = b.type === 'e403' && b.rampage ? ['laser', 'minis', ...(g.hanging.size && !b.club ? ['club', 'club'] : [])] : [];
     // the card club is THE rampage moment: guaranteed once, as soon as a card hangs
     if (b.forceClub && !b.club && g.hanging.size && b.atkCd <= 0 && b.ground) { b.forceClub = false; b.atkCd = rand(...st.cd); startAttack(g, b, 'club', t); return; }
-    const powers = b.club ? ['punch'] : [...st.powers, ...extra];
+    const basePowers = g.stageIdx === 2 && g.losses >= 2 ? st.powers.filter(p => !['uppercut', 'juggle', 'pound', 'dropkick', 'grab', 'blink', 'rewind'].includes(p)) : st.powers;
+    const powers = b.club ? ['punch'] : [...basePowers, ...extra];
     // right after a block it counters instantly
     if (b.counter) { b.counter = false; startAttack(g, b, Math.abs(dx) > reach ? 'dash' : 'punch', t); return; }
     const ranged = powers.filter(p => ['bars', 'pound', 'throw', 'blink', 'cite', 'decoy', 'shield', 'laser', 'minis', 'club', 'dash', 'charge', 'dropkick', 'rewind', 'phantom', 'divekick'].includes(p));
@@ -1534,14 +1666,16 @@ export default function BugEvent() {
       g.minions.push(makeDecoy(b, clamp(cx(t) - (t.dir || 1) * -120 - b.w / 2, 4, g.W - b.w - 4)));
       say(b, 'Which one is REAL?', 1.2);
       fx(g, { text: '', cls: 'fx-ghost', x: b.x, y: b.y - b.h, life: 0.4, max: 0.4 }); snd.sfx('blink');
-      b.x = clamp(cx(t) - (t.dir || 1) * 80 - b.w / 2, 4, g.W - b.w - 4); b.dir = Math.sign(cx(t) - cx(b)) || 1;
+      const rMin = g.stageIdx === 2 && g.losses >= 2 ? g.W * 0.6 : 4, rMax = g.stageIdx === 2 && g.losses >= 2 ? Math.max(90, Math.round(g.W * 0.12)) : 4;
+      b.x = clamp(cx(t) - (t.dir || 1) * 80 - b.w / 2, rMin, g.W - b.w - rMax); b.dir = Math.sign(cx(t) - cx(b)) || 1;
       b.mode = 'wind'; b.combo = 2;
     }
     if (power === 'rewind') {   // snaps back to where it was a second ago, then strikes
       const past = b.hist?.[0];
       if (past) {
         for (let i = 0; i < 6; i++) fx(g, { text: '', cls: 'fx-ghost', x: b.x + (past.x - b.x) * (i / 5), y: b.y - b.h, life: 0.2 + i * 0.05, max: 0.45 });
-        b.x = clamp(past.x, 4, g.W - b.w - 4);
+        const rMin = g.stageIdx === 2 && g.losses >= 2 ? g.W * 0.6 : 4, rMax = g.stageIdx === 2 && g.losses >= 2 ? Math.max(90, Math.round(g.W * 0.12)) : 4;
+        b.x = clamp(past.x, rMin, g.W - b.w - rMax);
         fx(g, { text: '⟲ REWIND', cls: 'fx-err fx-err--heal', x: cx(b) - 40, y: b.y - b.h - 30, vy: -40, life: 0.6, max: 0.6 });
         snd.sfx('rollback');
       }
@@ -1589,7 +1723,8 @@ export default function BugEvent() {
     if (power === 'blink') {
       snd.sfx('blink');
       fx(g, { text: '', cls: 'fx-ghost', x: b.x, y: b.y - b.h, life: 0.5, max: 0.5 });
-      b.x = clamp(cx(t) - (t.dir || 1) * 80 - b.w / 2, 4, g.W - b.w - 4);
+      const rMin = g.stageIdx === 2 && g.losses >= 2 ? g.W * 0.6 : 4, rMax = g.stageIdx === 2 && g.losses >= 2 ? Math.max(90, Math.round(g.W * 0.12)) : 4;
+      b.x = clamp(cx(t) - (t.dir || 1) * 80 - b.w / 2, rMin, g.W - b.w - rMax);
       b.dir = Math.sign(cx(t) - cx(b)) || 1;
       fx(g, { text: 'DESYNC!', cls: 'fx-err', x: cx(b) - 30, y: b.y - b.h - 30, vy: -40, life: 0.7, max: 0.7 });
       b.mode = 'wind'; b.combo = 0;
@@ -1947,7 +2082,7 @@ export default function BugEvent() {
       if (g.army) { g.army.mode = 'reinforce'; g.army.reinf = 2; }
       say(g.claude, 'They keep coming!', 1.6);
       g.banner = g.stageIdx === 1 ? `PHASE 2 — ${name.toUpperCase()} LANDS` : `PHASE 2 — ${name.toUpperCase()} STEPS IN`; g.bannerT = 2.2;
-      if (['fly', 'leap', 'bite-page'].includes(b.mode)) { b.mode = 'air'; b.ground = false; b.vy = 200; b.pounding = true; }
+      if (['fly', 'leap', 'bite-page'].includes(b.mode)) { b.mode = 'air'; b.ground = false; b.vy = 650; b.pounding = true; }
       else b.mode = 'idle';
       say(b, g.stageIdx === 2 ? 'My turn.' : "Fine. I'll do it myself.", 2);
     }
@@ -1974,6 +2109,28 @@ export default function BugEvent() {
     if (g.stageIdx === 0 && !g.dl && b && b.ground && ['idle', 'walk'].includes(b.mode) && ((T > 20 && !g.dl1) || (T > 42 && !g.dl2))) {
       if (T > 42) g.dl2 = true; else g.dl1 = true;
       startDownload(g);
+    }
+    // stage 2: Claude invents flying on his laptop during army phase, then flies (and carries Tiny June in stage 3)
+    if (g.stageIdx === 1 && g.phaseKind === 'army' && g.phase === 'fight' && !g.inventingFly && !g.claudeFly && !['hurt', 'grabbed', 'down', 'fallen'].includes(g.claude.mode)) {
+      g.inventingFly = true;
+      letGo(g);
+      setMode(g.claude, 'inventfly');
+      g.claude.vx = 0;
+      say(g.claude, '> npm i...', 0.9);
+    }
+    if (g.claudeFly && g.phase === 'fight' && !(g.stageIdx === 2 && g.losses >= 2) && !BUSY.has(g.claude.mode) && ['idle', 'run'].includes(g.claude.mode)) {
+      const stage2HasTargets = g.stageIdx === 1 && (g.phaseKind === 'army' ? targetsOf(g).some(q => !q.boss) : targetsOf(g).length > 0);
+      if (g.stageIdx === 2 || stage2HasTargets) {
+        letGo(g);
+        setMode(g.claude, 'cflight');
+        g.claude.ground = false; g.claude.vy = -200; g.claude.atkCd = 0;
+        if (g.stageIdx === 2 && !BUSY.has(g.vic.mode) && ['idle', 'run'].includes(g.vic.mode)) {
+          setMode(g.vic, 'vcarried'); g.vic.ground = false;
+          say(g.vic, 'Fly me up! Let me hit them!', 2);
+        } else if (g.stageIdx === 1) {
+          say(g.claude, 'Wings deployed!', 1.6);
+        }
+      }
     }
     // stage 2: prompt injection
     if (g.stageIdx === 1 && g.phaseKind === 'boss' && !g.inj && !g.injDone && T >= CUES.inject) startInject(g);
@@ -2250,33 +2407,89 @@ export default function BugEvent() {
   }
 
   /* ------------------ CLAUDE'S LAST FIGHT (≈2:26–2:36): he saves June Vic, then RollbackKing takes him */
+  function tween(o, tx, ty, d) { o.tw = { fx: o.x, fy: o.y, tx, ty, t: 0, d }; }
+  function tweenStep(o, dt) {
+    const w = o.tw;
+    if (!w) return;
+    w.t += dt;
+    const k = Math.min(1, w.t / w.d), e = 1 - (1 - k) * (1 - k);
+    o.x = w.fx + (w.tx - w.fx) * e; o.y = w.fy + (w.ty - w.fy) * e;
+    if (k >= 1) { o.tw = null; o.ground = true; o.vx = 0; o.vy = 0; }
+  }
   const lfAt = (g, cue, rel) => Math.max(cue, g.lf.t0 + rel);
   function startLastFight(g) {
     const { vic: v, claude: c } = g, b = g.boss;
     g.phase = 'lastfight'; g.lf = { t0: g.mt, beats: 0, ex: 0 };
-    g.move = null; if (b) b.moveDir = null;
+    g.move = null; if (b) { b.moveDir = null; b.tw = null; }
     letGo(g);
+    v.tw = null; c.tw = null;
     g.projectiles = []; g.shocks = []; g.laser = null; g.prompts = []; g.tokens = []; g.beams = []; g.waves = [];
-    // the swarm buries June Vic: a full dogpile he can't shake off
-    setMode(v, 'buried'); v.vx = 0;
-    for (const m of g.minions) if (m.mode === 'latch') { m.mode = 'drop'; m.host = null; }
+    g.claudeFly = false;
+    c.airBoostX = 0; c.airBoostY = 0;
+
+    const minStageX = Math.max(48, Math.min(120, Math.round(g.W * 0.12)));
+    const maxStageX = w => g.W - w - minStageX;
+
+    // R1 & R2: Smooth transition from combat positions into balanced inward staging positions
+    const targetLeftX = clamp(g.W * 0.22, minStageX, Math.min(260, maxStageX(v.w)));
+    g.lf.leftX = targetLeftX;
+    setMode(v, 'buried');
+    v.vx = 0; v.vy = 0;
+    tween(v, targetLeftX, g.floorY, 1.1);
+
+    const maxClaudeX = maxStageX(c.w);
+    const minClaudeX = Math.min(targetLeftX + 110, maxClaudeX);
+    const targetClaudeX = clamp(Math.max(targetLeftX + 140, g.W * 0.46), minClaudeX, Math.min(g.W * 0.55, maxClaudeX));
+    setMode(c, 'run'); c.dir = -1;
+    c.vx = 0; c.vy = 0;
+    tween(c, targetClaudeX, g.floorY, 0.75);
+
+    for (const m of g.minions) {
+      m.flying = false;
+      if (m.mode === 'latch') { m.mode = 'drop'; m.host = null; }
+      else if (!m.ground) m.mode = 'drop';
+    }
     for (let i = 0; i < 6; i++) {
-      const m = spawnOne(g, { at: { x: cx(v) + rand(-90, 90), y: v.y - 80 }, flying: false });
+      const m = spawnOne(g, { at: { x: cx(v) + rand(-30, 30), y: v.y - 40 - i * 8 }, flying: false });
       m.mode = 'latch'; m.host = v; m.latchI = i; m.timer = 0;
+    }
+    for (let i = 0; i < 5; i++) {
+      const spawnX = c.x - 36 - i * 14;
+      const bm = spawnOne(g, { at: { x: clamp(spawnX, minStageX, maxStageX(MINION_W * S)), y: g.floorY }, flying: false });
+      bm.blockClaude = true; bm.blockI = i; bm.mode = 'walk'; bm.ground = true; bm.timer = 0;
     }
     snd.sfx('grab', 1.2); g.shakeT = 0.4;
     say(v, "I… can't… move…", 2);
-    setMode(c, 'idle'); c.vx = 0; c.dir = Math.sign(cx(v) - cx(c)) || 1;
     say(c, 'JUNE VIC!!', 1.4);
-    if (isAlive(b)) { b.mode = 'watch'; b.vx = 0; b.untargetable = true; b.stun = 0; b.held = null; b.shield = 0; }
+    if (isAlive(b)) {
+      b.mode = 'watch'; b.vx = 0; b.vy = 0; b.dir = -1;
+      b.untargetable = true; b.stun = 0; b.held = null; b.shield = 0;
+      const targetBossX = clamp(g.W * 0.74, Math.min(targetClaudeX + 80, maxStageX(b.w)), maxStageX(b.w));
+      tween(b, targetBossX, g.floorY, 0.8);
+    }
   }
   function lastFightStep(g, dt) {
     const lf = g.lf, { vic: v, claude: c } = g, b = g.boss, T = g.mt;
     const once = (k, cond, fn) => onceIn(lf, k, cond, fn);
-    if (!lf.nova) { v.vx = 0; if (Math.random() < dt * 4) g.shakeT = Math.max(g.shakeT, 0.08); }
-    // Claude powers up to save him
+    const minStageX = Math.max(48, Math.min(120, Math.round(g.W * 0.12)));
+    const maxStageX = w => g.W - w - minStageX;
+
+    if (!lf.nova) {
+      v.vx = 0;
+      if (Math.random() < dt * 4) g.shakeT = Math.max(g.shakeT, 0.08);
+      for (const m of g.minions) {
+        if (m.blockClaude && isAlive(m)) {
+          m.x = clamp(c.x - 36 - m.blockI * 14 + Math.sin(g.real * 18 + m.blockI) * 4, minStageX, maxStageX(m.w));
+          m.y = g.floorY; m.dir = 1;
+        }
+      }
+      if (!lf.power && Math.random() < dt * 10) {
+        fx(g, { text: '', cls: 'fx-spark', x: c.x - 16 + rand(-6, 6), y: cy(c) + rand(-10, 10), vx: rand(-60, 40), vy: rand(-140, -40), life: 0.25, max: 0.25 });
+      }
+    }
+    // Claude powers up once Tiny June is dragged to the left side
     once('power', T >= lfAt(g, 147.2, 1.2), () => {
-      setMode(c, 'cpower'); c.vx = 0; c.aura = 0;
+      setMode(c, 'cpower'); c.vx = 0; c.aura = 0; c.dir = -1;
       say(c, 'CONTEXT WINDOW: MAX!!', 1.6);
       snd.sfx('roar', 1.6); snd.loop('aura', 300); impactFrame(g, 0.05); g.flashT = 0.2; g.flashId++;
     });
@@ -2306,7 +2519,8 @@ export default function BugEvent() {
       const side = cx(c) < cx(b) ? -1 : 1;
       b.dir = side; c.dir = -side;
       fx(g, { text: '', cls: 'fx-afterimage fx-afterimage--claude', x: c.x, y: c.y - c.h, life: 0.25, max: 0.25 });
-      tween(c, clamp(cx(b) + side * (b.w / 2 + 4) - c.w / 2, 4, g.W - c.w - 4), g.floorY, 0.12);
+      const duelTx = clamp(cx(b) + side * (b.w / 2 + 4) - c.w / 2, minStageX, maxStageX(c.w));
+      tween(c, duelTx, g.floorY, 0.12);
       snd.sfx('dash', 1.4); lf.hitAt = T + 0.13;
     }
     if (lf.hitAt && T >= lf.hitAt) {
@@ -2315,7 +2529,8 @@ export default function BugEvent() {
       if (lf.ex % 3 === 0) {   // blocked — and countered
         b.mode = 'block'; b.timer = 0; snd.sfx('parry');
         fx(g, { text: 'BLOCKED!', cls: 'fx-big fx-pow', x: cx(b) - 50, y: b.y - b.h - 40, vy: -40, life: 0.6, max: 0.6 });
-        tween(c, clamp(c.x - c.dir * 110, 4, g.W - c.w - 4), g.floorY, 0.16);
+        const counterTx = clamp(c.x - c.dir * 110, minStageX, maxStageX(c.w));
+        tween(c, counterTx, g.floorY, 0.16);
         fx(g, { text: '', cls: 'fx-impact', x: cx(c) - 18, y: cy(c) - 18, life: 0.15, max: 0.15 }); snd.sfx('thud');
       } else {
         comboHit(g, cx(b), cy(b), true); b.flash = 0.12; g.shakeT = Math.max(g.shakeT, 0.25);
@@ -2329,7 +2544,10 @@ export default function BugEvent() {
       lf.grabT = T; c.tw = null;
       fx(g, { text: '', cls: 'fx-ghost', x: b.x, y: b.y - b.h, life: 0.3, max: 0.3 }); snd.sfx('fsht');
       const behind = -(c.dir || 1);
-      b.x = clamp(cx(c) + behind * (b.w * 0.55) - b.w / 2, 4, g.W - b.w - 4); b.y = g.floorY; b.ground = true;
+      const minBx = minStageX;
+      const maxBx = maxStageX(b.w);
+      b.x = clamp(cx(c) + behind * (b.w * 0.55) - b.w / 2, minBx, maxBx);
+      b.y = g.floorY; b.ground = true;
       b.dir = Math.sign(cx(c) - cx(b)) || 1;
       b.mode = 'hold'; b.vx = 0;
       setMode(c, 'held'); c.powered = false; c.drain = 0;
@@ -2337,6 +2555,12 @@ export default function BugEvent() {
       say(b, 'Got you.', 1.4); say(c, '—!!', 0.8);
       snd.sfx('grab', 0.8); snd.loop('heartbeat', 900); impactFrame(g, 0.05);
       lf.beatNext = T + 0.6;
+      // R3: Tiny June runs toward Claude upon Claude being captured by the boss
+      lf.vicRun = true;
+      v.tw = null;
+      setMode(v, 'run');
+      v.dir = Math.sign(cx(c) - cx(v)) || 1;
+      say(v, 'CLAUDE!!', 1.2);
     });
     if (lf.grab && !lf.limp) {
       // it FLIES up with him, high above the stage (red thrusters), June Vic left below
@@ -2348,6 +2572,26 @@ export default function BugEvent() {
       const hx = b.dir > 0 ? b.x + b.w * 0.76 : b.x + b.w * 0.24, hy = b.y - b.h + 4;
       c.x = hx - c.w / 2 + b.dir * 4; c.y = hy + c.h - 8; c.ground = false; c.vx = 0; c.vy = 0;
       setCam(g, 1.15 + clamp((T - lf.grabT) / 4, 0, 1) * 0.2, cx(c), clamp(c.y + 40, g.H * 0.4, g.floorY - 60));
+
+      // Tiny June running toward Claude's position
+      if (lf.vicRun) {
+        const side = Math.sign(cx(v) - cx(c)) || -1;
+        const targetVx = clamp(cx(c) - v.w / 2 + side * (v.w * 0.9), minStageX, maxStageX(v.w));
+        const dx = targetVx - v.x;
+        const step = v.speed * dt;
+        if (Math.abs(dx) <= Math.max(8, step)) {
+          v.vx = 0;
+          v.x = targetVx;
+          v.dir = -side;
+          if (v.mode === 'run') setMode(v, 'kneel');
+        } else {
+          v.dir = Math.sign(dx) || 1;
+          v.vx = v.dir * v.speed;
+          if (v.mode !== 'run') setMode(v, 'run');
+        }
+        v.x = clamp(v.x, minStageX, maxStageX(v.w));
+      }
+
       // the beating, on the beat
       if (T >= lf.beatNext) {
         lf.beatNext = T + 0.7; lf.beats++;
@@ -2358,22 +2602,24 @@ export default function BugEvent() {
         c.drain = Math.min(1, (c.drain || 0) + 0.18); c.flashT = 0.12;
         for (let i = 0; i < 10; i++) fx(g, { text: '', cls: 'fx-px fx-px--claude', x: cx(c) + rand(-12, 12), y: cy(c) + rand(-12, 12), vx: rand(-80, 80), vy: rand(-220, -60), life: 1, max: 1 });
         if (lf.beats === 1) say(c, 'L-let… go…', 1.2);
-        if (lf.beats === 2) say(v, 'No… no…', 1.2);
-        if (lf.beats === 3) { say(v, "I can't… stand…", 1.2); tween(v, clamp(v.x + Math.sign(cx(c) - cx(v)) * 34, 4, g.W - v.w - 4), g.floorY, 0.4); }
-        if (lf.beats === 4) { tween(v, clamp(v.x - Math.sign(cx(c) - cx(v)) * 20, 4, g.W - v.w - 4), g.floorY, 0.25); say(c, '…', 1); }
+        if (lf.beats === 2) say(v, 'Let him go!!', 1.2);
+        if (lf.beats === 3) say(v, "I can't reach him…", 1.2);
+        if (lf.beats === 4) say(c, '…', 1);
         if (lf.beats === 5) say(v, 'CLAUDE!!', 1.4);
       }
     }
-    // the quietest dip: Claude goes limp, the boss drops him
+    // the quietest dip: Claude goes limp, the boss throws him to the left side of the stage
     once('limp', lf.grab && T >= lfAt(g, CUES.fall, 9.5), () => {
+      lf.vicRun = false;
       snd.stopLoop('heartbeat'); c.eyesClosed = true; c.drain = 1;
       say(b, 'One down.', 1.6);
-      // …and lets go: Claude falls from the sky
+      b.dir = -1; b.punchPose = 0.25; snd.sfx('throw');
+      // …and hurls him across to the left side of the stage
       b.mode = 'sky'; b.ground = false; b.untargetable = true;
       c.dropped = true;
       startLastStand(g);
     });
-    tweenStep(c, dt); tweenStep(v, dt);
+    tweenStep(c, dt); tweenStep(v, dt); if (b) tweenStep(b, dt);
   }
 
   /* --------------------------- LAST STAND: Claude falls → tears → Super Saiyan → SKY BATTLE */
@@ -2384,44 +2630,42 @@ export default function BugEvent() {
     g.prompts = []; g.tokens = []; g.beams = []; g.projectiles = []; g.shocks = []; g.hazards = []; g.waves = []; g.laser = null;
     g.minions = g.minions.filter(m => m.kind !== 'decoy');
     for (const m of g.minions) if (m.mode === 'latch') { m.mode = 'drop'; m.vy = 0; }
-    setMode(c, 'fallen'); c.vx = 0; c.vy = -260; c.ground = false; c.eyesClosed = false; c.inv = 0;
+    const minStageX = Math.max(48, Math.min(120, Math.round(g.W * 0.12)));
+    const maxStageX = w => g.W - w - minStageX;
+    const throwTargetX = clamp(g.W * 0.22, minStageX, Math.min(280, maxStageX(c.w)));
+    setMode(c, 'fallen'); c.dir = -1; c.eyesClosed = false; c.inv = 0;
+    launch(c, throwTargetX, g.floorY, g.reduced ? 0.85 : 0.52);
     g.letterbox = true;
     if (!g.reduced) g.timeScale = 0.25;
     setCam(g, 2.1, cx(c), c.y - c.h);
-    if (c.dropped && !g.reduced) g.timeScale = 0.5;   // a long fall from the sky, in slow motion
+    if (c.dropped && !g.reduced) g.timeScale = 0.5;   // a long throw from the sky to the left side, in slow motion
     snd.duckMusic(0.35); snd.sfx('thud', 0.6); snd.loop('heartbeat', 900);
     g.team.hp = Math.max(1, g.team.hp);
     v.vx = 0; if (v.ground) setMode(v, 'idle');
   }
   // cue time, but never earlier than `rel` seconds after the last stand began (if it started late)
   const lsAt = (g, cue, rel) => Math.max(cue, g.ls.t0 + rel);
-  const tween = (o, tx, ty, d) => { o.tw = { fx: o.x, fy: o.y, tx, ty, t: 0, d }; };
-  function tweenStep(o, dt) {
-    const w = o.tw;
-    if (!w) return;
-    w.t += dt;
-    const k = Math.min(1, w.t / w.d), e = 1 - (1 - k) * (1 - k);
-    o.x = w.fx + (w.tx - w.fx) * e; o.y = w.fy + (w.ty - w.fy) * e;
-    if (k >= 1) o.tw = null;
-  }
   function lastStandStep(g, realDt) {
     const ls = g.ls, { vic: v, claude: c } = g, b = g.boss;
     const T = g.mt;
     ls.t += realDt;
     const once = (key, cond, fn) => onceIn(ls, key, cond, fn);
-    if (!ls.run && !c.ground) setCam(g, 1.7, cx(c), clamp(c.y - c.h / 2, g.H * 0.3, g.floorY - 40));   // follow him down
+    if (!ls.run) v.dir = Math.sign(cx(c) - cx(v)) || v.dir;
+    if (!ls.run && !c.ground) setCam(g, 1.7, cx(c), clamp(c.y - c.h / 2, g.H * 0.3, g.floorY - 40));   // follow him across and down
     once('eyes', ls.t > 1.2, () => { c.eyesClosed = true; snd.stopLoop('heartbeat'); snd.sfx('heartbeat', 0.7); });
     // June Vic runs to him and cries
     once('run', T >= lsAt(g, CUES.run, 1.5), () => {
       g.timeScale = 1; g.sad = true;
       setMode(v, 'run'); ls.runFrom = v.x; ls.runT = ls.t;
       // kneel a full body-width away, on the side with more room
-      ls.kneelX = cx(c) > g.W / 2 ? clamp(c.x - v.w - 10, 4, g.W - v.w - 4) : clamp(c.x + c.w + 10, 4, g.W - v.w - 4);
+      const minX = Math.max(90, Math.round(g.W * 0.12));
+      const maxX = g.W - v.w - minX;
+      ls.kneelX = cx(c) > g.W / 2 ? clamp(c.x - v.w - 10, minX, maxX) : clamp(c.x + c.w + 10, minX, maxX);
       say(v, 'Claude…?', 1.4);
       snd.sfx('sad');
     });
     if (ls.run && !ls.kneel) {
-      const k = Math.min(1, (ls.t - ls.runT) / 0.45);
+      const k = Math.min(1, (ls.t - ls.runT) / 0.85);
       v.x = ls.runFrom + (ls.kneelX - ls.runFrom) * k; v.dir = Math.sign(cx(c) - cx(v)) || 1; v.vx = 0;
       setCam(g, 2, (cx(v) + cx(c)) / 2, g.floorY - 40);
       if (k >= 1) { v.x = ls.kneelX; setMode(v, 'cry'); v.dir = Math.sign(cx(c) - cx(v)) || 1; ls.kneel = true; }
@@ -2635,6 +2879,7 @@ export default function BugEvent() {
   // FAST like DBZ: teleport chains, flurries all over the screen, barely a breath between exchanges
   function skyStep(g, dt) {
     const sky = g.sky, v = g.vic, b = g.boss;
+    if (v.poseT > 0 && (v.poseT -= dt) <= 0) v.pose = null;
     sky.next -= dt;
     if (!sky.move && sky.next <= 0) {
       const kind = pick(['flurry', 'flurry', 'flurry', 'clash', 'barrage', 'barrage', 'knock', 'counter']);
@@ -2900,17 +3145,19 @@ export default function BugEvent() {
       cl.t += dt;
       const once = (key, cond, fn) => onceIn(cl, key, cond, fn);
       g.smoke = Math.max(0, g.smoke - dt * 0.5);
-      // the cracks seal one by one (repair light + ✓ sparks + a rising cascade of dings)
-      if (cl.t < 2.2 && g.bg?.cracks.length) {
+      // the cracks seal one by one with pixel sparks until every crack finishes
+      const repairDur = Math.min(7.0, Math.max(2.8, (g.bg?.cracks.length || 0) * 0.035 + 1.0));
+      if (cl.t < repairDur - 0.4 && g.bg?.cracks.length) {
         cl.sealT = (cl.sealT ?? 0) - dt;
         if (cl.sealT <= 0) {
-          cl.sealT = 0.14; cl.seal = (cl.seal || 0) + 1;
-          const k = pick(g.bg.cracks).pts.split(' ').pop().split(',').map(Number);
-          fx(g, { text: '✓', cls: 'fx-check fx-check--sm', x: k[0] - 8, y: k[1] - 10, vy: -40, life: 0.6, max: 0.6 });
+          cl.sealT = 0.12; cl.seal = (cl.seal || 0) + 1;
+          const pts = pick(g.bg.cracks).pts.split(' ');
+          const k = pick(pts).split(',').map(Number);
+          fx(g, { text: pick(['▪', '+', '✦']), cls: 'fx-pixel-heal', x: k[0] - 6, y: k[1] - 8, vy: -32, life: 0.45, max: 0.45 });
           snd.sfx('ding', 0.8 + Math.min(0.8, cl.seal * 0.05));
         }
       }
-      once('bg', cl.t > 2.8, () => { g.bg = null; g.damage = []; g.shine = false; });
+      once('bg', cl.t > repairDur, () => { g.bg = null; g.damage = []; g.shine = false; });
       // high-five
       once('hf', cl.t > 1.3, () => { for (const f of [v, c]) setMode(f, 'run'); });
       if (cl.hf && !cl.clap) {
@@ -2995,7 +3242,7 @@ export default function BugEvent() {
     if (g.phase === 'fight') {
       g.dim += (0.3 - g.dim) * Math.min(1, dt * 2);
       g.comboCd -= dt;
-      if (g.comboCd <= 0) g.comboCd = pickCombo(g) ? rand(2.4, 3.8) : 0.5;
+      if (g.comboCd <= 0 && !(g.stageIdx === 2 && g.losses >= 2)) g.comboCd = pickCombo(g) ? rand(2.4, 3.8) : 0.5;
       comboStep(g, dt);
       if (g.phase === 'fight') fighterAI(g, v, dt);
       if (g.phase === 'fight') fighterAI(g, c, dt);
@@ -3032,8 +3279,16 @@ export default function BugEvent() {
           g.armyFrom = null;
           if (g.phaseKind === 'army') {
             if (g.stageIdx === 1) { b.mode = 'fly'; b.x = g.W * 0.6; b.y = -120; }
-            else { b.mode = 'watch'; b.x = g.W - b.w - 30; b.y = g.floorY; b.ground = true; }
-          } else { b.mode = 'air'; b.ground = false; b.x = g.W * 0.68; b.y = -150; b.vy = 0; b.vx = 0; }
+            else {
+              const rightInward = clamp(g.W * 0.74, g.W * 0.65, g.W - b.w - Math.max(90, Math.round(g.W * 0.12)));
+              b.mode = 'watch'; b.x = rightInward; b.dir = -1; b.y = g.floorY; b.ground = true;
+            }
+          } else {
+            b.mode = 'air'; b.ground = false;
+            const rightInward = clamp(g.W * 0.74, g.W * 0.65, g.W - b.w - Math.max(90, Math.round(g.W * 0.12)));
+            b.x = g.stageIdx === 2 && g.losses >= 2 ? rightInward : g.W * 0.68;
+            b.dir = -1; b.y = -150; b.vy = 0; b.vx = 0;
+          }
         }
         if (g.navigated && g.navPainted && g.wipe?.dir === 'in') {   // reveal only after the new page has painted
           g.wipe = { dir: 'out' }; g.wipeOutAt = g.lostReal;
@@ -3093,14 +3348,14 @@ export default function BugEvent() {
       f.timer += dt;
       f.inv = Math.max(0, f.inv - dt);
       if (f.poseT > 0 && (f.poseT -= dt) <= 0) f.pose = null;
-      if (!['ride', 'carried', 'vacuumed', 'hidden', 'grabbed', 'ssjfly', 'heal', 'beam', 'held'].includes(f.mode) && !f.tw) {
+      if (!['ride', 'carried', 'vacuumed', 'hidden', 'grabbed', 'ssjfly', 'heal', 'beam', 'held', 'cflight', 'vcarried'].includes(f.mode) && !f.tw) {
         physics(g, f, dt);
         if (f.landed) {
           f.landed = false; f.landT = 0.14;
           if (f.mode === 'enter') { setMode(f, 'idle'); f.vx = 0; }
           if (!['down', 'fallen'].includes(f.mode)) fx(g, { text: '', cls: 'fx-dust', x: cx(f) - 16, y: f.y - 6, life: 0.4, max: 0.4 });
           else if (f.dropped) {   // Claude hits the ground after the fall from the sky
-            f.dropped = false; g.shakeT = 0.6; snd.sfx('thud', 0.5); snd.sfx('crash');
+            f.dropped = false; f.vx = 0; g.shakeT = 0.6; snd.sfx('thud', 0.5); snd.sfx('crash');
             fx(g, { text: '', cls: 'fx-floorcrack fx-floorcrack--big', x: cx(f) - 90, y: g.floorY - 10, life: 3, max: 3 });
             for (let i = 0; i < 16; i++) fx(g, { text: '', cls: 'fx-debris', x: cx(f), y: g.floorY - 6, vx: rand(-300, 300), vy: rand(-380, -100), grav: 1400, life: 1, max: 1 });
           }
@@ -3128,7 +3383,7 @@ export default function BugEvent() {
     });
     g.prompts = g.prompts.filter(p => {
       p.life -= dt;
-      const list = targetsOf(g);
+      const list = targetsOf(g).filter(q => !(g.stageIdx === 1 && g.phaseKind === 'army' && q.boss));
       const t = list.length ? list.reduce((a, e) => (Math.hypot(cx(e) - p.x, cy(e) - p.y) < Math.hypot(cx(a) - p.x, cy(a) - p.y) ? e : a)) : null;
       if (t) {
         const tx = cx(t), ty = cy(t), d = Math.hypot(tx - p.x, ty - p.y) || 1, k = Math.min(1, dt * 3.4);
@@ -3346,21 +3601,23 @@ export default function BugEvent() {
     const air = !f.ground && ['enter', 'idle', 'run', 'hop', 'fin'].includes(f.mode);
     if (f.key === 'vic') {
       const kickG = v.ssj ? vicFight.ssjKick : vicFight.kick;
-      if (p === 'kick' || ['flykick', 'jumpkick', 'xkick'].includes(f.mode) || (f.mode === 'ssjfly' && !p)) grid = kickG;
+      const ssjDash = f.mode === 'ssjfly' && g.ls?.go && !g.ls?.wiped;
+      if (p === 'kick' || p === 'spin' || ['flykick', 'jumpkick', 'xkick'].includes(f.mode) || ssjDash) grid = kickG;
       else if (p === 'punch' || f.mode === 'charge' || f.mode === 'beam') grid = vic.poses.vacuum[0];
-      else if (p === 'upper' || p === 'parry' || ['hurt', 'lift', 'deploy', 'grabbed', 'power', 'dodge', 'shakeoff', 'spring', 'buried', 'kneel'].includes(f.mode) || air) grid = vic.poses.held[f.mode === 'grabbed' || f.mode === 'shakeoff' ? f.frame : 0];
+      else if (p === 'upper' || p === 'parry' || ['hurt', 'lift', 'deploy', 'grabbed', 'power', 'dodge', 'shakeoff', 'spring', 'buried', 'kneel', 'vcarried'].includes(f.mode) || air) grid = vic.poses.held[['grabbed', 'shakeoff', 'vcarried'].includes(f.mode) ? f.frame : 0];
       else if (f.mode === 'run') grid = vic.walk[f.frame];
       else if (f.mode === 'vacuum') grid = vic.poses.vacuum[f.frame];
       else if (f.mode === 'laptop' || f.mode === 'typing') grid = vic.poses.laptop[f.frame];
       else if (f.mode === 'cheer') grid = vic.poses.wave[f.frame];
       else if (v.ssj) grid = vicFight.ssj;
       if (v.ssj && grid !== kickG && grid !== vicFight.ssj) grid = grid.map((r, i) => (i < 2 ? vicFight.ssj[i] : r));
-    } else if (['hurt', 'carried', 'grabbed', 'dodge', 'shakeoff', 'boost', 'held'].includes(f.mode) || air) grid = claude.poses.held[f.mode === 'held' && f.drain > 0.6 ? 0 : f.frame];
+    } else if (f.mode === 'inventfly') grid = claude.poses.laptop[f.frame];
+    else if (['hurt', 'carried', 'grabbed', 'dodge', 'shakeoff', 'boost', 'held'].includes(f.mode) || (f.mode === 'cflight' && (p || Math.abs(f.vx) > 90)) || air) grid = claude.poses.held[f.mode === 'held' && f.drain > 0.6 ? 0 : f.frame];
     else if (f.mode === 'vacuumed') grid = claude.poses.vacuum[f.frame];
     else if (f.mode === 'dance') grid = claude.poses.held[Math.floor(f.timer * 4) % 2];
     const face = ['hurt', 'down', 'fallen', 'cry', 'buried', 'kneel', 'held'].includes(f.mode) ? 'sad'
       : f.mode === 'confused' ? 'surprised'
-      : ['cheer', 'ride', 'laptop', 'typing', 'deploy', 'tokens', 'heal', 'dance'].includes(f.mode) ? 'happy'
+      : ['cheer', 'ride', 'laptop', 'typing', 'inventfly', 'deploy', 'tokens', 'heal', 'dance'].includes(f.mode) ? 'happy'
       : ['carried', 'thrown', 'vacuumed', 'hop', 'enter', 'grabbed'].includes(f.mode) ? 'surprised' : 'angry';
     if (sp.faces[face]) grid = applyFace(grid, sp.faces[face], sp.faceCols);
     if (f.eyesClosed) grid = grid.map(r => r.replaceAll('E', sp.blinkChar));
@@ -3379,16 +3636,20 @@ export default function BugEvent() {
     if (f.mode === 'dodge') body = `rotate(${(-f.dir * Math.min(1, f.timer / 0.45) * 360).toFixed(0)}deg) ${body}`;   // backflip
     if (f.tumble > 0) body = `rotate(${(g.real * 1400) % 360}deg) ${body}`;
     if (f.mode === 'boost') body = `scaleY(0.8) ${body}`;
+    if (f.mode === 'cflight') body = `rotate(${clamp(f.vx * 0.04, -15, 15).toFixed(1)}deg) ${body}`;
+    if (f.mode === 'vcarried') body = `rotate(${clamp(-g.claude.vx * 0.045, -16, 16).toFixed(1)}deg) ${body}`;
     const palette = f.key === 'vic' && v.ssj ? vicFight.ssjPalette : sp.palette;
-    const aura = f.key === 'vic' ? v.ssj || (g.ls?.aura ?? 0) > 0 : f.powered || f.mode === 'cpower';
-    const auraLvl = f.key === 'vic' ? (v.ssj ? (v.mode === 'heal' ? 0.45 : 1) : g.ls?.aura ?? 0) : (f.powered ? 0.8 : f.aura || 0);
     if (f.mode === 'kneel' || f.mode === 'buried') body = `translateY(${f.mode === 'kneel' ? 9 : 4}px) ${body}`;
     return (
-      <div key={f.key} className={`bug-fighter bug-fighter--${f.key} is-${f.mode}${p ? ` pose-${p}` : ''}${f.gulp > 0 ? ' is-gulp' : ''}${f.inv > 0 && !['hurt', 'dodge'].includes(f.mode) ? ' is-inv' : ''}${f.key === 'vic' && v.ssj ? ' is-ssj' : ''}${f.vanish ? ' is-vanish' : ''}${f.landT > 0 ? ' is-land' : ''}${!f.ground && f.vy < -260 && !['ssjfly', 'beam', 'held', 'heal'].includes(f.mode) ? ' is-rise' : ''}`} style={{ transform: `translate(${Math.round(f.x)}px, ${Math.round(f.y)}px)`, width: f.w, height: f.h, '--dir': f.dir }}>
+      <div key={f.key} className={`bug-fighter bug-fighter--${f.key} is-${f.mode}${p ? ` pose-${p}` : ''}${f.gulp > 0 ? ' is-gulp' : ''}${f.inv > 0 && !['hurt', 'dodge'].includes(f.mode) ? ' is-inv' : ''}${f.key === 'vic' && v.ssj ? ' is-ssj' : ''}${f.vanish ? ' is-vanish' : ''}${f.landT > 0 ? ' is-land' : ''}${!f.ground && f.vy < -260 && !['ssjfly', 'beam', 'held', 'heal', 'cflight', 'vcarried'].includes(f.mode) ? ' is-rise' : ''}`} style={{ transform: `translate(${Math.round(f.x)}px, ${Math.round(f.y)}px)`, width: f.w, height: f.h, '--dir': f.dir }}>
         {f.shield > 0 && <span className="bug-bubble-shield" />}
-        {aura && <span className="bug-aura" style={{ '--aura': auraLvl }}><PixelSprite grid={AURA_FRAMES[Math.floor(g.real * 14) % AURA_FRAMES.length]} palette={f.key === 'vic' ? AURA_PALETTE : AURA_PALETTE_ORANGE} scale={f.key === 'vic' ? 4 : 3} /></span>}
-        {f.bubble && <p className={`buddy__bubble buddy__bubble--${side}${['laptop', 'typing'].includes(f.mode) ? ' is-typing' : ''}`}>{f.bubble}</p>}
+        {f.bubble && <p className={`buddy__bubble buddy__bubble--${side}${['laptop', 'typing', 'inventfly'].includes(f.mode) ? ' is-typing' : ''}`}>{f.bubble}</p>}
         <span className="bug-fighter__body" style={{ transform: body || undefined, filter: f.drain ? `grayscale(${f.drain.toFixed(2)}) brightness(${(1 - f.drain * 0.25).toFixed(2)})` : undefined }}>
+          {f.key === 'claude' && g.claudeFly && (!f.ground || f.mode === 'cflight') && (
+            <span className="bug-wings" aria-hidden="true">
+              <PixelSprite grid={WINGS[Math.floor(g.real * (p ? 24 : 14)) % WINGS.length]} palette={CLAUDE_WING_PALETTE} scale={S} />
+            </span>
+          )}
           <PixelSprite grid={fighterGrid(f)} palette={palette} scale={S} />
           {f.mode === 'cry' && <span className="bug-tears" aria-hidden="true"><i /><i /></span>}
           {g.armor && ARMOR_PIECES[f.key].map(piece => (f.armor[piece.id] < 2 ? (
@@ -3396,6 +3657,25 @@ export default function BugEvent() {
               <PixelSprite grid={piece.frames[f.armor[piece.id]]} palette={ARMOR_PALETTE} scale={S} />
             </span>
           ) : null))}
+        </span>
+      </div>
+    );
+  };
+
+  const fighterAura = f => {
+    if (f.mode === 'hidden') return null;
+    const aura = f.key === 'vic' ? v.ssj || (g.ls?.aura ?? 0) > 0 : f.powered || f.mode === 'cpower';
+    if (!aura) return null;
+    const auraLvl = f.key === 'vic' ? (v.ssj ? (v.mode === 'heal' ? 0.45 : 1) : g.ls?.aura ?? 0) : (f.powered ? 0.8 : f.aura || 0);
+    return (
+      <div
+        key={`aura-${f.key}`}
+        className={`bug-fighter bug-fighter--aura${f.vanish ? ' is-vanish' : ''}`}
+        style={{ transform: `translate(${Math.round(f.x)}px, ${Math.round(f.y)}px)`, width: f.w, height: f.h }}
+        aria-hidden="true"
+      >
+        <span className="bug-aura" style={{ '--aura': auraLvl }}>
+          <PixelSprite grid={AURA_FRAMES[Math.floor(g.real * 14) % AURA_FRAMES.length]} palette={f.key === 'vic' ? AURA_PALETTE : AURA_PALETTE_ORANGE} scale={f.key === 'vic' ? 4 : 3} />
         </span>
       </div>
     );
@@ -3437,7 +3717,6 @@ export default function BugEvent() {
     return null;
   };
   const bugEl = q => {
-    const wings = q.flying || (q.boss && q.wings && ['fly', 'leap', 'bite-page', 'emerge'].includes(q.mode));
     return (
       <div key={q.id ?? 'boss'} className={`bug-boss bug-boss--${q.kind || q.type} is-${q.mode}${q.rage ? ' is-rage' : ''}${q.flash > 0 ? ' is-hit' : ''}${q.untargetable ? ' is-untouchable' : ''}${q.kind === 'decoy' ? ' is-decoy' : ''}${q.vanish ? ' is-vanish' : ''}${q.boss && !q.ground ? ' is-airborne' : ''}${q.landT > 0 ? ' is-land' : ''}`} style={{ transform: `translate(${Math.round(q.x)}px, ${Math.round(q.y)}px)`, width: q.w, height: q.h, '--dir': q.dir, '--dis': q.disintegrate ? Math.min(1, q.disintegrate) : 0 }}>
         {(q.tele > 0 || ['tele', 'divetele', 'predrop'].includes(q.mode)) && <span className="bug-tele">!</span>}
@@ -3458,7 +3737,6 @@ export default function BugEvent() {
           }}
         >
           <span className="bug-boss__body" style={crawlStyle(q) || { transform: `${q.dir < 0 ? 'scaleX(-1) ' : ''}scale(${(q.scale * (q.rage ? 1.1 : 1)).toFixed(2)})` }}>
-            {wings && <span className={`bug-wings${q.boss ? ' bug-wings--big' : ''}`}><PixelSprite grid={WINGS[Math.floor(g.real * 14) % 2]} palette={WING_PALETTE} scale={q.boss ? S * 2 : S} /></span>}
             {bugSprite(q)}
             {q.mode === 'heave' && <span className={`bug-boss__chunk${q.heaveKind === 'bar' ? ' is-bar' : ''}`}>{q.heaveKind === 'bar' ? '▓▓▓░ 99%' : ''}</span>}
           </span>
@@ -3550,6 +3828,11 @@ export default function BugEvent() {
               <PixelSprite grid={laptopGridAt(v.timer)} palette={laptop.palette} scale={3} />
             </span>
           )}
+          {g.claude.mode === 'inventfly' && (
+            <span className="bug-laptop" style={{ transform: `translate(${Math.round(g.claude.dir > 0 ? g.claude.x + g.claude.w + 2 : g.claude.x - 44)}px, ${Math.round(g.claude.y)}px)` }} aria-hidden="true">
+              <PixelSprite grid={laptopGridAt(g.claude.timer)} palette={laptop.palette} scale={3} />
+            </span>
+          )}
 
           {/* the stalled-download laser: a warning line first, then the beam sweeps the stage */}
           {g.laser && (() => {
@@ -3592,6 +3875,8 @@ export default function BugEvent() {
               </>
             );
           })()}
+          {fighterAura(g.claude)}
+          {fighterAura(v)}
           {b && !['hidden', 'dead'].includes(b.mode) && bugEl(b)}
           {g.minions.filter(m => m.mode !== 'dead' && !(m.mode === 'rise' && m.timer < 0)).map(bugEl)}
           {/* Claude goes on top whenever he's down, held or being healed (June Vic's aura must never cover him) */}

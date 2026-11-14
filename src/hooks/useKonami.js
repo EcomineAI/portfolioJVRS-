@@ -13,6 +13,7 @@ export function useKonami() {
         i++;
         if (i === CODE.length) {
           i = 0;
+          window.dispatchEvent(new CustomEvent('konami:unlock'));
           document.body.style.transition = 'filter .5s';
           document.body.style.filter = 'hue-rotate(180deg)';
           t = setTimeout(() => { document.body.style.filter = ''; }, 2000);

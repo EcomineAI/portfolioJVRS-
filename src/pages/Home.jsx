@@ -1,7 +1,7 @@
 // Home: dot-matrix hero (portrait + name + live activity) with buddies → featured case study → Code / Create / Learn.
 import {
   PixelButton, PixelCard, TagList, WorldDot, Eyebrow, SectionHeading,
-  ItemRow, ViewAll, Reveal,
+  ViewAll, Reveal,
 } from '../components/ui/index.jsx';
 import { profile } from '../data/profile.js';
 import { worlds } from '../data/worlds.js';
@@ -12,6 +12,7 @@ import { worldIcons } from '../buddies/sprites.js';
 import DotPortrait from '../dotmatrix/DotPortrait.jsx';
 import DotText from '../dotmatrix/DotText.jsx';
 import ActivityPanel from '../activity/ActivityPanel.jsx';
+import WorldList from '../components/showcase/WorldList.jsx';
 import './Home.css';
 
 const NAME_LINES = [profile.name.first.toUpperCase(), profile.name.last.toUpperCase()];
@@ -168,18 +169,7 @@ function WorldSection({ world }) {
           title={world.title}
           intro={world.intro}
         />
-        <ul className="item-list">
-          {items.slice(0, MAX_ROWS).map(p => (
-            <ItemRow
-              key={p.slug}
-              to={projectPath(p)}
-              title={p.title}
-              description={p.subtitle}
-              meta={[p.type, p.date]}
-              role={roleFor(p)}
-            />
-          ))}
-        </ul>
+        <WorldList world={world.id} items={items.slice(0, MAX_ROWS)} hrefFor={projectPath} roleFor={roleFor} />
         <ViewAll to={`/projects#${world.id}`} label={`View all ${world.label.toLowerCase()}`} count={items.length} />
       </div>
     </Reveal>

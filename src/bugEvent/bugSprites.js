@@ -29,7 +29,7 @@ const BODY = [
 ];
 const LEGS = {
   stand: ['....LL.LL', '....LL.LL', '...LL...LL', '...LL...LL', '..LLL...LLL', '.KKK.....KKK', ''],
-  bend:  ['....LL.LL', '...LL...LL', '...LL...LL', '..LL.....LL', '..LL.....LL', '.KKK.....KKK', ''],
+  bend: ['....LL.LL', '...LL...LL', '...LL...LL', '..LL.....LL', '..LL.....LL', '.KKK.....KKK', ''],
   stepA: ['....LL.LL', '...LL...LL', '..LL.....LL', '..L.......LL', '.LL........L', 'KKK.......KKK', ''],
   stepB: ['....LL.LL', '....LL.LL', '....LL.LL', '....LL.LL', '...LLL.LLL', '..KKK...KKK', ''],
 };
@@ -105,23 +105,61 @@ export const MINION_PALETTE = { G: '#3ddc5a', g: '#1f8a3a', H: '#1a6b2c', W: '#f
 export const AMB_PALETTE = { G: '#121a14', g: '#0b110c', H: '#0d150f', W: '#ff3b2a', K: '#ff3b2a', M: '#1c261d', L: '#0b110c' };
 export const ELITE_PALETTE = { ...MINION_PALETTE, G: '#2fbf4d', g: '#14702c', W: '#ff2a2a', K: '#ffd166', M: '#ff4d4d' };
 
-// ---- wings (drawn behind flying bugs) · w membrane · O outline ------------------
-export const WINGS = [
-  ['..OOO.....OOO..', '.OwwwO...OwwwO.', 'OwwwwO...OwwwwO', '.OwwO.....OwwO.', '..OO.......OO..'],
-  ['...............', '...............', 'OOOOOO...OOOOOO', 'OwwwwwO.OwwwwwO', '.OOOOO...OOOOO.'],
+// ---- wings: one half is drawn then mirrored, so both wings match and tuck in behind the torso
+// W highlight · w membrane · V vein · O outline
+const WING_HALF = [
+  [
+    '.OOOOO..........',
+    'OWWWWWOO........',
+    'OWWwwwwwOO......',
+    '.OOOOwwwwwOO....',
+    '.OWWWwwwwVwwOO..',
+    '..OOOOwwwVwwwwO.',
+    '..OWWWwwwVwwwO..',
+    '...OOOOwwVwwO...',
+    '....OWWwwwwO....',
+    '.....OOOOOO.....',
+    '................',
+  ],
+  [
+    '................',
+    '................',
+    '....OOOOOO......',
+    '..OOWWWWWWOO....',
+    '.OWWWWwwwwwwOO..',
+    'OWWWwwwwVwwwwwO.',
+    '.OOOOwwwVwwwwO..',
+    '.OWWWwwwVwwwO...',
+    '..OOOOwwVwwO....',
+    '...OWWwwwwO.....',
+    '....OOOOOO......',
+  ],
 ];
-export const WING_PALETTE = { O: '#1a2447', w: 'rgba(214, 236, 255, 0.85)' };
+const mirror = r => r + [...r].reverse().join('');
+export const WINGS = WING_HALF.map(f => f.map(r => mirror(r)));
+export const CLAUDE_WING_PALETTE = {
+  O: '#5c220a',
+  V: '#b84a18',
+  W: '#ffe4bd',
+  w: '#e87b48',
+};
+export const WING_PALETTE = {
+  O: '#0d2a2a',
+  V: '#2fbfa0',
+  W: '#e6fffb',
+  w: 'rgba(178, 245, 234, 0.85)',
+};
 
 const base = { E: '#ff2a2a', e: '#fff2a8', F: '#f4f4f4', M: '#5a0710', K: '#0b0b10' };
 /** Bosses (one per GitHub repo) + the armies. */
 export const BUG_TYPES = {
-  e403:     { name: 'Error403', palette: { ...base, S: '#7a5cc4', H: '#1b1426', B: '#2a1f3d', b: '#4b3a6b', X: '#b48cff', A: '#2a1f3d', C: '#b48cff', L: '#1b1426' } },
-  halluc:   { name: 'Hallucination', palette: { ...base, E: '#5cf2c8', e: '#ffffff', S: '#5cf2c8', H: '#0d2a2a', B: '#123c3a', b: '#1f6b66', X: '#5cf2c8', A: '#123c3a', C: '#5cf2c8', L: '#0d2a2a' } },
+  e403: { name: 'Error403', palette: { ...base, S: '#7a5cc4', H: '#1b1426', B: '#2a1f3d', b: '#4b3a6b', X: '#b48cff', A: '#2a1f3d', C: '#b48cff', L: '#1b1426' } },
+  halluc: { name: 'Hallucination', palette: { ...base, E: '#5cf2c8', e: '#ffffff', S: '#5cf2c8', H: '#0d2a2a', B: '#123c3a', b: '#1f6b66', X: '#5cf2c8', A: '#123c3a', C: '#5cf2c8', L: '#0d2a2a' } },
   rollback: { name: 'RollbackKing', palette: { ...base, E: '#ffe14a', S: '#ff7a1a', H: '#200805', B: '#3a0f0a', b: '#7a1e10', X: '#ffb020', A: '#3a0f0a', C: '#ffb020', L: '#200805' } },
-  minion:   { name: 'TokenBug', palette: MINION_PALETTE },
-  elite:    { name: 'DoubleBookingBug', palette: ELITE_PALETTE },
+  minion: { name: 'TokenBug', palette: MINION_PALETTE },
+  elite: { name: 'DoubleBookingBug', palette: ELITE_PALETTE },
   // Error403's "429 Too Many Requests" minions
-  blocked:  { name: 'BlockedRequest', palette: { ...MINION_PALETTE, G: '#8b5cf6', g: '#5b3aa8', H: '#3a2470', W: '#ffffff', K: '#1b1426', M: '#ff4d4d', L: '#2a1f3d' } },
+  blocked: { name: 'BlockedRequest', palette: { ...MINION_PALETTE, G: '#8b5cf6', g: '#5b3aa8', H: '#3a2470', W: '#ffffff', K: '#1b1426', M: '#ff4d4d', L: '#2a1f3d' } },
 };
 export const BUG_RAGE_PALETTE = { ...base, E: '#ffffff', S: '#ff4d4d', H: '#240206', B: '#3d0508', b: '#7a0f18', X: '#ff4d4d', A: '#3d0508', C: '#ff4d4d', L: '#240206' };
 

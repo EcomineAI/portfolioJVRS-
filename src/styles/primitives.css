@@ -104,54 +104,99 @@
 
 /* ---- Readability on the animated background ------------------------------ */
 /* Text that sits directly on the page (not inside a card) gets a solid plate. */
-.section-heading__intro,
 .prose:not(.pixel-card .prose):not(.plate-off) {
   background: color-mix(in srgb, var(--bg) 94%, transparent);
   box-shadow: 0 0 0 10px color-mix(in srgb, var(--bg) 94%, transparent);
 }
+/* Eyebrow, title and intro share one plate size so their edges line up. */
 .section-heading .eyebrow,
-.section-heading__title {
+.section-heading__title,
+.section-heading__intro {
   justify-self: start;
-  background: color-mix(in srgb, var(--bg) 90%, transparent);
-  box-shadow: 0 0 0 6px color-mix(in srgb, var(--bg) 90%, transparent);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  box-shadow: 0 0 0 8px color-mix(in srgb, var(--bg) 92%, transparent);
 }
+.section-heading__intro { max-width: 56ch; }
 
 /* ---- Item row (list of work) -------------------------------------------- */
-/* The list is a boxed card so rows never sit on the busy background. */
+/* The list is a boxed card so rows never sit on the busy background.
+   --dot comes from data-world on the list, so each group tints its own rows. */
 .item-list {
   list-style: none;
+  max-width: 920px;
   background: var(--card);
   border: var(--border-w) solid var(--border);
   box-shadow: var(--shadow-md);
-  padding-inline: clamp(12px, 2.4vw, 24px);
 }
-.item-row + .item-row { border-top: 2px dashed var(--hairline); }
+.item-row + .item-row { border-top: 2px dashed color-mix(in srgb, var(--hairline) 70%, var(--muted-fg)); }
 .item-row__link {
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 6px 24px;
-  padding: 18px 4px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 20px;
+  padding: 20px clamp(16px, 2.6vw, 28px);
   text-decoration: none;
   color: inherit;
+  cursor: var(--cursor-pointer);
+  transition: background-color var(--dur) var(--step-ease);
 }
+.item-row.is-active .item-row__link { background: color-mix(in srgb, var(--dot, var(--primary-soft)) 14%, var(--card)); }
 .item-row__title {
   font-family: var(--font-pixel);
   font-size: clamp(0.8rem, 1.6vw, 0.95rem);
   line-height: 1.6;
 }
 .item-row__desc { grid-column: 1; font-family: var(--font-prose); font-size: 1rem; line-height: 1.55; color: var(--muted-fg); max-width: 62ch; }
-.item-row__meta { grid-column: 1; display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: var(--text-base); color: var(--muted-fg); }
-.item-row__meta > span + span::before { content: '·'; margin-right: 12px; color: var(--hairline); }
+.item-row__meta {
+  grid-column: 1;
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 6px 10px;
+  margin-top: 4px;
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  color: var(--muted-fg);
+}
+/* First meta item is the type (Education, Self-study, Team...) -> chunky world chip */
+.item-row__meta > span:first-child {
+  background: var(--dot, var(--primary-soft));
+  color: var(--ink);
+  border: 2px solid var(--border);
+  padding: 0 8px;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.item-row__meta > span + span::before { content: '·'; margin-right: 10px; color: var(--muted-fg); opacity: 0.6; }
+.item-row__meta > span:nth-child(2)::before { content: none; }
 .item-row__role { color: var(--fg); }
+/* Arrow lives in a bordered pixel square so the row reads as a button */
 .item-row__arrow {
   grid-column: 2; grid-row: 1 / span 3;
   align-self: center;
+  display: grid; place-items: center;
+  width: 44px; height: 44px;
+  border: 3px solid var(--border);
+  background: var(--card);
+  box-shadow: 3px 3px 0 0 var(--border);
   font-size: var(--text-xl);
-  transition: transform var(--dur) var(--step-ease);
+  line-height: 1;
+  transition: transform 100ms var(--step-ease), box-shadow 100ms var(--step-ease), background-color var(--dur) var(--step-ease);
+}
+.item-row__link:hover,
+.item-row__link:focus-visible {
+  background: color-mix(in srgb, var(--dot, var(--primary-soft)) 14%, var(--card));
 }
 .item-row__link:hover .item-row__title,
 .item-row__link:focus-visible .item-row__title { text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 6px; }
-.item-row__link:hover .item-row__arrow { transform: translateX(8px); }
+.item-row__link:hover .item-row__arrow,
+.item-row__link:focus-visible .item-row__arrow {
+  background: var(--dot, var(--primary-soft));
+  color: var(--ink);
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+@media (max-width: 560px) {
+  .item-row__arrow { width: 36px; height: 36px; font-size: var(--text-base); }
+}
 
 /* ---- Featured card ------------------------------------------------------- */
 .featured-card {

@@ -330,3 +330,116 @@ export const vicFight = {
   ssjKick: [...ssjTop.slice(0, 17), '...PPPPPPPPPPPPK', '...PPP..........', '...KKK..........'],
   ssjPalette: { ...vicPalette, H: '#f7c52b', h: '#fff3a0' },
 };
+
+/* ---- Costumes (wardrobe palettes + optional hat accessories) -------------- */
+export const accessories = {
+  partyHat: {
+    palette: { Y: '#ffd54a', R: '#ff4d6d', C: '#4cc9f0', W: '#ffffff' },
+    grid: [
+      '..Y..',
+      '.RRR.',
+      '.CCC.',
+      'RWRWR',
+    ],
+  },
+  crown: {
+    palette: { Y: '#ffd54a', y: '#d49b1a', R: '#ff4d6d', B: '#4cc9f0' },
+    grid: [
+      'Y..Y..Y',
+      'YY.Y.YY',
+      'YRYBYRY',
+      'yyyyyyy',
+    ],
+  },
+};
+
+export const vicCostumes = [
+  {
+    id: 'classic',
+    label: 'Classic Polo',
+    quip: 'Back to the daily driver.',
+    palette: vicPalette,
+  },
+  {
+    id: 'hacker',
+    label: 'Cyberpunk Hacker',
+    quip: "I'm in.",
+    palette: {
+      ...vicPalette,
+      H: '#151822', h: '#00ff88',
+      B: '#1e2436', b: '#121622',
+      W: '#00ff88',
+      P: '#10131c', K: '#00cc66',
+    },
+  },
+  {
+    id: 'suit',
+    label: 'Interview Suit',
+    quip: 'Hired on the spot.',
+    palette: {
+      ...vicPalette,
+      B: '#1c1f29', b: '#101218',
+      W: '#f4f4f4',
+      P: '#1c1f29', K: '#0b0c10',
+    },
+  },
+  {
+    id: 'cozy',
+    label: 'Late-Night Hoodie',
+    quip: 'Powered by caffeine and lo-fi.',
+    palette: {
+      ...vicPalette,
+      B: '#9e3b4f', b: '#732636',
+      W: '#e6c28b',
+      P: '#2c313d', K: '#3b2d25',
+    },
+  },
+  {
+    id: 'ssj',
+    label: 'Super Saiyan',
+    quip: 'Over 9,000 commits!',
+    palette: vicFight.ssjPalette,
+    spikyHair: true,
+  },
+];
+
+export const claudeCostumes = [
+  {
+    id: 'classic',
+    label: 'Classic Orange',
+    quip: 'Original recipe.',
+    palette: claudePalette,
+  },
+  {
+    id: 'terminal',
+    label: 'Terminal Green',
+    quip: '01100011 01101100 01100001 01110101 01100100 01100101',
+    palette: { O: '#00e676', o: '#00994d', E: '#061a0e' },
+  },
+  {
+    id: 'synthwave',
+    label: 'Cyber Synthwave',
+    quip: 'Aesthetic parameter: 1.0',
+    palette: { O: '#ff4ecd', o: '#b3248c', E: '#00f5ff' },
+  },
+  {
+    id: 'golden',
+    label: 'Golden Shiny Crab',
+    quip: '1 in 4,096 shiny chance!',
+    palette: { O: '#ffd54a', o: '#d49b1a', E: '#2b1b00' },
+    hat: 'crown',
+  },
+  {
+    id: 'ninja',
+    label: 'Midnight Ninja',
+    quip: 'Silent. Deadly. Still no bugs.',
+    palette: { O: '#262936', o: '#161822', E: '#ff4d6d' },
+  },
+  {
+    id: 'party',
+    label: 'Party Crab',
+    quip: 'Is it my birthday again?!',
+    palette: claudePalette,
+    hat: 'partyHat',
+  },
+];

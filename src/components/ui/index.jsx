@@ -67,7 +67,7 @@ export function SectionHeading({ as = 'h2', id, world, num, label, title, intro,
 }
 
 /** One row in a list of work: title · one-liner · meta · arrow. */
-export function ItemRow({ to, href, title, description, meta = [], role }) {
+export function ItemRow({ to, href, title, description, meta = [], role, active = false, onActivate }) {
   const inner = (
     <>
       <span className="item-row__title">{title}</span>
@@ -81,12 +81,13 @@ export function ItemRow({ to, href, title, description, meta = [], role }) {
       <span className="item-row__arrow" aria-hidden="true">→</span>
     </>
   );
+  const hover = onActivate ? { onMouseEnter: onActivate, onFocus: onActivate } : {};
   return (
-    <li className="item-row">
+    <li className={cx('item-row', active && 'is-active')}>
       {to ? (
-        <Link to={to} className="item-row__link">{inner}</Link>
+        <Link to={to} className="item-row__link" {...hover}>{inner}</Link>
       ) : (
-        <a href={href} className="item-row__link" {...(isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>{inner}</a>
+        <a href={href} className="item-row__link" {...hover} {...(isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>{inner}</a>
       )}
     </li>
   );

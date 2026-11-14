@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import PixelSprite from './PixelSprite.jsx';
-import { emotes } from './sprites.js';
+import { accessories, emotes } from './sprites.js';
 
 /** Replace face rows of a grid with an expression (only inside the face columns). */
 export function applyFace(grid, face, [c0, c1]) {
@@ -25,8 +25,9 @@ const DEFAULT_ACTIONS = [
  *
  * state: { dir (1 right / -1 left), mode, frame, … } · pos: { x, y } page position of the feet
  */
-export default function Buddy({ name, label, sprite, scale = 3, state, pos, bubble, bubbleSide, bubbleLift = 0, onAction, onDrag, actions = DEFAULT_ACTIONS, stageWidth }) {
+export default function Buddy({ name, label, sprite, scale = 3, state, pos, bubble, bubbleSide, bubbleLift = 0, onAction, onDrag, actions = DEFAULT_ACTIONS, stageWidth, costumes, costumeId, onCostume }) {
   const [open, setOpen] = useState(false);
+  const [view, setView] = useState('main');          // 'main' | 'costumes'
   const [menuDown, setMenuDown] = useState(false);   // open below when there's no room above (sticky header)
   const btnRef = useRef(null);
   const menuRef = useRef(null);
@@ -49,6 +50,7 @@ export default function Buddy({ name, label, sprite, scale = 3, state, pos, bubb
       if (Math.hypot(e.clientX - d.sx, e.clientY - d.sy) < 6) return;
       d.active = true;
       setOpen(false);
+      setView('main');
       document.documentElement.classList.add('is-grabbing-buddy');
       onDrag('start', pagePoint(e));
     }
@@ -80,6 +82,12 @@ export default function Buddy({ name, label, sprite, scale = 3, state, pos, bubb
   }
   // Blink: swap the eye pixels for the eyelid colour for a moment.
   if (state.blink && sprite.blinkChar) grid = grid.map(row => row.replaceAll('E', sprite.blinkChar));
+  const activeCostume = costumes?.find(c => c.id === costumeId) || costumes?.[0];
+  const palette = activeCostume?.palette || sprite.palette;
+  const hat = activeCostume?.hat && accessories[activeCostume.hat];
+  if (activeCostume?.spikyHair) {
+    grid = grid.map((r, i) => (i === 0 ? '..H.HH.HH.HH.H..' : i === 1 ? '..HHHHHHHHHHHH..' : r));
+  }
   const emote = state.emote && emotes[state.emote];
   const width = sprite.stand[0].length * scale;
   // Keep bubbles and the menu inside the stage: anchor them toward the open side.
@@ -89,13 +97,14 @@ export default function Buddy({ name, label, sprite, scale = 3, state, pos, bubb
 
   const close = (refocus = true) => {
     setOpen(false);
+    setView('main');
     if (refocus) btnRef.current?.focus({ preventScroll: true });
   };
 
-  // Focus the first item when the menu opens.
+  // Focus the first item when the menu opens or switches views.
   useEffect(() => {
-    if (open) menuRef.current?.querySelector('[role="menuitem"]')?.focus({ preventScroll: true });
-  }, [open]);
+    if (open) menuRef.current?.querySelector('[role="menuitem"], [role="menuitemradio"]')?.focus({ preventScroll: true });
+  }, [open, view]);
 
   // Escape / outside click closes the menu.
   useEffect(() => {
@@ -115,18 +124,22 @@ export default function Buddy({ name, label, sprite, scale = 3, state, pos, bubb
   }, [open]);
 
   const onMenuKey = e => {
-    const items = [...menuRef.current.querySelectorAll('[role="menuitem"]')];
+    const items = [...menuRef.current.querySelectorAll('[role="menuitem"], [role="menuitemradio"]')];
     const i = items.indexOf(document.activeElement);
     let next = null;
     if (e.key === 'ArrowDown') next = items[(i + 1) % items.length];
     else if (e.key === 'ArrowUp') next = items[(i - 1 + items.length) % items.length];
     else if (e.key === 'Home') next = items[0];
     else if (e.key === 'End') next = items[items.length - 1];
-    else if (e.key === 'Tab') { setOpen(false); return; }
+    else if (e.key === 'Tab') { setOpen(false); setView('main'); return; }
     if (next) { e.preventDefault(); next.focus(); }
   };
 
   const choose = id => {
+    if (id === 'costume' && costumes?.length) {
+      setView('costumes');
+      return;
+    }
     close();
     onAction(id);
   };
@@ -153,15 +166,48 @@ export default function Buddy({ name, label, sprite, scale = 3, state, pos, bubb
           id={menuId}
           className={`buddy__menu buddy__menu--${anchor}${menuDown ? ' buddy__menu--down' : ''}`}
           role="menu"
-          aria-label={`What now, ${label}?`}
+          aria-label={view === 'costumes' ? `Wardrobe, ${label}` : `What now, ${label}?`}
           onKeyDown={onMenuKey}
         >
-          <p className="buddy__menu-title" aria-hidden="true">What now?</p>
-          {actions.map(a => (
-            <button key={a.id} type="button" role="menuitem" className="buddy__menu-item" onClick={() => choose(a.id)}>
-              {a.label}
-            </button>
-          ))}
+          <p className="buddy__menu-title" aria-hidden="true">
+            {view === 'costumes' ? 'Wardrobe' : 'What now?'}
+          </p>
+          {view === 'costumes' ? (
+            <>
+              {costumes.map(c => {
+                const active = c.id === activeCostume?.id;
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    role="menuitemradio"
+                    aria-checked={active}
+                    className={`buddy__menu-item${active ? ' is-active' : ''}`}
+                    onClick={() => {
+                      close();
+                      onCostume?.(c.id);
+                    }}
+                  >
+                    {c.label}{active ? ' ✓' : ''}
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                role="menuitem"
+                className="buddy__menu-item buddy__menu-back"
+                onClick={() => setView('main')}
+              >
+                ◀ Back
+              </button>
+            </>
+          ) : (
+            actions.map(a => (
+              <button key={a.id} type="button" role="menuitem" className="buddy__menu-item" onClick={() => choose(a.id)}>
+                {a.label}
+              </button>
+            ))
+          )}
         </div>
       )}
 
@@ -190,7 +236,12 @@ export default function Buddy({ name, label, sprite, scale = 3, state, pos, bubb
           className="buddy__body"
           style={{ transform: `${lifted && state.tilt ? `rotate(${state.tilt.toFixed(1)}deg) ` : ''}${state.swell ? `scale(${(1 + state.swell).toFixed(3)}) ` : ''}${state.dir < 0 ? 'scaleX(-1)' : ''}` || undefined }}
         >
-          <PixelSprite grid={grid} palette={sprite.palette} scale={scale} className="buddy__sprite" />
+          {hat && (
+            <span className="buddy__hat" aria-hidden="true">
+              <PixelSprite grid={hat.grid} palette={hat.palette} scale={scale} />
+            </span>
+          )}
+          <PixelSprite grid={grid} palette={palette} scale={scale} className="buddy__sprite" />
         </span>
         {emote && (
           <span className={`buddy__emote buddy__emote--${state.emote}`} key={state.emoteId} aria-hidden="true">

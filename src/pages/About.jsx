@@ -68,7 +68,13 @@ export default function About() {
       {/* ---- Intro ---- */}
       <section className="container section about-intro" aria-labelledby="about-title">
         <div className="about-intro__text">
-          <Eyebrow world="code">Background · interests · skills</Eyebrow>
+          <nav className="about-intro__jump" aria-label="On this page">
+            <Eyebrow world="code">
+              <a href="#skills-title">Skills</a><span aria-hidden="true">·</span>
+              <a href="#trouble-title">Side quests</a><span aria-hidden="true">·</span>
+              <a href="#journey-title">Journey</a>
+            </Eyebrow>
+          </nav>
           <h1 id="about-title" className="about-intro__title">About</h1>
           <div className="prose about-intro__bio">
             <p>
@@ -85,11 +91,13 @@ export default function About() {
           <Todo>Rewrite this bio in your own voice (the prof requires personalized text).</Todo>
         </div>
 
-        <figure className="about-photo">
-          <div className="about-photo__frame pixel-card">
+        <figure className="about-photo pixel-card" data-spray-surface="true">
+          <div className="about-photo__frame">
             <img src={profile.photo} alt={`Portrait of ${profile.name.full}`} width="320" height="320" />
           </div>
-          <figcaption className="about-photo__caption">{profile.name.display} · {profile.role}</figcaption>
+          <figcaption className="about-photo__caption">
+            <span className="about-photo__dot" aria-hidden="true" /> {profile.name.display} · {profile.role}
+          </figcaption>
         </figure>
 
         <dl className="facts" aria-label="Quick facts">

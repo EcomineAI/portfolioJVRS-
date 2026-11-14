@@ -1,0 +1,210 @@
+/* ==========================================================================
+   WorldList: rows on the left, a pixel laptop on the right that previews the
+   hovered row. The laptop is pure CSS (lid, screen, hinge, keyboard deck) and
+   the screen changes with a pixel-tile dissolve. Theme tokens only.
+   ========================================================================== */
+.world-list { display: grid; gap: 24px; align-items: start; }
+.world-list .item-list { max-width: none; }
+
+.lap { display: none; }
+
+@media (min-width: 1000px) {
+  .world-list { grid-template-columns: minmax(0, 1.4fr) minmax(300px, 1fr); gap: clamp(24px, 3vw, 40px); }
+  .lap {
+    display: block;
+    position: sticky;
+    top: calc(var(--header-h) + 16px);
+    padding-inline: 14px;            /* the deck is wider than the lid */
+    --lap-shell: color-mix(in srgb, var(--fg) 8%, var(--card));
+    --lap-shell-dark: color-mix(in srgb, var(--fg) 16%, var(--card));
+  }
+}
+
+/* ---- lid ----------------------------------------------------------------- */
+.lap__lid {
+  position: relative;
+  padding: 18px 12px 12px;
+  background: var(--lap-shell);
+  border: var(--border-w) solid var(--border);
+  border-bottom: 0;
+  border-radius: 10px 10px 0 0;
+}
+.lap__cam {
+  position: absolute; top: 6px; left: 50%;
+  width: 8px; height: 8px; margin-left: -4px;
+  background: var(--ink);
+  border: 2px solid var(--border);
+  box-shadow: inset 2px 2px 0 0 var(--primary-soft);
+}
+
+/* ---- screen -------------------------------------------------------------- */
+.lap__screen {
+  display: flex; flex-direction: column;
+  border: 3px solid var(--border);
+  background: var(--card);
+  overflow: hidden;
+  animation: lap-flicker 360ms steps(3, end) both;
+}
+/* browser-ish title bar */
+.lap__bar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 4px 8px;
+  background: var(--lap-shell-dark);
+  border-bottom: 3px solid var(--border);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  letter-spacing: 0.04em;
+  color: var(--muted-fg);
+}
+.lap__dots { display: inline-flex; gap: 4px; }
+.lap__dots i { width: 8px; height: 8px; border: 2px solid var(--border); background: var(--card); }
+.lap__dots i:nth-child(1) { background: var(--world-create); }
+.lap__dots i:nth-child(2) { background: var(--world-learn); }
+.lap__dots i:nth-child(3) { background: var(--world-code); }
+.lap__url {
+  flex: 1; min-width: 0;
+  padding: 0 8px;
+  background: var(--card);
+  border: 2px solid var(--border);
+  color: var(--fg);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.lap__count { font-family: var(--font-pixel); font-size: 0.6rem; color: var(--fg); }
+
+/* the page on screen */
+.lap__view {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--ink);
+}
+.lap__view > img,
+.lap__ph {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  animation: lap-zoom 480ms steps(5, end) both;
+}
+.lap__ph {
+  display: grid; place-items: center;
+  background-color: var(--dot, var(--primary-soft));
+  background-image:
+    linear-gradient(to right, rgb(13 18 38 / 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(13 18 38 / 0.08) 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+.lap__ph svg { width: auto; max-width: 46%; max-height: 46%; height: auto; image-rendering: pixelated; }
+.lap__badge {
+  position: absolute; top: 10px; right: 10px; z-index: 2;
+  padding: 0 8px;
+  background: var(--card);
+  border: 2px solid var(--border);
+  box-shadow: 2px 2px 0 0 var(--border);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* pixel dissolve tiles: 12 × 8 over the view, each fades out on its own delay */
+.lap__dissolve {
+  position: absolute; inset: 0; z-index: 3;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  pointer-events: none;
+}
+.lap__dissolve i {
+  background: var(--ink);
+  animation: lap-px 220ms steps(3, end) both;
+}
+@keyframes lap-px {
+  0%   { opacity: 1; background: var(--ink); }
+  45%  { opacity: 1; background: var(--dot, var(--primary-soft)); }
+  70%  { opacity: 1; background: #fff; }
+  100% { opacity: 0; background: #fff; }
+}
+/* the picture itself snaps in from slightly zoomed, in steps */
+@keyframes lap-zoom {
+  from { transform: scale(1.12); }
+  to   { transform: scale(1); }
+}
+/* a quick backlight flicker on the whole screen */
+@keyframes lap-flicker {
+  0%   { filter: brightness(0.6); }
+  50%  { filter: brightness(1.5); }
+  100% { filter: brightness(1); }
+}
+
+/* ---- hinge + deck -------------------------------------------------------- */
+.lap__hinge {
+  height: 10px;
+  background: var(--lap-shell-dark);
+  border: var(--border-w) solid var(--border);
+  border-bottom: 0;
+}
+.lap__base {
+  position: relative;
+  margin-inline: -14px;                 /* wider than the lid */
+  padding: 10px 24px 14px;
+  display: grid; gap: 8px; justify-items: center;
+  background: var(--lap-shell);
+  border: var(--border-w) solid var(--border);
+  border-radius: 0 0 8px 8px;
+  box-shadow: var(--shadow-md);
+}
+.lap__keys {
+  width: 100%; height: 34px;
+  border: 2px solid var(--border);
+  background-color: var(--card);
+  background-image:
+    linear-gradient(to right, var(--border) 2px, transparent 2px),
+    linear-gradient(to bottom, var(--border) 2px, transparent 2px);
+  background-size: 18px 11px;
+  background-position: -2px -2px;
+}
+.lap__pad {
+  width: 34%; height: 14px;
+  border: 2px solid var(--border);
+  background: var(--card);
+}
+
+/* ---- details card -------------------------------------------------------- */
+.lap__card { margin-top: 20px; display: flex; flex-direction: column; }
+.lap__body {
+  display: grid; gap: 10px; justify-items: start;
+  padding: 16px 18px 18px;
+}
+.lap__title { font-size: clamp(0.85rem, 1.4vw, 1rem); line-height: 1.5; }
+.lap__summary {
+  font-family: var(--font-prose);
+  font-size: 0.95rem; line-height: 1.55;
+  color: var(--muted-fg);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.lap__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.lap__cap {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: auto;
+  padding: 6px 12px;
+  border-top: var(--border-w) solid var(--border);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  color: var(--muted-fg);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.lap__cap-dot {
+  width: 8px; height: 8px; flex: none;
+  background: var(--dot, var(--primary-soft));
+  border: 2px solid var(--border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lap__screen, .lap__view > img, .lap__ph { animation: none; }
+  .lap__dissolve { display: none; }
+}

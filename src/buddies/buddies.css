@@ -172,6 +172,8 @@
 .buddy__menu-item:focus-visible { background: var(--surface); }
 .buddy__menu-item:hover::before,
 .buddy__menu-item:focus-visible::before { visibility: visible; }
+.buddy__menu-item.is-active { color: var(--primary); font-weight: 700; }
+.buddy__menu-back { border-top: 2px dashed var(--hairline); margin-top: 4px; padding-top: 4px; }
 
 /* ---- Heart --------------------------------------------------------------- */
 .buddy-floor__heart {
@@ -257,7 +259,18 @@
 /* Wider screens: two columns so the menu is half as tall */
 @media (min-width: 640px) {
   .buddy__menu { grid-template-columns: repeat(2, max-content); column-gap: 4px; }
-  .buddy__menu-title { grid-column: 1 / -1; }
+  .buddy__menu-title,
+  .buddy__menu-back { grid-column: 1 / -1; }
+}
+
+.buddy__body { position: relative; display: inline-block; }
+.buddy__hat {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  line-height: 0;
 }
 
 /* ---- Claude moves by hopping (no leg animation) -----------------------------

@@ -28,7 +28,7 @@ export const profile = {
   email: 'junevicabello@gmail.com',
   resume: '/June Vic M. Abello — Resume.pdf',
   photo: '/jv.png',
-  portrait: '/pfp.jpg',   // the Home dot-matrix portrait (plain background, auto-masked)
+  portrait: '/pfp-no-bg.png',   // the Home dot-matrix portrait (plain background, auto-masked)
   links: {
     github: 'https://github.com/EcomineAI',
     githubHandle: 'EcomineAI',

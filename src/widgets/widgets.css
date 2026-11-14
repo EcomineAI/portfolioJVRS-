@@ -228,6 +228,17 @@
   color: var(--fg);
   animation: hud-swap 400ms steps(4, end);
 }
+/* while a buddy status is shown the badge pops and gets the blue edge */
+.hud-badge[data-buddy] {
+  border-color: var(--primary);
+  box-shadow: 3px 3px 0 0 var(--primary);
+  animation: hud-pop 300ms var(--step-ease);
+}
+.hud-badge[data-buddy] .hud-badge__label { color: var(--primary); }
+@keyframes hud-pop {
+  from { transform: translateY(6px); }
+  to { transform: none; }
+}
 @keyframes hud-swap {
   from { clip-path: inset(0 100% 0 0); }
   to { clip-path: inset(0 0 0 0); }

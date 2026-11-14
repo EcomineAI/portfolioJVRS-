@@ -1,9 +1,10 @@
 // /projects — featured SE case study first, then work grouped by world (Code / Create / Learn).
 import { GithubIcon } from '../components/Icons.jsx';
-import { Eyebrow, ItemRow, PixelButton, PixelCard, SectionHeading, TagList, WorldDot } from '../components/ui/index.jsx';
+import { Eyebrow, PixelButton, PixelCard, SectionHeading, TagList, WorldDot } from '../components/ui/index.jsx';
 import { CASE_STUDY_SLUG, caseStudyProject, projectsInWorld } from '../data/projects.js';
 import { worlds } from '../data/worlds.js';
 import './Projects.css';
+import WorldList from '../components/showcase/WorldList.jsx';
 
 const isTodo = s => !s || /^TODO/i.test(s);
 
@@ -100,18 +101,13 @@ export default function Projects() {
             title={g.title}
             intro={g.intro}
           />
-          <ul className="item-list">
-            {g.items.map(p => (
-              <ItemRow
-                key={p.slug}
-                to={hrefFor(p)}
-                title={p.slug === CASE_STUDY_SLUG ? `★ ${p.title}` : p.title}
-                description={p.subtitle}
-                meta={[p.type, p.date]}
-                role={rowRole(p)}
-              />
-            ))}
-          </ul>
+          <WorldList
+            world={g.id}
+            items={g.items}
+            hrefFor={hrefFor}
+            titleFor={p => (p.slug === CASE_STUDY_SLUG ? `★ ${p.title}` : p.title)}
+            roleFor={rowRole}
+          />
         </section>
       ))}
     </div>

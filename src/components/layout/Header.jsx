@@ -15,7 +15,24 @@ export function Logo({ className = '' }) {
 
 export default function Header({ theme, onToggleTheme }) {
   const [open, setOpen] = useState(false);
+  const [bugUnlocked, setBugUnlocked] = useState(() => {
+    try { return sessionStorage.getItem('bug:unlocked') === '1'; } catch { return false; }
+  });
   const { pathname } = useLocation();
+
+  const hideBug = () => {
+    setBugUnlocked(false);
+    try { sessionStorage.setItem('bug:unlocked', '0'); } catch { /* ignore */ }
+  };
+
+  useEffect(() => {
+    const onUnlock = () => {
+      setBugUnlocked(true);
+      try { sessionStorage.setItem('bug:unlocked', '1'); } catch { /* ignore */ }
+    };
+    window.addEventListener('konami:unlock', onUnlock);
+    return () => window.removeEventListener('konami:unlock', onUnlock);
+  }, []);
 
   useEffect(() => { setOpen(false); }, [pathname]);
 
@@ -45,7 +62,7 @@ export default function Header({ theme, onToggleTheme }) {
         </nav>
 
         <div className="site-header__tools">
-          <BugButton />
+          {bugUnlocked && <BugButton onHide={hideBug} />}
           <SprayButton />
           <button
             type="button"

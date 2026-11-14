@@ -211,6 +211,7 @@ When exploring:
 
 ## Other behaviours
 
+- **HUD badge (bottom-left):** the "EQUIPPED" badge flips to what a buddy is doing ("JUNE VIC: prompting on the laptop", "CLAUDE: napping") for ~4.5 s whenever an action, skit, pick-up or roam toggle starts. Wording lives in `buddyBus.js` (`ACTION_STATUS`); `BuddyWorld.jsx` calls `buddyBus.emit`.
 - **Idle wandering:** June Vic walks along his card or jumps to another one; Claude loosely follows him and catches up if he gets far away.
 - **Blinking:** every few seconds (not while napping).
 - **Speech bubbles:** open away from the other buddy and stay inside the page. The menu opens downward when a buddy is close to the header.

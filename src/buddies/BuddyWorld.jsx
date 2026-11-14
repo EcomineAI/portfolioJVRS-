@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import Buddy from './Buddy.jsx';
 import PixelSprite from './PixelSprite.jsx';
-import { vic, claude, laptop } from './sprites.js';
+import { vic, claude, laptop, vicCostumes, claudeCostumes } from './sprites.js';
 import { sprayBus } from '../spray/sprayBus.js';
+import { buddyBus, statusFor } from './buddyBus.js';
 import './buddies.css';
 
 const TICK = 100;            // ms per simulation step
@@ -257,6 +258,7 @@ const CLAUDE_ACTIONS = [
   { id: 'nap', label: 'Nap' },
   { id: 'run', label: 'Scuttle' },
   { id: 'sayhi', label: 'Ask me anything' },
+  { id: 'costume', label: 'Change outfit' },
 ];
 const VIC_ACTIONS = [
   { id: 'talk', label: 'Talk to Claude' },
@@ -267,6 +269,7 @@ const VIC_ACTIONS = [
   { id: 'run', label: 'Run' },
   { id: 'hop', label: 'Hop' },
   { id: 'dance', label: 'Dance' },
+  { id: 'costume', label: 'Change outfit' },
 ];
 
 /* ---- Emotions -------------------------------------------------------------
@@ -500,10 +503,18 @@ const ROAM_KEY = 'buddies:roam';
 const loadRoam = () => { try { return localStorage.getItem(ROAM_KEY) === 'on'; } catch { return false; } };
 const saveRoam = on => { try { localStorage.setItem(ROAM_KEY, on ? 'on' : 'off'); } catch { /* storage blocked */ } };
 
+const COSTUME_KEY = key => `buddies:costume:${key}`;
+const loadCostume = (key, fallback) => { try { return localStorage.getItem(COSTUME_KEY(key)) || fallback; } catch { return fallback; } };
+const saveCostume = (key, id) => { try { localStorage.setItem(COSTUME_KEY(key), id); } catch { /* storage blocked */ } };
+
 export default function BuddyWorld() {
   const reduced = usePrefersReducedMotion();
   const [tabVisible, setTabVisible] = useState(() => typeof document === 'undefined' || !document.hidden);
   const [roam, setRoam] = useState(loadRoam);
+  const [costumes, setCostumes] = useState(() => ({
+    vic: loadCostume('vic', 'classic'),
+    claude: loadCostume('claude', 'classic'),
+  }));
   // During the Bug Attack event the buddies fight in the event's arena instead.
   const [bugOn, setBugOn] = useState(false);
   useEffect(() => {
@@ -640,6 +651,7 @@ export default function BuddyWorld() {
       feel(key, 'nervous', 1e9);                                 // until they land
       talk.current.queue = [{ key: other, text: pick(HELD_REACT[key]) }];
       talk.current.gap = 900;
+      buddyBus.emit(statusFor(key, 'held'));
     }
     if (b.mode !== 'held') return;
     if (phase === 'start' || phase === 'move') {
@@ -724,6 +736,7 @@ export default function BuddyWorld() {
       return { key, text };
     });
     talk.current.gap = 0;
+    buddyBus.emit(statusFor('vic', 'talk'));
     // Claude comes over (jumping across if he's on another card) so they're together
     // for the skit. The talking starts right away; only actions wait until he's there.
     talk.current.approach = false;
@@ -1069,6 +1082,7 @@ export default function BuddyWorld() {
     if (action === 'roam') {
       const on = !roamRef.current;
       setRoam(on); roamRef.current = on; saveRoam(on);
+      buddyBus.emit(statusFor(key, on ? 'roamOn' : 'roamOff'));
       talk.current.queue = [];
       say(key, on ? "Let's explore the site!" : 'Back to the floor!');
       talk.current.queue = [{ key: key === 'vic' ? 'claude' : 'vic', text: on ? 'Race you to the next card!' : 'Home sweet home.' }];
@@ -1097,6 +1111,17 @@ export default function BuddyWorld() {
     rerender();
   };
 
+  const changeCostume = key => id => {
+    const list = key === 'vic' ? vicCostumes : claudeCostumes;
+    const chosen = list.find(c => c.id === id) || list[0];
+    setCostumes(prev => ({ ...prev, [key]: chosen.id }));
+    saveCostume(key, chosen.id);
+    talk.current.queue = [];
+    feel(key, 'happy', 2200);
+    say(key, chosen.quip);
+    rerender();
+  };
+
   /** Start an action (used by the menu and by skits). `ms` overrides how long it lasts. */
   function perform(key, action, ms) {
     const b = sim.current[key];
@@ -1105,6 +1130,8 @@ export default function BuddyWorld() {
     if (b.jump) { b.plat = b.jump.to; b.x = b.target = b.jump.toX; b.jump = null; }   // land first
     const p = platById(b.plat);
     if (!p) return;
+    const status = statusFor(key, action);
+    if (status) buddyBus.emit(status);
     if (action === 'vacuum') { startVacuum(); return; }
     const max = room(b, p);
     b.timer = 0;
@@ -1230,6 +1257,9 @@ export default function BuddyWorld() {
           onDrag={onDrag('claude')}
           actions={[...CLAUDE_ACTIONS, roamItem]}
           stageWidth={pageW}
+          costumes={claudeCostumes}
+          costumeId={costumes.claude}
+          onCostume={changeCostume('claude')}
         />
       )}
       {prop(c, cp, CLAUDE_W)}
@@ -1248,6 +1278,9 @@ export default function BuddyWorld() {
           onDrag={onDrag('vic')}
           actions={[...VIC_ACTIONS, roamItem]}
           stageWidth={pageW}
+          costumes={vicCostumes}
+          costumeId={costumes.vic}
+          onCostume={changeCostume('vic')}
         />
       )}
     </div>
