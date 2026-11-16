@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import Buddy from './Buddy.jsx';
 import PixelSprite from './PixelSprite.jsx';
 import { vic, claude, laptopSide, vicCostumes, claudeCostumes } from './sprites.js';
@@ -507,6 +508,7 @@ const saveCostume = (key, id) => { try { localStorage.setItem(COSTUME_KEY(key), 
 
 export default function BuddyWorld() {
   const reduced = usePrefersReducedMotion();
+  const { pathname } = useLocation();
   const [tabVisible, setTabVisible] = useState(() => typeof document === 'undefined' || !document.hidden);
   const [roam, setRoam] = useState(loadRoam);
   const [costumes, setCostumes] = useState(() => ({
@@ -897,6 +899,11 @@ export default function BuddyWorld() {
     }
   }
 
+  // Entry intro: on every page load (refresh) and every new page (link), both buddies jump in from above the screen.
+  useEffect(() => {
+    for (const b of Object.values(sim.current)) b.intro = true;
+  }, [pathname]);
+
   // Pause when the tab is hidden
   useEffect(() => {
     const on = () => setTabVisible(!document.hidden);
@@ -924,6 +931,30 @@ export default function BuddyWorld() {
       const sw = sprayWatch.current;
       if (sw.cleanupAt && performance.now() >= sw.cleanupAt) { sw.cleanupAt = 0; maybeCleanup(); }
       const { vic: v, claude: c } = sim.current;
+
+      // Entry intro: a buddy with the flag set and no card under it drops in from above the screen onto a visible platform.
+      // It waits (keeps the flag) while it is busy or nothing is on screen yet.
+      for (const b of Object.values(sim.current)) {
+        if (!b.intro) continue;
+        if (reduced) { b.intro = false; continue; }
+        if (b.jump || b.hold || b.fall || b.carry || b.mode === 'vacuum') continue;
+        const q = nearestVisible(view.current.top);
+        if (!q) continue;
+        // Land under the portrait photo (Home hero) when it's on the floor; June Vic on its left, Claude beside him.
+        const pfp = document.querySelector('.home-hero__portrait');
+        const anchorX = pfp && q.floor ? pfp.getBoundingClientRect().left + window.scrollX - q.left : null;
+        const x = b === v
+          ? clamp(anchorX != null ? anchorX + 12 : 24, 0, room(b, q))
+          : clamp(anchorX != null ? anchorX + VIC_W + 16 : rand(0, room(b, q)), 0, room(b, q));
+        const waving = b.mode === 'wave';
+        // They come in from the LEFT edge of the screen, just off-screen, at about the height of the platform.
+        b.plat = null;
+        b.fall = { x: window.scrollX - 40, y: Math.max(view.current.top, q.top - 120) };
+        b.intro = false;
+        jumpTo(b, q, x);
+        b.fall = null;
+        if (waving) b.mode = 'wave';
+      }
 
       // Follow the visitor: a buddy whose card has scrolled out of view (or vanished
       // because the page changed) jumps onto a card that's on screen.

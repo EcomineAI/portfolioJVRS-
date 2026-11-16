@@ -64,7 +64,7 @@ function Hero() {
           </div>
         </div>
 
-        <div className="home-hero__keys"><SkillKeys /></div>
+        <div className="home-hero__keys"><SkillKeys scrollPose /></div>
       </div>
 
       <div className="container">

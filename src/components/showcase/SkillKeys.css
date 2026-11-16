@@ -19,8 +19,72 @@
   --rise: calc(var(--k) * 0.92);   /* how much higher the back edge is than the front */
   position: relative;
   transform-style: preserve-3d;
-  transform: rotateX(58deg) rotateZ(-42deg);
+  /* --pose (0 to 1) comes from scroll on the hero (scrollPose): 0 is the angled default tilt (58deg),
+     1 is the straight-on top view (0deg, 0deg): a flat rectangle, like a keyboard seen from above. */
+  transform: rotateX(calc(58deg - var(--pose, 0) * 58deg)) rotateZ(calc(-42deg + var(--pose, 0) * 42deg));
+  transition: transform 220ms ease-out;
+  /* Intro: the keyboard rises flat-on, spins a full turn to show off its 3D sides, and settles into the default pose */
 }
+.skillkeys--intro .skillkeys__rig { animation: skillkeys-intro 2.2s cubic-bezier(0.2, 0.8, 0.25, 1) 0.3s both; }
+@keyframes skillkeys-intro {
+  0% { transform: rotateX(8deg) rotateZ(-402deg) scale(0.6); }
+  60% { transform: rotateX(70deg) rotateZ(-120deg) scale(1.02); }
+  100% { transform: rotateX(58deg) rotateZ(-42deg) scale(1); }
+}
+/* The whole intro only exists while .skillkeys--intro is on (first load of the page, ~2.7 s); afterwards the
+   switches are removed from the DOM and no animation or layer is left running. */
+/* Building blocks: each key drops onto the plate in turn and bounces into its slot.
+   Hidden with visibility (not opacity, which would flatten the 3D) until its turn. */
+.skillkeys--intro .skillkeys__board .key { animation: skillkeys-drop 520ms cubic-bezier(0.3, 0.7, 0.4, 1) both; animation-delay: calc(0.9s + var(--i, 0) * 55ms); }
+
+/* Blue mechanical switch under each cap: a dark housing with a raised blue cross stem.
+   It sits on the plate the whole time, so during the intro the caps drop onto the switches. */
+.skillkeys__board li { position: relative; }
+.switch, .switch__stem { position: absolute; display: block; transform-style: preserve-3d; pointer-events: none; }
+.switch {
+  --sw-h: calc(var(--k) * 0.16);
+  --st-h: calc(var(--k) * 0.08);
+  --fh: var(--sw-h);
+  --sz: calc(var(--k) * 0.62);
+  --top: #2f333e; --side: #1c1f27;
+  width: var(--sz); height: var(--sz);
+  left: calc(50% - var(--sz) / 2); top: calc(50% - var(--sz) / 2);
+}
+.switch__stem {
+  --fh: var(--st-h);
+  --sz: calc(var(--k) * 0.24);
+  --top: #2f6fe0; --side: #1e4fb0;
+  width: var(--sz); height: var(--sz);
+  left: calc(50% - var(--sz) / 2); top: calc(50% - var(--sz) / 2);
+  transform: translateZ(var(--sw-h));
+}
+.sw-f { position: absolute; display: block; }
+.sw-top { inset: 0; transform: translateZ(var(--fh)); background: var(--top); box-shadow: inset 0 0 0 2px #0d1226; }
+.switch__stem > .sw-top {
+  /* the "+" cross on top of a Cherry-style stem */
+  background:
+    linear-gradient(#0f2f75, #0f2f75) center / 100% 30% no-repeat,
+    linear-gradient(#0f2f75, #0f2f75) center / 30% 100% no-repeat,
+    var(--top);
+  box-shadow: none;
+}
+.sw-front { left: 0; bottom: 0; width: 100%; height: var(--fh); transform-origin: bottom; transform: rotateX(-90deg); background: var(--side); }
+.sw-back  { left: 0; top: 0; width: 100%; height: var(--fh); transform-origin: top; transform: rotateX(90deg); background: var(--side); }
+.sw-left  { top: 0; right: 100%; width: var(--fh); height: 100%; transform-origin: right; transform: rotateY(90deg); background: var(--side); filter: brightness(0.8); }
+.sw-right { top: 0; left: 100%; width: var(--fh); height: 100%; transform-origin: left; transform: rotateY(-90deg); background: var(--side); filter: brightness(1.15); }
+/* pressing a key pushes its switch down too, so the switch never pokes through the cap */
+.key.is-down + .switch, .key:active + .switch { --sw-h: calc(var(--k) * 0.02); --st-h: calc(var(--k) * 0.02); }
+@keyframes skillkeys-drop {
+  0% { visibility: hidden; transform: translateZ(calc(var(--k) * 3)); }
+  1% { visibility: visible; }
+  65% { transform: translateZ(0); }
+  80% { transform: translateZ(calc(var(--k) * 0.18)); }
+  100% { visibility: visible; transform: translateZ(0); }
+}
+/* The fade lives on the stage, NOT the rig: opacity on a 3D (preserve-3d) element flattens it */
+.skillkeys--intro .skillkeys__stage { animation: skillkeys-fade 0.5s ease-out 0.3s both; }
+@keyframes skillkeys-fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .skillkeys__rig, .skillkeys__stage, .skillkeys__board .key { animation: none; } }
 /* The raised ("pataas") part: plate + keys tilt up toward the back, hinged on the front edge. */
 .skillkeys__tilt {
   position: relative;
@@ -39,7 +103,7 @@
 }
 
 /* Pixel keyboard case: a wedge, low at the front and tall at the back, with a dithered plate on top. */
-.case__top, .case__front, .case__left { position: absolute; display: block; }
+.case__top, .case__front, .case__left, .case__right, .case__back, .case__bottom { position: absolute; display: block; }
 .case__top {
   inset: 0;
   background: #eef2f9;
@@ -71,11 +135,24 @@
   background: linear-gradient(90deg, #8d9bbb 0 25%, #a9b6d2 25% 70%, #c3cde2 70%);
   box-shadow: inset 0 0 0 3px #0d1226;
 }
-/* USB cable lying on the table behind the board */
-.case__cable {
-  position: absolute; left: 12%; bottom: 100%; width: 46%; aspect-ratio: 1.1;
-  transform: translateZ(calc(var(--case-h) * -1 + 1px));
-  overflow: visible; shape-rendering: crispEdges;
+/* the other faces, so the case is solid from every angle */
+.case__right {
+  top: 0; left: 100%; width: calc(var(--case-h) + var(--rise)); height: 100%;
+  transform-origin: left; transform: translateZ(var(--rise)) rotateY(90deg);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, var(--rise) 100%);
+  background: linear-gradient(90deg, #c3cde2 0 30%, #a9b6d2 30% 75%, #8d9bbb 75%);
+  box-shadow: inset 0 0 0 3px #0d1226;
+}
+.case__back {
+  left: 0; top: 0; width: 100%; height: calc(var(--case-h) + var(--rise));
+  transform-origin: top; transform: translateZ(var(--rise)) rotateX(-90deg);
+  background: linear-gradient(#c3cde2 0 30%, #a9b6d2 30% 75%, #8d9bbb 75%);
+  box-shadow: inset 0 0 0 3px #0d1226;
+}
+.case__bottom {
+  inset: 0; background: #6f7fa6;
+  transform: translateZ(calc(var(--case-h) * -1));
+  box-shadow: inset 0 0 0 3px #0d1226;
 }
 .skillkeys__board li { display: block; transform-style: preserve-3d; }
 
@@ -93,7 +170,8 @@
 .key.is-active { --lift: calc(var(--k) * 0.36); }
 .key.is-down, .key:active { --lift: calc(var(--k) * 0.08); }
 
-.key__top, .key__front, .key__left { position: absolute; display: block; }
+/* Square keycaps: flat top with the logo, four straight sides (solid from any angle) */
+.key__top, .key__front, .key__right, .key__back, .key__left { position: absolute; display: block; }
 .key__top {
   inset: 0;
   transform: translateZ(var(--lift));
@@ -103,30 +181,30 @@
   box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--brand) 18%, var(--card));
 }
 .key__top .pixel-logo { width: 62%; height: auto; filter: none; }
-.key.is-active .key__top, .key:focus-visible .key__top {
-  background: color-mix(in srgb, var(--brand) 22%, var(--card));
-  border-color: color-mix(in srgb, var(--brand) 60%, #fff);
-  box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--brand) 40%, var(--card)), 0 0 0 4px color-mix(in srgb, var(--brand) 45%, transparent);
-}
 .key__front {
   left: 0; bottom: 0; width: 100%; height: var(--lift);
   transform-origin: bottom; transform: rotateX(-90deg);
   background: color-mix(in srgb, var(--brand) 78%, #000);
+}
+.key__back {
+  left: 0; top: 0; width: 100%; height: var(--lift);
+  transform-origin: top; transform: rotateX(90deg);
+  background: color-mix(in srgb, var(--brand) 45%, #000);
 }
 .key__left {
   top: 0; right: 100%; width: var(--lift); height: 100%;
   transform-origin: right; transform: rotateY(90deg);
   background: color-mix(in srgb, var(--brand) 55%, #000);
 }
-/* soft footprint on the board under each key */
-.key::after {
-  content: ''; position: absolute; inset: 4px -4px -4px 4px;
-  background: color-mix(in srgb, var(--fg) 22%, transparent);
-  transform: translateZ(1px);
+.key__right {
+  top: 0; left: 100%; width: var(--lift); height: 100%;
+  transform-origin: left; transform: rotateY(-90deg);
+  background: color-mix(in srgb, var(--brand) 65%, #000);
 }
 
 .skillkeys__readout {
   width: min(100%, 420px); height: 136px; overflow: hidden; flex: none;
+  margin-top: calc(var(--k) * -0.3);
   display: grid; align-content: center; gap: 10px;
   padding: 14px 18px;
   background: var(--card);
@@ -141,5 +219,16 @@
   padding: 0 8px; background: var(--primary); color: var(--primary-fg);
 }
 .skillkeys__projects { gap: 4px 12px; align-content: start; }
-.skillkeys__empty { font-family: var(--font-ui); font-size: var(--text-base); color: var(--muted-fg); }
-@media (prefers-reduced-motion: reduce) { .key { transition: none; } }
+.skillkeys__note { font-family: var(--font-ui); font-size: var(--text-base); color: var(--muted-fg); }
+/* Hidden until a key is clicked: the box keeps its height so the keys never move */
+.skillkeys__readout.is-hidden { visibility: hidden; pointer-events: none; }
+/* Summon: the description rises up in stepped pixel moves and fades in */
+.skillkeys__content { display: grid; gap: 10px; align-content: center; animation: skill-summon 360ms steps(5, end) both; }
+@keyframes skill-summon {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .key { transition: none; }
+  .skillkeys__content { animation: none; }
+}
