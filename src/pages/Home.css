@@ -215,3 +215,5 @@
 }
 .home-stack__count { color: var(--muted-fg); }
 .home-hero__keys .skillkeys__stage { height: calc(var(--k) * 6.8); }
+/* In the hero the description sits under the keyboard, not over its bottom edge */
+.home-hero__keys .skillkeys__readout { margin-top: calc(var(--k) * 0.6); }
