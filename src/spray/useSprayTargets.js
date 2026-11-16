@@ -53,26 +53,36 @@ export function useSprayTargets(engineRef, pathname) {
       engine.setTargets(rects, docW, docH);
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
-    const scheduleSoon = () => { clearTimeout(debounce); debounce = setTimeout(schedule, 150); };
+    // Short debounce: paint on a card that just moved or resized shouldn't hang in the air before it follows.
+    const scheduleSoon = () => { clearTimeout(debounce); debounce = setTimeout(schedule, 40); };
+    // Resize / browser zoom: cards move in the same frame, so re-measure right now (not after a delay),
+    // otherwise paint hangs at the old positions for a split second. A trailing pass catches late layout.
+    const updateNow = () => {
+      cancelAnimationFrame(frame);
+      update();
+      clearTimeout(debounce);
+      debounce = setTimeout(schedule, 120);
+    };
 
     // Rects are in document coords, so scroll only matters for sticky/fixed
-    // surfaces; throttle to a few times per second.
+    // surfaces (the sticky laptop preview); re-measure often enough that paint on them keeps up.
     const onScroll = () => {
       const now = performance.now();
-      if (now - lastScroll > 250) { lastScroll = now; schedule(); }
+      if (now - lastScroll > 60) { lastScroll = now; schedule(); }
       clearTimeout(trailing);
-      trailing = setTimeout(schedule, 260);
+      trailing = setTimeout(schedule, 90);
     };
 
     schedule();
-    window.addEventListener('resize', scheduleSoon);
+    window.addEventListener('resize', updateNow);
+    window.visualViewport?.addEventListener('resize', updateNow);
     window.addEventListener('scroll', onScroll, { passive: true });
 
     const main = document.querySelector('main');
-    const mo = main ? new MutationObserver(scheduleSoon) : null;
+    const mo = main ? new MutationObserver(schedule) : null;
     mo?.observe(main, { childList: true, subtree: true, characterData: true });
 
-    const ro = 'ResizeObserver' in window ? new ResizeObserver(scheduleSoon) : null;
+    const ro = 'ResizeObserver' in window ? new ResizeObserver(schedule) : null;
     ro?.observe(document.body);
 
     document.fonts?.ready?.then(schedule).catch(() => {});
@@ -81,7 +91,8 @@ export function useSprayTargets(engineRef, pathname) {
       cancelAnimationFrame(frame);
       clearTimeout(debounce);
       clearTimeout(trailing);
-      window.removeEventListener('resize', scheduleSoon);
+      window.removeEventListener('resize', updateNow);
+      window.visualViewport?.removeEventListener('resize', updateNow);
       window.removeEventListener('scroll', onScroll);
       mo?.disconnect();
       ro?.disconnect();

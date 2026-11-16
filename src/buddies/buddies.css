@@ -227,9 +227,10 @@
   left: 0;
   top: 0;
   translate: 0 -100%;
-  z-index: 1;
+  z-index: 4;                    /* in front of the buddy standing behind it */
 }
 /* pop-in runs on the inner svg: the span's own transform positions the laptop */
+.buddy-world__kb { display: block; }
 .buddy-world__prop svg { animation: buddy-pop 160ms steps(3, end); transform-origin: 50% 100%; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -244,7 +245,7 @@
   50% { transform: translateY(-2px); }
 }
 /* Laptop screen glow */
-.buddy-world__prop svg { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--world-code) 55%, transparent)); }
+.buddy-world__prop svg { filter: drop-shadow(2px 2px 0 rgb(13 18 38 / 0.45)); }
 @media (prefers-reduced-motion: reduce) {
   .buddy.is-laptop .buddy__sprite { animation: none; }
 }

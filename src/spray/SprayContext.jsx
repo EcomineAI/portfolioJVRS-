@@ -6,7 +6,8 @@ import { CANS, FLOWS, MODES, PALETTES } from './engine.js';
 
 const SprayContext = createContext(null);
 
-const KEYS = { enabled: 'spray:enabled', mode: 'spray:mode', can: 'spray:can', flow: 'spray:flow', color: 'spray:palette' };
+// 'spray:on' (not the old 'spray:enabled'): spray now starts OFF, and visitors who had the old default saved as 'on' should start off too.
+const KEYS = { enabled: 'spray:on', mode: 'spray:mode', can: 'spray:can', flow: 'spray:flow', color: 'spray:palette' };
 
 function load(key, fallback, allowed) {
   try {
@@ -20,7 +21,7 @@ function save(key, value) {
 }
 
 export function SprayProvider({ children }) {
-  const [enabled, setEnabled] = useState(() => load(KEYS.enabled, 'on', ['on', 'off']) === 'on');
+  const [enabled, setEnabled] = useState(() => load(KEYS.enabled, 'off', ['on', 'off']) === 'on');
   const [mode, setMode] = useState(() => load(KEYS.mode, 'string', MODES));
   const [can, setCan] = useState(() => load(KEYS.can, 'classic', Object.keys(CANS)));
   const [flow, setFlow] = useState(() => load(KEYS.flow, 'balanced', Object.keys(FLOWS)));

@@ -63,7 +63,7 @@
   font-size: var(--text-sm);
   color: var(--muted-fg);
   letter-spacing: 0.08em;
-  text-transform: uppercase;
+  text-transform: none;
 }
 .about-photo__dot {
   width: 8px; height: 8px; flex: none;
@@ -84,7 +84,7 @@
   display: grid;
   grid-template-columns: 7.5rem 1fr;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
   padding: 12px 2px;
   border-bottom: 2px dashed color-mix(in srgb, var(--hairline) 70%, var(--muted-fg));
 }
@@ -95,7 +95,7 @@
   border: 2px solid var(--border);
   box-shadow: 2px 2px 0 0 var(--border);
   color: var(--fg);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.08em;
   font-size: var(--text-sm);
   line-height: 1.4;
@@ -123,50 +123,74 @@
 
 /* ---- Skills ---- */
 .skills-legend {
-  display: flex;
-  align-items: center;
-  gap: 12px;
   margin: -16px 0 28px;
   font-size: var(--text-base);
   color: var(--muted-fg);
 }
-.skill-groups { display: grid; gap: 28px; }
-@media (min-width: 768px) { .skill-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* One board, one row per group: title on the left, pixel logo tiles on the right */
+.stack-board { padding: 4px clamp(16px, 3vw, 32px); }
+.stack-row { display: grid; gap: 8px; padding: 12px 0; }
+.stack-row + .stack-row { border-top: 2px dashed color-mix(in srgb, var(--hairline) 70%, var(--muted-fg)); }
+.stack-row__title { font-size: 1rem; line-height: 1.4; }
+@media (min-width: 860px) {
+  .stack-row { grid-template-columns: 150px minmax(0, 1fr); gap: 20px; align-items: start; }
+  .stack-row__title { padding-top: 10px; }
+}
 
-.skill-group { display: grid; gap: 16px; align-content: start; }
-.skill-group__title { font-size: 1rem; }
-.skill-list { list-style: none; display: grid; gap: 14px; }
-.skill { display: grid; gap: 6px; }
-.skill__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
-.skill__name { font-size: var(--text-lg); line-height: 1.2; }
-.skill__lvl { color: var(--muted-fg); font-size: var(--text-base); letter-spacing: 0.08em; }
+/* Logo tiles: Devicon (MIT) / Simple Icons (CC0) logos turned into pixel art in their own colors */
+.skill-grid { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+.skill-tile {
+  position: relative;
+  width: 88px;
+  display: grid; justify-items: center; align-content: start; gap: 10px;
+  padding: 10px 6px 8px;
+  background: var(--card);
+  border: 3px solid var(--border);
+  box-shadow: 3px 3px 0 0 var(--shadow-color);
+  text-align: center;
+  transition: transform 100ms steps(2), box-shadow 100ms steps(2), background-color 150ms steps(3);
+}
+.skill-tile:hover, .skill-tile:focus-visible {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 0 var(--brand, var(--shadow-color));
+  background: color-mix(in srgb, var(--brand, var(--primary-soft)) 10%, var(--card));
+  outline: none;
+  z-index: 3;
+}
+.pixel-logo {
+  display: block;
+  image-rendering: pixelated;
+  color: var(--fg);   /* PixelLogo reads this to recolor black logos in dark mode */
+  filter: drop-shadow(3px 3px 0 color-mix(in srgb, var(--fg) 22%, transparent));
+}
+.skill-tile__name { max-width: 100%; font-size: var(--text-sm); line-height: 1.1; overflow-wrap: break-word; hyphens: manual; }
+.skill-tile__count { position: absolute; top: 2px; right: 5px; font-size: var(--text-sm); color: var(--muted-fg); }
+.skill-tile__tip {
+  position: absolute; left: 50%; bottom: calc(100% + 10px);
+  transform: translateX(-50%);
+  width: max-content; max-width: 260px;
+  padding: 6px 10px;
+  background: var(--card);
+  border: 3px solid var(--border);
+  box-shadow: 3px 3px 0 0 var(--shadow-color);
+  font-size: var(--text-base); line-height: 1.2;
+  opacity: 0; pointer-events: none;
+  transition: opacity 100ms steps(2);
+}
+.skill-tile:hover .skill-tile__tip, .skill-tile:focus-visible .skill-tile__tip { opacity: 1; }
 
-.xp-bar { display: inline-grid; grid-template-columns: repeat(5, 1fr); gap: 3px; width: min(100%, 240px); }
-.xp-bar--demo { grid-template-columns: repeat(2, 1fr); width: 44px; flex: none; }
-.xp-bar__seg {
-  height: 14px;
-  background: var(--surface);
+/* Skills without a logo (concepts and small libraries) */
+.stack-row__also { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+.skill-grid + .stack-row__also { margin-top: 18px; }
+.also-chip {
+  padding: 2px 10px;
+  background: var(--card);
   border: 2px solid var(--border);
-}
-.xp-bar__seg.is-on { background: var(--primary-soft); }
-[data-theme='dark'] .xp-bar__seg.is-on { background: var(--primary); }
-
-.skill__projects {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 14px;
-}
-.skill__projects a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
+  font-family: var(--font-ui);
   font-size: var(--text-base);
-  color: var(--muted-fg);
-  text-underline-offset: 4px;
 }
-.skill__projects a::before { content: '▸'; margin-right: 4px; font-size: 0.8em; }
-.skill__projects a:hover { color: var(--primary); }
+.also-chip__n { color: var(--muted-fg); }
+@media (prefers-reduced-motion: reduce) { .skill-tile { transition: none; } }
 
 /* ---- Troubleshooting skill tree ---- */
 .trouble-grid {
@@ -227,3 +251,30 @@
 @media (min-width: 768px) {
   .journey__item { grid-template-columns: 10rem minmax(0, 1fr); }
 }
+
+/* ---- Certificates (pictures) ---- */
+.cert-grid { list-style: none; display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.cert-card { display: grid; align-content: start; height: 100%; overflow: hidden; }
+.cert-card--empty { gap: 10px; border-style: dashed; box-shadow: none; }
+.cert-card__open { display: block; padding: 0; border: 0; background: var(--surface); cursor: var(--cursor-pointer, zoom-in); }
+.cert-card__img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: top; transition: transform 200ms steps(4, end); }
+.cert-card__open:hover .cert-card__img, .cert-card__open:focus-visible .cert-card__img { transform: scale(1.04); }
+.cert-card__text { display: grid; gap: 6px; padding: 12px 16px 16px; border-top: var(--border-w) solid var(--border); }
+.cert-card__badge {
+  width: 48px; height: 48px; display: grid; place-items: center;
+  background: var(--surface); color: var(--muted-fg);
+  border: 3px solid var(--border);
+  font-family: var(--font-pixel); font-size: 1.25rem;
+}
+.cert-card__title { font-size: 0.9rem; line-height: 1.6; }
+.cert-card__issuer { font-family: var(--font-ui); font-size: var(--text-base); color: var(--muted-fg); }
+.cert-card__date { font-variant-numeric: tabular-nums; }
+.cert-card__link { justify-self: start; font-family: var(--font-ui); font-size: var(--text-base); text-decoration: underline; text-underline-offset: 4px; }
+
+.cert-lightbox {
+  position: fixed; inset: 0; z-index: 1000;
+  display: grid; place-items: center; gap: 16px; align-content: center;
+  padding: 24px; background: rgb(8 12 30 / 0.88); cursor: var(--cursor-pointer, zoom-out);
+}
+.cert-lightbox img { max-width: min(1100px, 100%); max-height: 80vh; border: var(--border-w) solid var(--border); background: #fff; box-shadow: var(--shadow-md); }
+@media (prefers-reduced-motion: reduce) { .cert-card__img { transition: none; } }

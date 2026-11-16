@@ -42,7 +42,7 @@
   padding: 0 6px;
   border: 2px solid var(--border);
   color: var(--fg);
-  text-transform: uppercase;
+  text-transform: none;
   font-size: var(--text-sm);
 }
 
@@ -64,7 +64,7 @@
 }
 .cs-meta dt {
   font-size: var(--text-base);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.1em;
   color: var(--muted-fg);
 }
@@ -181,7 +181,7 @@
   font-family: var(--font-ui);
   font-size: var(--text-lg);
   letter-spacing: 0.1em;
-  text-transform: uppercase;
+  text-transform: none;
   color: var(--muted-fg);
   margin-top: 4px;
 }
@@ -268,7 +268,7 @@
   font-size: var(--text-base);
   letter-spacing: 0.08em;
   color: var(--muted-fg);
-  text-transform: uppercase;
+  text-transform: none;
 }
 .cs-step__title { font-size: 1rem; line-height: 1.5; }
 

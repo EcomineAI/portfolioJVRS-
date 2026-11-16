@@ -1,7 +1,7 @@
 // /projects/:slug — short project page. Team projects always show My role + My contributions (course R3).
 import { Link, useParams } from 'react-router-dom';
 import { GithubIcon } from '../components/Icons.jsx';
-import { Eyebrow, PixelButton, PixelCard, TagList, Todo } from '../components/ui/index.jsx';
+import { Eyebrow, PixelArrow, PixelButton, PixelCard, TagList, Todo } from '../components/ui/index.jsx';
 import { CASE_STUDY_SLUG, projectBySlug, projects } from '../data/projects.js';
 import { worldById } from '../data/worlds.js';
 import './ProjectDetail.css';
@@ -30,7 +30,7 @@ function CoverPanel({ project: p }) {
   if (p.cover) {
     return (
       <figure className="pd-cover">
-        <img src={p.cover} alt={p.coverAlt || `Screenshot of ${p.title}`} />
+        <img src={p.cover} alt={p.coverAlt || `Screenshot of ${p.title}`} onError={e => { e.currentTarget.parentElement.hidden = true; }} />
         {p.coverCaption && <figcaption>{p.coverCaption}</figcaption>}
       </figure>
     );
@@ -110,12 +110,12 @@ function Pager({ slug }) {
       ) : <span />}
       {next ? (
         <Link to={hrefFor(next)} className="pd-pager__link pd-pager__link--next">
-          <span className="pd-pager__dir">Next <span aria-hidden="true">→</span></span>
+          <span className="pd-pager__dir">Next <PixelArrow /></span>
           <span className="pd-pager__title">{next.title}</span>
         </Link>
       ) : (
         <Link to="/projects" className="pd-pager__link pd-pager__link--next">
-          <span className="pd-pager__dir">That's all <span aria-hidden="true">→</span></span>
+          <span className="pd-pager__dir">That's all <PixelArrow /></span>
           <span className="pd-pager__title">All projects</span>
         </Link>
       )}

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-10T10:59:27.797Z",
+  "generatedAt": "2026-11-16T05:34:00.999Z",
   "user": "EcomineAI",
   "sources": {
     "github": {
@@ -10,36 +10,6 @@
     "tryhackme": null
   },
   "days": [
-    {
-      "date": "2025-11-05",
-      "count": 0,
-      "level": 0
-    },
-    {
-      "date": "2025-11-06",
-      "count": 0,
-      "level": 0
-    },
-    {
-      "date": "2025-11-07",
-      "count": 0,
-      "level": 0
-    },
-    {
-      "date": "2025-11-08",
-      "count": 0,
-      "level": 0
-    },
-    {
-      "date": "2025-11-09",
-      "count": 0,
-      "level": 0
-    },
-    {
-      "date": "2025-11-10",
-      "count": 0,
-      "level": 0
-    },
     {
       "date": "2025-11-11",
       "count": 0,
@@ -633,7 +603,7 @@
     {
       "date": "2026-03-09",
       "count": 9,
-      "level": 2
+      "level": 1
     },
     {
       "date": "2026-03-10",
@@ -1864,18 +1834,48 @@
       "date": "2026-11-10",
       "count": 2,
       "level": 1
+    },
+    {
+      "date": "2026-11-11",
+      "count": 2,
+      "level": 1
+    },
+    {
+      "date": "2026-11-12",
+      "count": 33,
+      "level": 4
+    },
+    {
+      "date": "2026-11-13",
+      "count": 39,
+      "level": 4
+    },
+    {
+      "date": "2026-11-14",
+      "count": 1,
+      "level": 1
+    },
+    {
+      "date": "2026-11-15",
+      "count": 19,
+      "level": 2
+    },
+    {
+      "date": "2026-11-16",
+      "count": 0,
+      "level": 0
     }
   ],
   "stats": {
-    "allTime": 397,
-    "last365": 384,
-    "last30": 90,
-    "longestStreak": 7,
-    "currentStreak": 5,
-    "activeDays": 46,
+    "allTime": 491,
+    "last365": 457,
+    "last30": 178,
+    "longestStreak": 10,
+    "currentStreak": 10,
+    "activeDays": 51,
     "busiestDay": {
-      "date": "2026-05-04",
-      "count": 38
+      "date": "2026-11-13",
+      "count": 39
     }
   }
 }

@@ -84,7 +84,7 @@ html.is-spraying body {
   padding: 0;
   margin-bottom: 6px;
   font-size: var(--text-sm);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.1em;
   color: var(--muted-fg);
 }

@@ -6,7 +6,6 @@ import SprayLayer from '../../spray/SprayLayer.jsx';
 import BuddyWorld from '../../buddies/BuddyWorld.jsx';
 import BugEvent from '../../bugEvent/BugEvent.jsx';
 import Chatbot from '../../widgets/Chatbot.jsx';
-import NowPlaying from '../../widgets/NowPlaying.jsx';
 import Footer from './Footer.jsx';
 import Header from './Header.jsx';
 import PixelBackground from './PixelBackground.jsx';
@@ -33,7 +32,6 @@ export default function Layout() {
       <BuddyWorld />
       {/* Bug Attack: just-for-fun boss fight (green bug button in the header) */}
       <BugEvent />
-      <NowPlaying />
       <Chatbot />
       <SprayLayer />
     </SprayProvider>

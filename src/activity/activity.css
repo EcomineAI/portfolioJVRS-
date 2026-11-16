@@ -34,7 +34,7 @@
   font-family: var(--font-pixel);
   font-size: 1rem;           /* Press Start 2P never below 16px */
   line-height: 1.5;
-  text-transform: uppercase;
+  text-transform: none;
 }
 .activity__dot {
   width: 12px; height: 12px;
@@ -52,7 +52,7 @@
   color: var(--primary-fg);
   font-family: var(--font-ui);
   font-size: var(--text-base);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.08em;
   white-space: nowrap;
 }
@@ -72,7 +72,7 @@
   color: var(--fg);
   font-family: var(--font-ui);
   font-size: var(--text-base);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.08em;
   cursor: var(--cursor-pointer);
 }
@@ -164,7 +164,27 @@
 
 /* 3D skyline */
 .skyline { position: relative; min-width: 0; }
-.skyline__canvas { width: 100%; touch-action: pan-y; image-rendering: pixelated; }
+.skyline__canvas { width: 100%; touch-action: pan-y; image-rendering: pixelated; cursor: grab; user-select: none; }
+.skyline__canvas.is-dragging { cursor: grabbing; }
+.skyline__zoom { position: absolute; top: 4px; right: 4px; display: flex; gap: 4px; z-index: 3; }
+.skyline__zoom button {
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  background: var(--card); color: var(--fg);
+  border: 2px solid var(--border);
+  box-shadow: 2px 2px 0 0 var(--border);
+  font-family: var(--font-ui); font-size: var(--text-base); line-height: 1;
+  cursor: pointer;
+}
+.skyline__zoom button:hover { background: var(--primary); color: var(--primary-fg); }
+.skyline__hint {
+  margin: 4px 0 0;
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  letter-spacing: 0.06em;
+  color: var(--muted-fg);
+  text-align: right;
+}
 
 /* Shared pixel tooltip (positioned by JS at the cell's top centre) */
 .activity-tip {

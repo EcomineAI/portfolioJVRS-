@@ -56,7 +56,7 @@
   max-width: var(--prose-measure);
 }
 .projects-featured__facts > div { display: grid; grid-template-columns: 8.5em 1fr; gap: 4px 12px; }
-.projects-featured__facts dt { color: var(--muted-fg); text-transform: uppercase; letter-spacing: 0.1em; }
+.projects-featured__facts dt { color: var(--muted-fg); text-transform: none; letter-spacing: 0.1em; }
 .projects-featured__facts dd { margin: 0; font-family: var(--font-prose); font-size: var(--prose-size); line-height: 1.5; }
 @media (max-width: 480px) {
   .projects-featured__facts > div { grid-template-columns: 1fr; }

@@ -12,8 +12,9 @@ const isExternal = href => /^https?:\/\//.test(href || '');
  *  - `href` → <a> (external links open in a new tab)
  *  - else   → <button>
  */
-export function PixelButton({ to, href, variant = 'primary', size, icon, className, children, ...rest }) {
-  const classes = cx('pixel-btn', `pixel-btn--${variant}`, size && `pixel-btn--${size}`, icon && 'pixel-btn--icon', className);
+export function PixelButton({ to, href, variant = 'primary', size, icon, loading, className, children, ...rest }) {
+  const classes = cx('pixel-btn', `pixel-btn--${variant}`, size && `pixel-btn--${size}`, icon && 'pixel-btn--icon', loading && 'is-loading', className);
+  if (loading) rest = { ...rest, 'aria-busy': true, disabled: true };
   if (to) return <Link to={to} className={classes} {...rest}>{children}</Link>;
   if (href) {
     const ext = isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {};
@@ -66,6 +67,11 @@ export function SectionHeading({ as = 'h2', id, world, num, label, title, intro,
   );
 }
 
+/** Kenney Pixel UI arrow (CC0). Drawn as a mask so it takes the text colour and reads on any button. */
+export function PixelArrow() {
+  return <span className="pixel-arrow" aria-hidden="true" />;
+}
+
 /** One row in a list of work: title · one-liner · meta · arrow. */
 export function ItemRow({ to, href, title, description, meta = [], role, active = false, onActivate }) {
   const inner = (
@@ -78,7 +84,7 @@ export function ItemRow({ to, href, title, description, meta = [], role, active 
           {role && <span className="item-row__role">{role}</span>}
         </span>
       )}
-      <span className="item-row__arrow" aria-hidden="true">→</span>
+      <span className="item-row__arrow"><PixelArrow /></span>
     </>
   );
   const hover = onActivate ? { onMouseEnter: onActivate, onFocus: onActivate } : {};
@@ -113,7 +119,7 @@ export function ViewAll({ to, label = 'View all', count }) {
     <Link to={to} className="view-all">
       {label}
       {count != null && <span className="view-all__count">({count})</span>}
-      <span aria-hidden="true">→</span>
+      <PixelArrow />
     </Link>
   );
 }

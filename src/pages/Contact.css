@@ -68,7 +68,7 @@
 .status-card__list { display: grid; gap: 14px; margin: 0; }
 .status-card__list dt {
   font-size: var(--text-sm);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.1em;
   color: var(--muted-fg);
 }

@@ -1,0 +1,145 @@
+/* Isometric keycaps. Sizes derive from --k so the board scales down on small screens. */
+@property --lift { syntax: '<length>'; inherits: true; initial-value: 20px; }
+
+.skillkeys { --k: var(--hero-k, clamp(44px, 9.5vw, 104px)); --gap: calc(var(--k) * 0.2); display: grid; gap: 12px; justify-items: center; }
+.skillkeys__hint {
+  font-family: var(--font-ui); font-size: var(--text-sm); color: var(--muted-fg);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+}
+.skillkeys__stage {
+  width: 100%;
+  height: calc(var(--k) * 7);
+  display: grid; place-items: center;
+  perspective: 2400px;
+}
+.skillkeys__rig {
+  --pad: calc(var(--k) * 0.6);
+  --case-h: calc(var(--k) * 0.5);
+  --tilt: 9deg;
+  --rise: calc(var(--k) * 0.92);   /* how much higher the back edge is than the front */
+  position: relative;
+  transform-style: preserve-3d;
+  transform: rotateX(58deg) rotateZ(-42deg);
+}
+/* The raised ("pataas") part: plate + keys tilt up toward the back, hinged on the front edge. */
+.skillkeys__tilt {
+  position: relative;
+  padding: var(--pad);
+  transform-style: preserve-3d;
+  transform-origin: 50% 100%;
+  transform: rotateX(calc(var(--tilt) * -1));
+}
+.skillkeys__board {
+  list-style: none;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), var(--k));
+  gap: var(--gap);
+  transform-style: preserve-3d;
+}
+
+/* Pixel keyboard case: a wedge, low at the front and tall at the back, with a dithered plate on top. */
+.case__top, .case__front, .case__left { position: absolute; display: block; }
+.case__top {
+  inset: 0;
+  background: #eef2f9;
+  box-shadow: inset 0 0 0 3px #0d1226, inset 0 0 0 6px #ffffff;
+  clip-path: polygon(
+    0 8px, 4px 8px, 4px 4px, 8px 4px, 8px 0,
+    calc(100% - 8px) 0, calc(100% - 8px) 4px, calc(100% - 4px) 4px, calc(100% - 4px) 8px, 100% 8px,
+    100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%,
+    8px 100%, 8px calc(100% - 4px), 4px calc(100% - 4px), 4px calc(100% - 8px), 0 calc(100% - 8px));
+}
+/* recessed blue-grey plate the keys sit in */
+.case__top::before {
+  content: ''; position: absolute; inset: calc(var(--pad) * 0.28);
+  background:
+    conic-gradient(rgb(255 255 255 / 0.09) 25%, transparent 0 50%, rgb(255 255 255 / 0.09) 0 75%, transparent 0) 0 0 / 8px 8px,
+    #7d8cb3;
+  box-shadow: inset 0 0 0 3px #0d1226, inset 4px 4px 0 3px #4a5780;
+}
+.case__front {
+  left: 0; top: 100%; width: 100%; height: var(--case-h);
+  transform-origin: top; transform: rotateX(-90deg);
+  background: linear-gradient(#f4f7fc 0 45%, #c3cde2 45% 75%, #8d9bbb 75%);
+  box-shadow: inset 0 0 0 3px #0d1226;
+}
+.case__left {
+  top: 0; right: 100%; width: calc(var(--case-h) + var(--rise)); height: 100%;
+  transform-origin: right; transform: translateZ(var(--rise)) rotateY(-90deg);
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--rise)) 100%, 0 100%);
+  background: linear-gradient(90deg, #8d9bbb 0 25%, #a9b6d2 25% 70%, #c3cde2 70%);
+  box-shadow: inset 0 0 0 3px #0d1226;
+}
+/* USB cable lying on the table behind the board */
+.case__cable {
+  position: absolute; left: 12%; bottom: 100%; width: 46%; aspect-ratio: 1.1;
+  transform: translateZ(calc(var(--case-h) * -1 + 1px));
+  overflow: visible; shape-rendering: crispEdges;
+}
+.skillkeys__board li { display: block; transform-style: preserve-3d; }
+
+.key {
+  --brand: var(--fg);
+  --lift: calc(var(--k) * 0.3);
+  position: relative; display: block;
+  width: var(--k); height: var(--k);
+  padding: 0; border: 0; background: none;
+  transform-style: preserve-3d;
+  cursor: var(--cursor-pointer, pointer);
+  transition: --lift 90ms steps(3, end);
+}
+.key:focus-visible { outline: none; }
+.key.is-active { --lift: calc(var(--k) * 0.36); }
+.key.is-down, .key:active { --lift: calc(var(--k) * 0.08); }
+
+.key__top, .key__front, .key__left { position: absolute; display: block; }
+.key__top {
+  inset: 0;
+  transform: translateZ(var(--lift));
+  display: grid; place-items: center;
+  background: var(--card);
+  border: 3px solid var(--brand);
+  box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--brand) 18%, var(--card));
+}
+.key__top .pixel-logo { width: 62%; height: auto; filter: none; }
+.key.is-active .key__top, .key:focus-visible .key__top {
+  background: color-mix(in srgb, var(--brand) 22%, var(--card));
+  border-color: color-mix(in srgb, var(--brand) 60%, #fff);
+  box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--brand) 40%, var(--card)), 0 0 0 4px color-mix(in srgb, var(--brand) 45%, transparent);
+}
+.key__front {
+  left: 0; bottom: 0; width: 100%; height: var(--lift);
+  transform-origin: bottom; transform: rotateX(-90deg);
+  background: color-mix(in srgb, var(--brand) 78%, #000);
+}
+.key__left {
+  top: 0; right: 100%; width: var(--lift); height: 100%;
+  transform-origin: right; transform: rotateY(90deg);
+  background: color-mix(in srgb, var(--brand) 55%, #000);
+}
+/* soft footprint on the board under each key */
+.key::after {
+  content: ''; position: absolute; inset: 4px -4px -4px 4px;
+  background: color-mix(in srgb, var(--fg) 22%, transparent);
+  transform: translateZ(1px);
+}
+
+.skillkeys__readout {
+  width: min(100%, 420px); height: 136px; overflow: hidden; flex: none;
+  display: grid; align-content: center; gap: 10px;
+  padding: 14px 18px;
+  background: var(--card);
+  border: 3px solid var(--border);
+  box-shadow: 4px 4px 0 0 var(--shadow-color);
+  text-align: left;
+}
+.skillkeys__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.skillkeys__name { font-family: var(--font-pixel); font-size: 0.85rem; line-height: 1.5; }
+.skillkeys__count {
+  font-family: var(--font-ui); font-size: var(--text-sm); font-variant-numeric: tabular-nums;
+  padding: 0 8px; background: var(--primary); color: var(--primary-fg);
+}
+.skillkeys__projects { gap: 4px 12px; align-content: start; }
+.skillkeys__empty { font-family: var(--font-ui); font-size: var(--text-base); color: var(--muted-fg); }
+@media (prefers-reduced-motion: reduce) { .key { transition: none; } }

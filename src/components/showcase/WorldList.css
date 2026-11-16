@@ -104,7 +104,7 @@
   font-family: var(--font-ui);
   font-size: var(--text-sm);
   letter-spacing: 0.06em;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 /* pixel dissolve tiles: 12 × 8 over the view, each fades out on its own delay */
@@ -196,7 +196,7 @@
   font-size: var(--text-sm);
   color: var(--muted-fg);
   letter-spacing: 0.08em;
-  text-transform: uppercase;
+  text-transform: none;
 }
 .lap__cap-dot {
   width: 8px; height: 8px; flex: none;

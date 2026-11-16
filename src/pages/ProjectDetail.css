@@ -91,7 +91,7 @@
 .pd-h3 {
   font-family: var(--font-ui);
   font-size: var(--text-lg);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.1em;
   color: var(--muted-fg);
 }
@@ -117,7 +117,7 @@
   color: var(--ink);
   border: 2px solid var(--border);
   font-size: var(--text-sm);
-  text-transform: uppercase;
+  text-transform: none;
 }
 .pd-team__mine { display: grid; gap: 12px; align-content: start; }
 .pd-team__mine .pd-h3:not(:first-child) { margin-top: 12px; }

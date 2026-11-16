@@ -72,7 +72,7 @@
   gap: 10px;
   font-family: var(--font-ui);
   font-size: var(--text-base);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.12em;
   color: var(--muted-fg);
 }
@@ -163,7 +163,7 @@
   padding: 0 8px;
   line-height: 1.4;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
+  text-transform: none;
 }
 .item-row__meta > span + span::before { content: '·'; margin-right: 10px; color: var(--muted-fg); opacity: 0.6; }
 .item-row__meta > span:nth-child(2)::before { content: none; }
@@ -258,3 +258,48 @@
 .reveal { opacity: 0; transform: translateY(16px); transition: opacity 400ms var(--step-ease), transform 400ms var(--step-ease); }
 .reveal.is-visible { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } }
+
+/* ---- Kenney Pixel UI arrow (CC0, see public/assets/ui/kenney-pixel-ui/LICENSE-kenney-cc0.txt) ----
+   A 16px pixel arrow used as a CSS mask, so it takes currentColor (works on blue buttons and in dark mode).
+   Sizes are whole multiples of 16px so the pixels stay crisp. */
+.pixel-arrow {
+  display: inline-block;
+  width: 16px; height: 16px;
+  vertical-align: middle;
+  background: currentColor;
+  -webkit-mask: url('/assets/ui/kenney-pixel-ui/arrow-right-blue.png') center / 100% 100% no-repeat;
+          mask: url('/assets/ui/kenney-pixel-ui/arrow-right-blue.png') center / 100% 100% no-repeat;
+  image-rendering: pixelated;
+  flex: none;
+}
+.item-row__arrow .pixel-arrow { width: 32px; height: 32px; }
+
+/* ---- Checklist polish ---------------------------------------------------- */
+/* 16 Wrap body copy without orphans */
+p, li, dd, figcaption { text-wrap: pretty; }
+
+/* 18 Tabular numerals so counts, dates and stats don't jitter */
+.home-stack__count, dd, time, .tabular, [class*='count'], [class*='stat'], [class*='date'] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 19 Loading states */
+.pixel-btn.is-loading { position: relative; color: transparent; pointer-events: none; }
+.pixel-btn.is-loading::after {
+  content: ''; position: absolute; inset: 0; margin: auto; width: 16px; height: 16px;
+  background: var(--primary-fg); animation: px-spin 0.8s steps(4, end) infinite;
+}
+@keyframes px-spin { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
+.skeleton {
+  background: linear-gradient(90deg, var(--surface) 0 40%, var(--hairline) 50%, var(--surface) 60% 100%);
+  background-size: 300% 100%; animation: px-shimmer 1.2s steps(12, end) infinite; min-height: 1em;
+}
+@keyframes px-shimmer { to { background-position: -300% 0; } }
+
+/* 20 Animate useful feedback: links and rows respond, nothing decorative */
+a:not([class]):hover { text-decoration-thickness: 3px; text-underline-offset: 4px; }
+@keyframes px-pop { 0% { transform: scale(0.96); } 60% { transform: scale(1.03); } 100% { transform: scale(1); } }
+.is-success, [data-state='success'] { animation: px-pop 240ms var(--step-ease); }
+@media (prefers-reduced-motion: reduce) {
+  .pixel-btn.is-loading::after, .skeleton, .is-success, [data-state='success'] { animation: none; }
+}

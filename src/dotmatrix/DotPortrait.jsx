@@ -66,14 +66,44 @@ async function samplePortrait(ctx, cols, rows, theme) {
   const lo = lums[Math.floor(lums.length * 0.05)] ?? 0;
   const hi = lums[Math.floor(lums.length * 0.95)] ?? 1;
 
-  for (let k = 0; k < d.length; k += 4) {
-    if (d[k + 3] < 128) { d[k] = 0; d[k + 3] = 0; continue; }
-    let lum = (0.299 * d[k] + 0.587 * d[k + 1] + 0.114 * d[k + 2]) / 255;
-    lum = Math.min(1, Math.max(0, (lum - lo) / Math.max(0.05, hi - lo)));
-    // S-curve for punchier midtones (eyes, brows, mouth read clearly)
-    lum = lum * lum * (3 - 2 * lum);
+  // normalised luminance per pixel (-1 = background)
+  const L = new Float32Array(cols * rows).fill(-1);
+  for (let i = 0; i < cols * rows; i++) {
+    const k = i * 4;
+    if (d[k + 3] < 128) continue;
+    const lum = (0.299 * d[k] + 0.587 * d[k + 1] + 0.114 * d[k + 2]) / 255;
+    L[i] = Math.min(1, Math.max(0, (lum - lo) / Math.max(0.05, hi - lo)));
+  }
+
+  // local contrast (unsharp mask, 5×5 box): separates collar, tie and jacket instead of one dark mass
+  const R = 2, AMOUNT = 1.1;
+  const sharp = new Float32Array(cols * rows).fill(-1);
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      const i = y * cols + x;
+      if (L[i] < 0) continue;
+      let sum = 0, n = 0;
+      for (let yy = Math.max(0, y - R); yy <= Math.min(rows - 1, y + R); yy++) {
+        for (let xx = Math.max(0, x - R); xx <= Math.min(cols - 1, x + R); xx++) {
+          const v = L[yy * cols + xx];
+          if (v >= 0) { sum += v; n++; }
+        }
+      }
+      sharp[i] = Math.min(1, Math.max(0, L[i] + AMOUNT * (L[i] - sum / n)));
+    }
+  }
+
+  for (let i = 0; i < cols * rows; i++) {
+    const k = i * 4;
+    if (L[i] < 0) { d[k] = 0; d[k + 3] = 0; continue; }
+    let lum = Math.pow(sharp[i], 0.8);             // lift the shadows (suit and hair keep detail)
+    lum = lum * lum * (3 - 2 * lum);               // S-curve: punchier midtones (eyes, brows, mouth)
     let v = dark ? lum : 1 - lum;
-    v = 0.1 + 0.9 * Math.pow(v, dark ? 1.35 : 1.1);   // small floor keeps the silhouette visible
+    v = 0.16 + 0.78 * Math.pow(v, dark ? 1.35 : 1.1);   // floor keeps the silhouette, ceiling keeps the dots apart
+    // silhouette: pixels touching the background get a firmer dot so the outline reads clean
+    const x = i % cols, y = (i / cols) | 0;
+    const edge = (x > 0 && L[i - 1] < 0) || (x < cols - 1 && L[i + 1] < 0) || (y > 0 && L[i - cols] < 0) || (y < rows - 1 && L[i + cols] < 0);
+    if (edge) v = Math.max(v, 0.62);
     d[k] = d[k + 1] = d[k + 2] = Math.round(v * 255);
     d[k + 3] = 255;
   }

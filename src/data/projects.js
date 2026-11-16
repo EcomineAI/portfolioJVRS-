@@ -22,7 +22,7 @@ export const projects = [
     role: 'TODO: e.g. Lead developer · Frontend & Supabase integration',
     contributions: [],
     links: { live: 'https://cae-g-cas.vercel.app', source: 'https://github.com/EcomineAI/CAE-G-CAS' },
-    cover: null,
+    cover: '/projects/askademic.png',
   },
   {
     slug: 'gc-assist',
@@ -37,7 +37,7 @@ export const projects = [
     team: null,
     role: 'Solo project: design, frontend, data crawler, LLM integration',
     links: { live: 'https://gcassist.vercel.app', source: 'https://github.com/EcomineAI/GC-Assist' },
-    cover: null,
+    cover: '/projects/gc-assist.png',
   },
   {
     slug: 'jalgorithm',
@@ -53,7 +53,7 @@ export const projects = [
     role: 'TODO: my role in the thesis team',
     contributions: [],
     links: { live: 'https://jalgorithm-chatbot.vercel.app', source: 'https://github.com/EcomineAI/jalgorithm-chatbot' },
-    cover: null,
+    cover: '/projects/jalgorithm.png',
   },
   {
     slug: 'jv-ytdlp',
@@ -68,7 +68,7 @@ export const projects = [
     team: null,
     role: 'Solo project',
     links: { source: 'https://github.com/EcomineAI/jv-ytdlp' },
-    cover: null,
+    cover: '/projects/jv-ytdlp.png',
   },
   {
     slug: 'twitchchat-sim',
@@ -83,7 +83,22 @@ export const projects = [
     team: null,
     role: 'Solo project',
     links: { source: 'https://github.com/EcomineAI/ECO-S-TWITCHCHAT-SIM' },
-    cover: null,
+    cover: '/projects/twitchchat-sim.png',
+  },
+  {
+    slug: 'state-and-effect',
+    world: 'code',
+    title: 'State and Effect',
+    subtitle: 'Interactive React lesson deck',
+    type: 'React web app · class presentation',
+    date: '2026',
+    summary:
+      'A retro-style React lesson on state, re-rendering and useEffect, built as a slide deck with live demos, quizzes and explainer videos. 14 topics, keyboard and swipe navigation, fullscreen mode and shareable slide links.',
+    tags: ['React 19', 'Vite', 'Retro UI', 'Vercel'],
+    team: null,
+    role: 'Solo project: slides, live demos, UI and sound design',
+    links: { live: 'https://jv-sae.vercel.app', source: 'https://github.com/EcomineAI/-State-and-Effect---ppt' },
+    cover: '/projects/state-and-effect.png',
   },
 
   // -------------------------------------------------------------- CREATE
@@ -100,7 +115,7 @@ export const projects = [
     team: null,
     role: 'Solo',
     links: {},
-    cover: null,
+    cover: '/projects/prompt-engineering.png',
   },
   {
     slug: 'demo-videos',
@@ -114,7 +129,7 @@ export const projects = [
     team: null,
     role: 'Solo',
     links: {},
-    cover: null,
+    cover: '/projects/demo-videos.png',
   },
   {
     slug: 'graphics',
@@ -128,7 +143,7 @@ export const projects = [
     team: null,
     role: 'Solo',
     links: {},
-    cover: null,
+    cover: '/projects/graphics.png',
   },
   {
     slug: 'photography',
@@ -142,7 +157,7 @@ export const projects = [
     team: null,
     role: 'Solo',
     links: {},
-    cover: null,
+    cover: '/projects/photography.png',
   },
 
   // --------------------------------------------------------------- LEARN
@@ -158,7 +173,7 @@ export const projects = [
     team: null,
     role: 'Student',
     links: {},
-    cover: null,
+    cover: '/projects/bscs-gordon-college.png',
   },
   {
     slug: 'local-llm-lab',
@@ -173,7 +188,7 @@ export const projects = [
     team: null,
     role: 'Self-directed',
     links: {},
-    cover: null,
+    cover: '/projects/local-llm-lab.png',
   },
 ];
 

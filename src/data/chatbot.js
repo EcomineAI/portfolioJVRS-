@@ -65,9 +65,9 @@ const responses = {
     ▸ <strong>Email</strong>: junevicabello@gmail.com<br>
     ▸ <strong>GitHub</strong>: github.com/EcomineAI<br>
     ▸ <strong>OnlineJobs.ph</strong>: profile linked on the Contact page`,
-  about: `<strong>June Vic M. Abello</strong> is a 2nd-year BS Computer Science student at <strong>Gordon College</strong>, Olongapo City, Philippines.<br><br>
+  about: `<strong>June Vic M. Abello</strong> is a 3rd-year BS Computer Science student at <strong>Gordon College</strong>, Olongapo City, Philippines.<br><br>
     He builds web apps and AI tools that people actually use, from campus systems to local LLM assistants. More on the <a href="/about">About page</a>.`,
-  school: `Gordon College is in <strong>Olongapo City, Philippines</strong>. June Vic is in his <strong>2nd year of BSCS</strong> there.<br><br>
+  school: `Gordon College is in <strong>Olongapo City, Philippines</strong>. June Vic is in his <strong>3rd year of BSCS</strong> there.<br><br>
     Two of his projects were built for the college: <a href="/case-study">Askademic</a> and <a href="/projects/gc-assist">GC Assist</a>.`,
   troubleshoot: `June Vic also does hands-on <strong>troubleshooting</strong>: PC hardware, Windows/Linux and driver issues, LLM load and VRAM errors, and home network problems. Most of it comes from running local AI on his own machines.`,
   default: [

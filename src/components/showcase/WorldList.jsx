@@ -3,7 +3,7 @@
 // Switching rows plays a pixel dissolve on the screen.
 // On narrow screens the laptop is hidden and the rows stand alone.
 import { useState } from 'react';
-import { ItemRow, PixelButton, TagList, Eyebrow } from '../ui/index.jsx';
+import { ItemRow, PixelButton, PixelArrow, TagList, Eyebrow } from '../ui/index.jsx';
 import PixelSprite from '../../buddies/PixelSprite.jsx';
 import { worldIcons } from '../../buddies/sprites.js';
 import './WorldList.css';
@@ -42,6 +42,7 @@ const TILES = Array.from({ length: COLS * ROWS }, (_, i) => ((i * 37 + 11) % (CO
 const hostOf = url => { try { return new URL(url).host; } catch { return null; } };
 
 function Laptop({ project: p, world, href, index, total }) {
+  const [failedSlug, setFailedSlug] = useState(null);   // screenshot missing → show the placeholder
   const icon = worldIcons[world];
   const address = hostOf(p.links?.live) || `${p.slug}.local`;
   return (
@@ -57,8 +58,8 @@ function Laptop({ project: p, world, href, index, total }) {
             <span className="lap__count">{index + 1}/{total}</span>
           </div>
           <div className="lap__view">
-            {p.cover ? (
-              <img src={p.cover} alt="" loading="lazy" />
+            {p.cover && failedSlug !== p.slug ? (
+              <img src={p.cover} alt="" loading="lazy" onError={() => setFailedSlug(p.slug)} />
             ) : (
               <div className="lap__ph" aria-hidden="true">
                 <PixelSprite grid={icon.grid} palette={icon.palette} scale={5} />
@@ -87,7 +88,7 @@ function Laptop({ project: p, world, href, index, total }) {
           {p.summary && <p className="lap__summary">{p.summary}</p>}
           <TagList tags={p.tags?.slice(0, 5)} />
           <div className="lap__actions">
-            <PixelButton to={href} size="sm">Open <span aria-hidden="true">→</span></PixelButton>
+            <PixelButton to={href} size="sm">Open <PixelArrow /></PixelButton>
             {p.links?.live && (
               <PixelButton href={p.links.live} variant="outline" size="sm">
                 Live <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span>

@@ -80,7 +80,7 @@ export default function ActivityPanel({ headingLevel: Heading = 'h3', id = 'acti
         <Heading id={id} className="activity__title">
           <span className="activity__dot" aria-hidden="true" />
           <span>
-            <span aria-hidden="true">// </span>Live activity: GitHub
+            GitHub activity
           </span>
         </Heading>
         <span className="activity__badge">{fmt(s.allTime)} all-time</span>
@@ -129,9 +129,6 @@ export default function ActivityPanel({ headingLevel: Heading = 'h3', id = 'acti
             View on GitHub <span aria-hidden="true">↗</span>
             <span className="sr-only"> (opens in a new tab)</span>
           </a>
-          <span className="activity__chip" title="TryHackMe activity will be added later">
-            TryHackMe: coming soon
-          </span>
         </div>
       </footer>
 

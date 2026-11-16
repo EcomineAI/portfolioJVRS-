@@ -15,6 +15,8 @@ export const vicPalette = {
   W: '#f4f4f4', // white collar trim
   P: '#2b2f3a', // dark pants
   K: '#121419', // shoes
+  L: '#e3ad85', // skin highlight (hands)
+  l: '#6f9bd0', // polo highlight (sleeves)
 };
 
 const vicTop = [
@@ -45,6 +47,29 @@ const setPx = (grid, edits) => {
   return rows.map(r => r.join(''));
 };
 
+/** Lighten (f > 1) or darken (f < 1) a #rrggbb colour. */
+const tone = (hex, f) => {
+  const n = parseInt(hex.slice(1), 16);
+  const c = [n >> 16, (n >> 8) & 255, n & 255].map(v => Math.max(0, Math.min(255, Math.round(v * f))));
+  return `#${c.map(v => v.toString(16).padStart(2, '0')).join('')}`;
+};
+/**
+ * Round off arms and hands with flat pixel shading: inside the given rows/cols, a `base` pixel with
+ * nothing above it becomes the highlight, and one with nothing below it becomes the shadow.
+ * layers = [{ base, hi, lo }, ...]
+ */
+const shadeRegion = (grid, rows, cols, layers) => {
+  const out = grid.map(r => r.split(''));
+  for (const r of rows) for (const c of cols) {
+    const ch = grid[r]?.[c];
+    const layer = layers.find(l => l.base === ch);
+    if (!layer) continue;
+    const up = grid[r - 1]?.[c], down = grid[r + 1]?.[c];
+    if (!up || up === '.') out[r][c] = layer.hi;
+    else if (!down || down === '.') out[r][c] = layer.lo;
+  }
+  return out.map(r => r.join(''));
+};
 const vicLegs = ['...PPP....PPP...', '...KKK....KKK...'];
 const vicStand = [...vicTop, ...vicLegs];
 
@@ -92,6 +117,11 @@ const vicVacuum = [
   [...vicVacTop, '....PPP..PPP....', '....KKK.KKK.....'],
 ];
 
+const vicShadeArms = g => shadeRegion(g, [13, 14, 15, 16], [0, 1, 14, 15], [
+  { base: 'B', hi: 'l', lo: 'b' },
+  { base: 'S', hi: 'L', lo: 's' },
+]);
+
 export const vic = {
   palette: vicPalette,
   faces: vicFaces,
@@ -105,8 +135,8 @@ export const vic = {
     fall: vicHeld[0],
     vacuum: vicVacuum,
     laptop: [
-      setPx(vicStand, [[14, 1, 'S'], [15, 1, 'B'], [14, 14, 'B'], [15, 14, 'S']]),
-      setPx(vicStand, [[14, 1, 'B'], [15, 1, 'S'], [14, 14, 'S'], [15, 14, 'B']]),
+      vicShadeArms(setPx(vicStand, [[14, 1, 'S'], [15, 1, 'B'], [14, 14, 'B'], [15, 14, 'S']])),
+      vicShadeArms(setPx(vicStand, [[14, 1, 'B'], [15, 1, 'S'], [14, 14, 'S'], [15, 14, 'B']])),
     ],
   },  // array of frames = animated pose
   walk: [
@@ -123,6 +153,7 @@ export const claudePalette = {
   O: '#D77757', // Claude orange
   o: '#B85C3E', // darker orange (closed eyes while blinking / napping)
   E: '#141414', // eyes
+  L: '#EE9A78', // lighter orange (arm highlight)
 };
 
 /**
@@ -159,6 +190,7 @@ function parseSpriteText(text) {
 
 const claudeFrames = parseSpriteText(claudeSpriteText);
 const claudeStand = claudeFrames.stand;
+const claudeShadeArms = g => shadeRegion(g, [2, 3, 4], [0, 1, 12, 13], [{ base: 'O', hi: 'L', lo: 'o' }]);
 
 // Claude's expressions (eye rows 2–3, columns 2–11).
 const claudeFaces = {
@@ -178,7 +210,7 @@ export const claude = {
   poses: {
     nap: claudeFrames.nap || claudeStand,
     // typing: eyes on the laptop, arms tapping in turn
-    laptop: [claudeFrames.type1 || claudeStand, claudeFrames.type2 || claudeStand],
+    laptop: [claudeShadeArms(claudeFrames.type1 || claudeStand), claudeShadeArms(claudeFrames.type2 || claudeStand)],
     // dragged with the mouse: legs kick in turn
     held: [claudeFrames.walk || claudeStand, claudeFrames.walk2 || claudeStand],
     // used as a vacuum by June Vic: legs kick the same way
@@ -190,7 +222,7 @@ export const claude = {
   walk: [claudeStand],
 };
 
-/* ---- Laptop prop (Claude's "Laptop" action) ------------------------------ */
+/* ---- Laptop prop, front view (used by the Bug Attack game; the buddies use laptopSide below) ------------------------------ */
 // Dark bezel, black screen with colourful code (like a code editor), two-tone base.
 // Animated: the lid opens, then the code types out character by character with a
 // cursor, the cursor blinks a few times when a "file" is done, and it loops.
@@ -353,7 +385,7 @@ export const accessories = {
   },
 };
 
-export const vicCostumes = [
+const vicCostumesRaw = [
   {
     id: 'classic',
     label: 'Classic Polo',
@@ -403,7 +435,7 @@ export const vicCostumes = [
   },
 ];
 
-export const claudeCostumes = [
+const claudeCostumesRaw = [
   {
     id: 'classic',
     label: 'Classic Orange',
@@ -443,3 +475,66 @@ export const claudeCostumes = [
     hat: 'partyHat',
   },
 ];
+
+/* ---- Laptop prop (beside whoever is typing, SIDE view, shaded) ------------ */
+// Side view with flat pixel shading: highlighted key tops, a mid-tone front, a shaded underside and a
+// floor shadow; the lid is tilted back with a dark screen panel, a light shell and a shaded back, and
+// glows mint toward the typist while little code dots float up.
+// W highlight, K light, k mid, m shade, b outline, D screen, C glow, c soft glow, z floor shadow
+// P pressed key, H/L/h hand (base / highlight / shade, set per buddy)
+const LP_W = 14, LP_H = 12;
+function laptopFrames() {
+  const frames = [];
+  const pairs = [[1, 5], [2, 6], [1, 6], [3, 7], [2, 5], [3, 6]];   // base columns the two hands hover over
+  for (let i = 0; i < 12; i++) {
+    const g = Array.from({ length: LP_H }, () => Array(LP_W).fill('.'));
+    for (let c = 0; c <= 10; c++) {
+      g[7][c] = c % 2 === 0 ? 'W' : 'K';        // key tops, lit from above
+      g[8][c] = c === 10 ? 'm' : 'k';           // front of the keys / case
+      g[9][c] = 'm';                            // shaded underside
+      g[10][c] = 'b';                           // outline
+    }
+    for (let c = 2; c <= 12; c++) g[11][c] = 'z';   // shadow on the floor
+    for (let r = 0; r <= 6; r++) {                  // lid, leaning back
+      const L = 9 + Math.floor((6 - r) / 3);
+      g[r][L] = r === 0 ? 'C' : 'D';              // screen panel (bright at the top edge)
+      g[r][L + 1] = r === 0 ? 'W' : 'K';          // shell, highlighted at the corner
+      g[r][L + 2] = 'm';                          // shaded back
+      if (r < 6 && (r + i) % 3 !== 0) g[r][L - 1] = 'c';   // screen light spilling toward the typist, flickering
+    }
+    // code dots floating up from the screen
+    const dot = (r, c) => { if (g[r]?.[c] === '.') g[r][c] = 'C'; };
+    dot(5 - (i % 4), 6 + (i % 2));
+    dot(3 - (i % 3), 7);
+    const [a, b] = pairs[(i >> 1) % pairs.length];
+    const leftTaps = i % 2 === 0;
+    const hand = (c, down) => {
+      const top = down ? 6 : 5;
+      g[top][c] = 'L'; g[top][c + 1] = 'H'; g[top + 1][c] = 'H'; g[top + 1][c + 1] = 'h';
+    };
+    g[7][(leftTaps ? a : b) + 2] = 'P';
+    hand(a, leftTaps);
+    hand(b, !leftTaps);
+    frames.push(g.map(r => r.join('')));
+  }
+  return frames;
+}
+export const laptopSide = {
+  palette: {
+    b: '#0d1226', W: '#ffffff', K: '#e8ecf5', k: '#aab6d3', m: '#7f8db0', D: '#1c2030',
+    C: '#5cf2c8', c: 'rgba(92, 242, 200, 0.35)', z: 'rgba(13, 18, 38, 0.32)', P: '#5cf2c8',
+    H: '#c98d64', L: '#e3ad85', h: '#a5694a',
+  },
+  width: LP_W,
+  frames: laptopFrames(),
+};
+
+// Each costume gets matching highlight colours for the shaded hands and sleeves.
+export const vicCostumes = vicCostumesRaw.map(c => ({
+  ...c,
+  palette: { ...c.palette, L: tone(c.palette.S, 1.2), l: tone(c.palette.B, 1.35) },
+}));
+export const claudeCostumes = claudeCostumesRaw.map(c => ({
+  ...c,
+  palette: { ...c.palette, L: tone(c.palette.O, 1.22) },
+}));

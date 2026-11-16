@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { GithubIcon } from '../components/Icons.jsx';
-import { Eyebrow, PixelButton, PixelCard, TagList, Todo } from '../components/ui/index.jsx';
+import { Eyebrow, PixelArrow, PixelButton, PixelCard, TagList, Todo } from '../components/ui/index.jsx';
 import { caseStudy } from '../data/caseStudy.js';
 import { CASE_STUDY_SLUG, caseStudyProject, projects } from '../data/projects.js';
 import './CaseStudy.css';
@@ -212,7 +212,7 @@ export default function CaseStudy() {
       <header className="container cs-hero">
         <Link to="/projects" className="cs-back"><span aria-hidden="true">←</span> Projects</Link>
         <PixelCard className="cs-hero__card" data-spray-surface="true">
-          <Eyebrow world="code">★ Featured case study · Software engineering project</Eyebrow>
+          <Eyebrow world="code">Featured case study · Software engineering project</Eyebrow>
           <h1 className="cs-hero__title">{cs.title}</h1>
           {cs.tagline && <p className="cs-hero__tagline">{clean(cs.tagline)}</p>}
           {cs.formerNames && (
@@ -283,7 +283,7 @@ export default function CaseStudy() {
             </Link>
             {nextProject && (
               <Link to={`/projects/${nextProject.slug}`} className="cs-pager__link cs-pager__link--next">
-                <span className="cs-pager__dir">Next project <span aria-hidden="true">→</span></span>
+                <span className="cs-pager__dir">Next project <PixelArrow /></span>
                 <span className="cs-pager__title">{nextProject.title}</span>
               </Link>
             )}

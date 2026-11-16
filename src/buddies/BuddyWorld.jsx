@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Buddy from './Buddy.jsx';
 import PixelSprite from './PixelSprite.jsx';
-import { vic, claude, laptop, vicCostumes, claudeCostumes } from './sprites.js';
+import { vic, claude, laptopSide, vicCostumes, claudeCostumes } from './sprites.js';
 import { sprayBus } from '../spray/sprayBus.js';
 import { buddyBus, statusFor } from './buddyBus.js';
 import './buddies.css';
@@ -401,6 +401,10 @@ function vacuumOutro(mode, eaten) {
 }
 const VAC_SPEED = 12;   // px per tick: he runs with it
 const VAC_R = 40;       // suction radius (px)
+const laptopFrame = (ms, reduced) => {
+  if (reduced) return laptopSide.frames[0];
+  return laptopSide.frames[Math.floor(ms / 110) % laptopSide.frames.length];
+};
 const toSteps = lines => lines.map(([who, text]) => ({ key: who === 'v' ? 'vic' : 'claude', text }));
 
 const LAND_LINES = {
@@ -411,12 +415,6 @@ const BLINK_MS = 160;
 const nextBlinkIn = () => rand(2500, 6000);
 
 /** Laptop animation: lid opens (2 frames), then code types onto the screen in a loop. */
-const laptopFrame = (ms, reduced) => {
-  if (reduced) return laptop.typing[laptop.typing.length - 2];   // still, open, with code
-  if (ms < 200) return laptop.opening[0];
-  if (ms < 400) return laptop.opening[1];
-  return laptop.typing[Math.floor((ms - 400) / 180) % laptop.typing.length];
-};
 const bubbleTime = text => Math.min(4200, Math.max(2200, 1400 + text.length * 55));
 
 const rand = (a, b) => a + Math.random() * (b - a);
@@ -1230,15 +1228,24 @@ export default function BuddyWorld() {
   const towardVic = (claudeSide === 'right') === (vicCenter < claudeCenter);
   const claudeLift = sameLevel && towardVic ? (vic.stand.length - claude.stand.length) * SCALE : 0;
 
-  const prop = (b, pos, w) => b.mode === 'laptop' && pos && (
-    <span
-      className="buddy-world__prop"
-      style={{ transform: `translate(${Math.round(b.dir < 0 ? pos.x - 46 : pos.x + w + 2)}px, ${Math.round(pos.y)}px)` }}
-      aria-hidden="true"
-    >
-      <PixelSprite grid={laptopFrame(b.timer, reduced)} palette={laptop.palette} scale={3} />
-    </span>
-  );
+  // The laptop sits on the side of whoever is typing (the side chosen when the action starts), seen from the side.
+  const KB_SCALE = 3;
+  const prop = (b, pos, w, hand) => {
+    if (b.mode !== 'laptop' || !pos) return null;
+    const kbW = laptopSide.width * KB_SCALE;
+    const x = b.dir < 0 ? pos.x - kbW + 4 : pos.x + w - 4;
+    return (
+      <span
+        className="buddy-world__prop"
+        style={{ transform: `translate(${Math.round(x)}px, ${Math.round(pos.y)}px)` }}
+        aria-hidden="true"
+      >
+        <span className="buddy-world__kb" style={{ scale: b.dir < 0 ? '-1 1' : '1 1' }}>
+          <PixelSprite grid={laptopFrame(b.timer, reduced)} palette={{ ...laptopSide.palette, ...hand }} scale={KB_SCALE} />
+        </span>
+      </span>
+    );
+  };
 
   return (
     <div className={`buddy-world${active ? '' : ' is-paused'}${reduced ? ' is-reduced' : ''}`} data-no-spray="true">
@@ -1262,8 +1269,6 @@ export default function BuddyWorld() {
           onCostume={changeCostume('claude')}
         />
       )}
-      {prop(c, cp, CLAUDE_W)}
-      {prop(v, vp, VIC_W)}
       {vp && (
         <Buddy
           name="vic"
@@ -1283,6 +1288,8 @@ export default function BuddyWorld() {
           onCostume={changeCostume('vic')}
         />
       )}
+      {prop(c, cp, CLAUDE_W, { H: '#D77757', L: '#EE9A78', h: '#B85C3E' })}
+      {prop(v, vp, VIC_W, { H: '#c98d64', L: '#e3ad85', h: '#a5694a' })}
     </div>
   );
 }

@@ -1,14 +1,16 @@
 // /about — background, interests, evidence-based skills, troubleshooting, live activity, journey.
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ActivityPanel from '../activity/ActivityPanel.jsx';
 import { Eyebrow, PixelCard, SectionHeading, Todo } from '../components/ui/index.jsx';
 import { profile } from '../data/profile.js';
 import { CASE_STUDY_SLUG, projectBySlug } from '../data/projects.js';
 import { skillGroups, troubleshooting } from '../data/skills.js';
+import { certifications } from '../data/certifications.js';
+import { brandColor, logoSrc } from '../data/techIcons.js';
+import PixelLogo from '../components/PixelLogo.jsx';
 import './About.css';
 
-const MAX_LVL = 5;
-const hrefFor = slug => (slug === CASE_STUDY_SLUG ? '/case-study' : `/projects/${slug}`);
 
 const facts = [
   { term: 'School', value: profile.school },
@@ -26,39 +28,82 @@ const journey = [
   { when: '2026 →', title: 'JALgorithm thesis', text: 'Chatbot for salon booking and reminders. In progress.', to: '/projects/jalgorithm' },
 ];
 
-function XpBar({ name, count }) {
-  const lvl = Math.min(count, MAX_LVL);
+const usedIn = skill => skill.projects.map(slug => projectBySlug[slug]).filter(Boolean);
+
+/** A tool with a real logo: pixel-art logo tile. Hover or focus lists the projects that use it. */
+function SkillTile({ skill }) {
+  const used = usedIn(skill);
+  const brand = brandColor(skill.icon);
+  const names = used.map(p => p.title).join(', ');
   return (
-    <span
-      className="xp-bar"
-      role="img"
-      aria-label={`${name}: used in ${count} project${count === 1 ? '' : 's'}`}
+    <li
+      className="skill-tile"
+      tabIndex={0}
+      style={brand ? { '--brand': brand } : undefined}
+      aria-label={`${skill.name}: used in ${used.length} project${used.length === 1 ? '' : 's'}, ${names}`}
     >
-      {Array.from({ length: MAX_LVL }, (_, i) => (
-        <span key={i} className={i < lvl ? 'xp-bar__seg is-on' : 'xp-bar__seg'} />
-      ))}
-    </span>
+      <PixelLogo src={logoSrc(skill.icon)} size={48} />
+      <span className="skill-tile__name">{skill.short || skill.name}</span>
+      <span className="skill-tile__count" aria-hidden="true">×{used.length}</span>
+      <span className="skill-tile__tip" aria-hidden="true">{names}</span>
+    </li>
   );
 }
 
-function Skill({ skill }) {
-  const used = skill.projects.map(slug => projectBySlug[slug]).filter(Boolean);
-  const count = used.length;
+/* Certificates are pictures: thumbnails in a grid, click to enlarge (Esc or click to close). */
+function CertGrid({ items }) {
+  const [open, setOpen] = useState(null);
+  useEffect(() => {
+    if (open === null) return undefined;
+    const onKey = e => { if (e.key === 'Escape') setOpen(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
+
+  if (!items.length) {
+    return (
+      <ul className="cert-grid">
+        <li>
+          <PixelCard pad className="cert-card cert-card--empty">
+            <p className="cert-card__badge" aria-hidden="true">+</p>
+            <h3 className="cert-card__title">Certificates coming soon</h3>
+            <p className="cert-card__issuer">Drop images in public/assets/certs and list them in src/data/certifications.js</p>
+          </PixelCard>
+        </li>
+      </ul>
+    );
+  }
+  const current = open !== null ? items[open] : null;
+  const label = (c, i) => c.title || `Certificate ${i + 1}`;
   return (
-    <li className="skill">
-      <div className="skill__head">
-        <span className="skill__name">{skill.name}</span>
-        <span className="skill__lvl" aria-hidden="true">· LVL {Math.min(count, MAX_LVL)}</span>
-      </div>
-      <XpBar name={skill.name} count={count} />
-      {count > 0 && (
-        <ul className="skill__projects" aria-label={`Projects using ${skill.name}`}>
-          {used.map(p => (
-            <li key={p.slug}><Link to={hrefFor(p.slug)}>{p.title}</Link></li>
-          ))}
-        </ul>
+    <>
+      <ul className="cert-grid">
+        {items.map((c, i) => (
+          <li key={c.image || c.title}>
+            <PixelCard interactive className="cert-card" data-spray-surface="true">
+              <button type="button" className="cert-card__open" onClick={() => setOpen(i)} aria-label={`View ${label(c, i)} larger`}>
+                <img className="cert-card__img" src={c.image} alt={`${label(c, i)}${c.issuer ? `, ${c.issuer}` : ''}`} loading="lazy" />
+              </button>
+              {(c.title || c.issuer || c.date) && (
+                <div className="cert-card__text">
+                  {c.title && <h3 className="cert-card__title">{c.title}</h3>}
+                  {(c.issuer || c.date) && (
+                    <p className="cert-card__issuer">{c.issuer}{c.issuer && c.date && ' · '}{c.date && <time className="cert-card__date">{c.date}</time>}</p>
+                  )}
+                  {c.url && <a className="cert-card__link" href={c.url} target="_blank" rel="noopener noreferrer">Verify<span className="sr-only"> (opens in a new tab)</span></a>}
+                </div>
+              )}
+            </PixelCard>
+          </li>
+        ))}
+      </ul>
+      {current && (
+        <div className="cert-lightbox" role="dialog" aria-modal="true" aria-label={label(current, open)} onClick={() => setOpen(null)}>
+          <img src={current.image} alt={label(current, open)} />
+          <button type="button" className="pixel-btn pixel-btn--sm cert-lightbox__close" onClick={() => setOpen(null)}>Close</button>
+        </div>
       )}
-    </li>
+    </>
   );
 }
 
@@ -71,6 +116,7 @@ export default function About() {
           <nav className="about-intro__jump" aria-label="On this page">
             <Eyebrow world="code">
               <a href="#skills-title">Skills</a><span aria-hidden="true">·</span>
+              <a href="#certs-title">Certificates</a><span aria-hidden="true">·</span>
               <a href="#trouble-title">Side quests</a><span aria-hidden="true">·</span>
               <a href="#journey-title">Journey</a>
             </Eyebrow>
@@ -117,31 +163,58 @@ export default function About() {
           num="01"
           label="Skills"
           title="Skills, by evidence"
-          intro="No self-rated percentages. Each skill is levelled by the projects that actually use it."
+          intro="No self-rated percentages. Each tool is tied to the projects that actually use it."
         />
-        <p className="skills-legend">
-          <span className="xp-bar xp-bar--demo" aria-hidden="true">
-            <span className="xp-bar__seg is-on" /><span className="xp-bar__seg" />
-          </span>
-          Level = number of my projects that use it (max {MAX_LVL}).
-        </p>
-        <div className="skill-groups">
-          {skillGroups.map(g => (
-            <PixelCard key={g.id} as="section" pad className="skill-group" aria-labelledby={`sg-${g.id}`} data-spray-surface="true">
-              <h3 id={`sg-${g.id}`} className="skill-group__title">{g.title}</h3>
-              <ul className="skill-list">
-                {g.skills.map(s => <Skill key={s.name} skill={s} />)}
-              </ul>
-            </PixelCard>
-          ))}
+        <p className="skills-legend">Hover a logo to see which projects use it. ×N is how many of my projects use it.</p>
+        <div className="stack-board pixel-card" data-spray-surface="true">
+          {skillGroups.map(g => {
+            const tiles = g.skills.filter(sk => sk.icon);
+            const extra = g.skills.filter(sk => !sk.icon);
+            return (
+              <section key={g.id} className="stack-row" aria-labelledby={`sg-${g.id}`}>
+                <h3 id={`sg-${g.id}`} className="stack-row__title">{g.title}</h3>
+                <div className="stack-row__body">
+                  {tiles.length > 0 && (
+                    <ul className="skill-grid">
+                      {tiles.map(sk => <SkillTile key={sk.name} skill={sk} />)}
+                    </ul>
+                  )}
+                  {extra.length > 0 && (
+                    <ul className="stack-row__also" aria-label={`More ${g.title} skills`}>
+                      {extra.map(sk => {
+                        const used = usedIn(sk);
+                        return (
+                          <li key={sk.name} className="also-chip" title={`Used in: ${used.map(p => p.title).join(', ')}`}>
+                            {sk.name}<span className="also-chip__n"> ×{used.length}</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
+              </section>
+            );
+          })}
         </div>
+      </section>
+
+      {/* ---- Certificates ---- */}
+      <section className="container section about-section" aria-labelledby="certs-title">
+        <SectionHeading
+          id="certs-title"
+          num="02"
+          label="Certificates"
+          title="Certificates & courses"
+          intro="Proof of what I have studied, with a link to verify each one."
+        />
+        <CertGrid items={certifications} />
       </section>
 
       {/* ---- Troubleshooting skill tree ---- */}
       <section className="container section about-section" aria-labelledby="trouble-title">
         <SectionHeading
           id="trouble-title"
-          num="02"
+          num="03"
           label="Side quests"
           title="Troubleshooting skill tree"
           intro="Fixing things is how I got into computers. These are the problems I get asked about most."
@@ -165,7 +238,7 @@ export default function About() {
       <section className="container section about-section" aria-labelledby="proof-title">
         <SectionHeading
           id="proof-title"
-          num="03"
+          num="04"
           label="Proof of work"
           title="What I've been shipping"
           intro="My public GitHub activity over the last year, updated on every deploy."
@@ -175,7 +248,7 @@ export default function About() {
 
       {/* ---- Journey ---- */}
       <section className="container section about-section" aria-labelledby="journey-title">
-        <SectionHeading id="journey-title" num="04" label="Journey" title="So far" />
+        <SectionHeading id="journey-title" num="05" label="Journey" title="So far" />
         <ol className="journey">
           {journey.map(j => (
             <li key={j.title} className="journey__item">

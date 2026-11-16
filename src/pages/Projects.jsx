@@ -1,6 +1,6 @@
 // /projects — featured SE case study first, then work grouped by world (Code / Create / Learn).
 import { GithubIcon } from '../components/Icons.jsx';
-import { Eyebrow, PixelButton, PixelCard, SectionHeading, TagList, WorldDot } from '../components/ui/index.jsx';
+import { Eyebrow, PixelArrow, PixelButton, PixelCard, SectionHeading, TagList, WorldDot } from '../components/ui/index.jsx';
 import { CASE_STUDY_SLUG, caseStudyProject, projectsInWorld } from '../data/projects.js';
 import { worlds } from '../data/worlds.js';
 import './Projects.css';
@@ -24,7 +24,7 @@ function FeaturedCaseStudy({ project: p }) {
     <section className="projects-featured" aria-labelledby="featured-title">
       <PixelCard className="projects-featured__card" data-spray-surface="true">
         <div className="projects-featured__badge" aria-hidden="true">★</div>
-        <Eyebrow world={p.world}>★ Featured case study · Software engineering project</Eyebrow>
+        <Eyebrow world={p.world}>Featured case study · Software engineering project</Eyebrow>
         <h2 id="featured-title" className="projects-featured__title">{p.title}</h2>
         {p.subtitle && <p className="projects-featured__subtitle">{p.subtitle}</p>}
         {p.summary && <p className="prose projects-featured__summary">{p.summary}</p>}
@@ -42,7 +42,7 @@ function FeaturedCaseStudy({ project: p }) {
           </div>
         </dl>
         <div className="projects-featured__actions">
-          <PixelButton to="/case-study">Read the case study <span aria-hidden="true">→</span></PixelButton>
+          <PixelButton to="/case-study">Read the case study <PixelArrow /></PixelButton>
           {p.links?.live && (
             <PixelButton href={p.links.live} variant="outline">
               Live app <span aria-hidden="true">↗</span><span className="sr-only">(opens in a new tab)</span>
@@ -105,7 +105,7 @@ export default function Projects() {
             world={g.id}
             items={g.items}
             hrefFor={hrefFor}
-            titleFor={p => (p.slug === CASE_STUDY_SLUG ? `★ ${p.title}` : p.title)}
+            titleFor={p => (p.slug === CASE_STUDY_SLUG ? p.title : p.title)}
             roleFor={rowRole}
           />
         </section>
