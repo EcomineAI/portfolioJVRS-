@@ -95,6 +95,7 @@ export default function ActivityPanel({ headingLevel: Heading = 'h3', id = 'acti
               aria-checked={view === v.id}
               tabIndex={view === v.id ? 0 : -1}
               className="activity__radio"
+              data-uisfx="select"
               onClick={() => choose(v.id)}
               onKeyDown={e => onRadioKey(e, i)}
             >

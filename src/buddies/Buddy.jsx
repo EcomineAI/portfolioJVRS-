@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import PixelSprite from './PixelSprite.jsx';
-import { accessories, emotes } from './sprites.js';
+import { accessories, emotes, vicFight } from './sprites.js';
+import { ARMOR_PALETTE, ARMOR_PIECES, armorGridFor } from '../bugEvent/bugSprites.js';
 
 /** Replace face rows of a grid with an expression (only inside the face columns). */
 export function applyFace(grid, face, [c0, c1]) {
@@ -68,27 +69,34 @@ export default function Buddy({ name, label, sprite, scale = 3, state, pos, bubb
     onDrag('end', pagePoint(e));
   };
 
-  const moving = state.mode === 'walk' || state.mode === 'run' || state.mode === 'jump'
+  const moving = state.mode === 'walk' || state.mode === 'run'
     || (state.mode === 'vacuum' && !sprite.poses?.vacuum);   // June Vic runs while vacuuming
   const lifted = state.mode === 'held' || state.mode === 'fall' || state.mode === 'vacuum';
-  // Special poses override the standing sprite. A pose can be one grid or a list of frames.
-  const pose = sprite.poses?.[state.mode];
+  // Special poses override the standing sprite (jumps use the airborne fall pose).
+  const pose = sprite.poses?.[state.mode] || (state.mode === 'jump' ? sprite.poses?.fall : null);
+  const moveFrames = state.mode === 'run' && sprite.run ? sprite.run : sprite.walk;
   let grid = moving
-    ? sprite.walk[state.frame % sprite.walk.length]
+    ? moveFrames[state.frame % moveFrames.length]
     : pose ? (Array.isArray(pose[0]) ? pose[state.frame % pose.length] : pose) : sprite.stand;
-  // Expression (not on special poses like nap/laptop, which have their own eyes)
-  if (state.face && sprite.faces?.[state.face] && (!pose || state.mode === 'wave' || lifted)) {
-    grid = applyFace(grid, sprite.faces[state.face], sprite.faceCols);
+  // Expression (not on special poses like nap/laptop; run uses directional runFaces)
+  const faceSet = state.mode === 'run' && sprite.runFaces ? sprite.runFaces : sprite.faces;
+  if (state.face && faceSet?.[state.face] && (!pose || state.mode === 'wave' || state.mode === 'land' || state.mode === 'jump' || lifted)) {
+    grid = applyFace(grid, faceSet[state.face], sprite.faceCols);
   }
   // Blink: swap the eye pixels for the eyelid colour for a moment.
   if (state.blink && sprite.blinkChar) grid = grid.map(row => row.replaceAll('E', sprite.blinkChar));
   const activeCostume = costumes?.find(c => c.id === costumeId) || costumes?.[0];
   const palette = activeCostume?.palette || sprite.palette;
   const hat = activeCostume?.hat && accessories[activeCostume.hat];
+  const armorPieces = activeCostume?.armor ? (ARMOR_PIECES[name] || []) : [];
+  const armorPose = state.mode === 'run' ? 'run' : (state.mode === 'held' || state.mode === 'fall' || state.mode === 'jump') ? 'held' : undefined;
   if (activeCostume?.spikyHair) {
-    grid = grid.map((r, i) => (i === 0 ? '..H.HH.HH.HH.H..' : i === 1 ? '..HHHHHHHHHHHH..' : r));
+    grid = grid.map((r, i) => (i < 2 ? vicFight.ssj[i] : r));
   }
   const emote = state.emote && emotes[state.emote];
+  const emoteGrid = emote
+    ? (emote.frames ? emote.frames[Math.floor((state.timer || 0) / 220) % emote.frames.length] : emote.grid)
+    : null;
   const width = sprite.stand[0].length * scale;
   // Keep bubbles and the menu inside the stage: anchor them toward the open side.
   // 'right' = bubble's right edge on the buddy, so it opens to the LEFT (and vice versa).
@@ -148,6 +156,7 @@ export default function Buddy({ name, label, sprite, scale = 3, state, pos, bubb
     <div
       ref={wrapRef}
       className={`buddy buddy--${name} is-${state.mode}${bubble || open ? ' is-talking' : ''}${state.gulp ? ' is-gulp' : ''}`}
+      data-uisfx-pack="arcade"
       style={{ transform: `translate(${Math.round(pos.x)}px, ${Math.round(pos.y)}px)` }}
     >
       {bubble && !open && (
@@ -183,6 +192,7 @@ export default function Buddy({ name, label, sprite, scale = 3, state, pos, bubb
                     role="menuitemradio"
                     aria-checked={active}
                     className={`buddy__menu-item${active ? ' is-active' : ''}`}
+                    data-uisfx="select"
                     onClick={() => {
                       close();
                       onCostume?.(c.id);
@@ -196,6 +206,7 @@ export default function Buddy({ name, label, sprite, scale = 3, state, pos, bubb
                 type="button"
                 role="menuitem"
                 className="buddy__menu-item buddy__menu-back"
+                data-uisfx="back"
                 onClick={() => setView('main')}
               >
                 ◀ Back
@@ -203,7 +214,7 @@ export default function Buddy({ name, label, sprite, scale = 3, state, pos, bubb
             </>
           ) : (
             actions.map(a => (
-              <button key={a.id} type="button" role="menuitem" className="buddy__menu-item" onClick={() => choose(a.id)}>
+              <button key={a.id} type="button" role="menuitem" className="buddy__menu-item" data-uisfx="select" onClick={() => choose(a.id)}>
                 {a.label}
               </button>
             ))
@@ -215,6 +226,7 @@ export default function Buddy({ name, label, sprite, scale = 3, state, pos, bubb
         ref={btnRef}
         type="button"
         className="buddy__btn"
+        data-uisfx={open ? 'close' : 'open'}
         aria-label={`${label}: open actions menu`}
         aria-haspopup="menu"
         aria-expanded={open}
@@ -236,16 +248,27 @@ export default function Buddy({ name, label, sprite, scale = 3, state, pos, bubb
           className="buddy__body"
           style={{ transform: `${lifted && state.tilt ? `rotate(${state.tilt.toFixed(1)}deg) ` : ''}${state.swell ? `scale(${(1 + state.swell).toFixed(3)}) ` : ''}${state.dir < 0 ? 'scaleX(-1)' : ''}` || undefined }}
         >
-          {hat && (
-            <span className="buddy__hat" aria-hidden="true">
-              <PixelSprite grid={hat.grid} palette={hat.palette} scale={scale} />
-            </span>
-          )}
-          <PixelSprite grid={grid} palette={palette} scale={scale} className="buddy__sprite" />
+          <span className="buddy__sprite">
+            {hat && (
+              <span className="buddy__hat" aria-hidden="true">
+                <PixelSprite grid={hat.grid} palette={hat.palette} scale={scale} />
+              </span>
+            )}
+            <PixelSprite grid={grid} palette={palette} scale={scale} className="buddy__svg" />
+            {armorPieces.map(piece => (
+              <span key={piece.id} className="buddy__armor" style={{ top: piece.top * scale }} aria-hidden="true">
+                <PixelSprite
+                  grid={armorGridFor(piece, { pose: armorPose })}
+                  palette={ARMOR_PALETTE}
+                  scale={scale}
+                />
+              </span>
+            ))}
+          </span>
         </span>
         {emote && (
           <span className={`buddy__emote buddy__emote--${state.emote}`} key={state.emoteId} aria-hidden="true">
-            <PixelSprite grid={emote.grid} palette={emote.palette} scale={4} />
+            <PixelSprite grid={emoteGrid} palette={emote.palette} scale={4} />
           </span>
         )}
       </button>

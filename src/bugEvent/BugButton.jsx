@@ -30,6 +30,7 @@ export default function BugButton({ onHide }) {
     <button
       type="button"
       className={`pixel-btn pixel-btn--outline pixel-btn--icon bug-btn${running ? ' is-on' : ''}`}
+      data-no-sfx="true"
       aria-label={running ? 'Retreat from the bug attack' : 'Start a bug attack (hold to hide)'}
       aria-pressed={running}
       title={running ? 'Retreat! (ends the bug attack)' : 'Bug attack! (hold to hide)'}

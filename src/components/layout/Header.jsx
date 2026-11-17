@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { navItems, profile } from '../../data/profile.js';
-import { MoonIcon, SunIcon } from '../Icons.jsx';
+import { MoonIcon, SunIcon, VolumeOffIcon, VolumeOnIcon } from '../Icons.jsx';
+import { useSound } from '../../sound/SoundContext.jsx';
 import SprayButton from '../../spray/SprayButton.jsx';
 import BugButton from '../../bugEvent/BugButton.jsx';
 
 export function Logo({ className = '' }) {
   return (
-    <Link to="/" className={`logo ${className}`} aria-label={`${profile.name.display}, home`}>
+    <Link to="/" className={`logo ${className}`} data-uisfx="back" data-uisfx-pack="minimal" aria-label={`${profile.name.display}, home`}>
       <span aria-hidden="true">&lt;{profile.initials}/&gt;</span>
     </Link>
   );
@@ -44,6 +45,7 @@ export default function Header({ theme, onToggleTheme }) {
     return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
   }, [open]);
 
+  const { enabled: soundEnabled, toggleEnabled: toggleSound } = useSound();
   const isDark = theme === 'dark';
 
   return (
@@ -51,11 +53,11 @@ export default function Header({ theme, onToggleTheme }) {
       <div className="site-header__inner container">
         <Logo />
 
-        <nav className="site-nav" aria-label="Main">
+        <nav className="site-nav" aria-label="Main" data-uisfx-pack="minimal">
           <ul className="site-nav__list">
             {navItems.map(item => (
               <li key={item.to}>
-                <NavLink to={item.to} end={item.end} className="site-nav__link">{item.label}</NavLink>
+                <NavLink to={item.to} end={item.end} className="site-nav__link" data-uisfx="forward">{item.label}</NavLink>
               </li>
             ))}
           </ul>
@@ -67,7 +69,19 @@ export default function Header({ theme, onToggleTheme }) {
           <button
             type="button"
             className="pixel-btn pixel-btn--outline pixel-btn--icon"
+            onClick={toggleSound}
+            data-no-sfx="true"
+            aria-pressed={soundEnabled}
+            aria-label={soundEnabled ? 'Mute UI sounds' : 'Unmute UI sounds'}
+            title={soundEnabled ? 'Mute sounds' : 'Unmute sounds'}
+          >
+            {soundEnabled ? <VolumeOnIcon /> : <VolumeOffIcon />}
+          </button>
+          <button
+            type="button"
+            className="pixel-btn pixel-btn--outline pixel-btn--icon"
             onClick={onToggleTheme}
+            data-uisfx={isDark ? 'toggle-off' : 'toggle-on'}
             aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
             title={isDark ? 'Light theme' : 'Dark theme'}
           >
@@ -79,6 +93,8 @@ export default function Header({ theme, onToggleTheme }) {
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label={open ? 'Close menu' : 'Open menu'}
+            data-uisfx={open ? 'close' : 'open'}
+            data-uisfx-pack="minimal"
             onClick={() => setOpen(o => !o)}
           >
             <span className={`menu-icon${open ? ' is-open' : ''}`} aria-hidden="true"><span /><span /><span /></span>
@@ -86,12 +102,12 @@ export default function Header({ theme, onToggleTheme }) {
         </div>
       </div>
 
-      <div id="mobile-menu" className={`mobile-menu${open ? ' is-open' : ''}`} hidden={!open}>
+      <div id="mobile-menu" className={`mobile-menu${open ? ' is-open' : ''}`} hidden={!open} data-uisfx-pack="minimal">
         <nav aria-label="Mobile">
           <ul>
             {navItems.map((item, i) => (
               <li key={item.to}>
-                <NavLink to={item.to} end={item.end} className="mobile-menu__link">
+                <NavLink to={item.to} end={item.end} className="mobile-menu__link" data-uisfx="forward">
                   <span className="mobile-menu__num" aria-hidden="true">0{i + 1}</span>
                   {item.label}
                 </NavLink>

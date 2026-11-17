@@ -598,9 +598,14 @@ export default function BuddyWorld() {
     const tx = p.left + j.toX, ty = p.top;
     j.x = j.fromX + (tx - j.fromX) * k;
     j.y = j.fromY + (ty - j.fromY) * k - j.arc * 4 * k * (1 - k);
+    if (b.timer % 100 === 0) b.frame = (b.frame + 1) % 60;
     if (k >= 1) {
       b.plat = j.to; b.x = b.target = j.toX; b.jump = null;
-      b.mode = 'idle'; b.wait = rand(700, 1600);
+      if (b.mode === 'jump') {
+        b.mode = 'land'; b.wait = TIMED.land; b.timer = 0; b.frame = 0;
+      } else {
+        b.wait = rand(700, 1600);
+      }
     }
   }
   /** A spot on June Vic's platform right next to him (the side with room). */
@@ -707,6 +712,8 @@ export default function BuddyWorld() {
       return;
     }
     f.x = nx; f.y = ny;
+    b.timer = (b.timer || 0) + TICK;
+    if (b.timer % 100 === 0) b.frame = (b.frame + 1) % 60;
   }
 
   const feel = (key, emotion, ms = 2200) => {
@@ -1033,7 +1040,7 @@ export default function BuddyWorld() {
           continue;
         }
         if (b.mode === 'held') {
-          if (b.timer % 200 === 0) b.frame = (b.frame + 1) % 2;   // kicking legs
+          if (b.timer % 200 === 0) b.frame = (b.frame + 1) % 60;   // kicking legs
           b.tilt *= 0.75;                                         // swing settles when the mouse stops
           continue;
         }
@@ -1055,9 +1062,9 @@ export default function BuddyWorld() {
             b.x += b.dir * speed;
           }
           const frameEvery = b.mode === 'run' ? 1 : 2; // 100ms / 200ms per frame
-          if (b.timer % (TICK * frameEvery) === 0) b.frame = (b.frame + 1) % 2;
+          if (b.timer % (TICK * frameEvery) === 0) b.frame = (b.frame + 1) % 12;
         } else if (TIMED[b.mode]) {
-          if (b.timer % 200 === 0) b.frame = (b.frame + 1) % 2;   // animated poses (wave)
+          if (b.timer % 200 === 0) b.frame = (b.frame + 1) % 60;   // animated poses (wave, land, nap…)
           b.wait -= TICK;
           if (b.wait <= 0) { b.mode = 'idle'; b.wait = rand(800, 2000); }
         } else {
@@ -1240,7 +1247,7 @@ export default function BuddyWorld() {
   const vicCenter = vp ? vp.x + Math.max(VIC_W, BTN_MIN) / 2 : -1e6;
   const claudeCenter = cp ? cp.x + Math.max(CLAUDE_W, BTN_MIN) / 2 : -1e6;
 
-  const state = b => ({ x: b.x, dir: b.dir, mode: b.mode, frame: b.frame, blink: b.blink > 0, face: b.face, emote: b.emote, emoteId: b.emoteId, tilt: b.tilt || 0, swell: b.swell || 0, gulp: !!b.gulp });
+  const state = b => ({ x: b.x, dir: b.dir, mode: b.mode, frame: b.frame, timer: b.timer || 0, blink: b.blink > 0, face: b.face, emote: b.emote, emoteId: b.emoteId, tilt: b.tilt || 0, swell: b.swell || 0, gulp: !!b.gulp });
 
   // Speech opens AWAY from the other buddy so it never slides behind them,
   // unless there isn't enough room on that side of the page.
@@ -1277,6 +1284,9 @@ export default function BuddyWorld() {
       </span>
     );
   };
+
+  const claudeCos = claudeCostumes.find(x => x.id === costumes.claude) || claudeCostumes[0];
+  const vicCos = vicCostumes.find(x => x.id === costumes.vic) || vicCostumes[0];
 
   return (
     <div className={`buddy-world${active ? '' : ' is-paused'}${reduced ? ' is-reduced' : ''}`} data-no-spray="true">
@@ -1319,8 +1329,8 @@ export default function BuddyWorld() {
           onCostume={changeCostume('vic')}
         />
       )}
-      {prop(c, cp, CLAUDE_W, { H: '#D77757', L: '#EE9A78', h: '#B85C3E' })}
-      {prop(v, vp, VIC_W, { H: '#c98d64', L: '#e3ad85', h: '#a5694a' })}
+      {prop(c, cp, CLAUDE_W, { ...laptopSide.claudePalette, H: claudeCos.palette.O, L: claudeCos.palette.L, h: claudeCos.palette.o })}
+      {prop(v, vp, VIC_W, { H: vicCos.palette.S, L: vicCos.palette.L, h: vicCos.palette.s })}
     </div>
   );
 }

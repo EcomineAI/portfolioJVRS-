@@ -25,7 +25,7 @@ Two pixel characters live on the Home hero floor and, if you turn on **Explore t
 | Wave | yes (2-frame animation) | no | June Vic waves when the page loads |
 | Wiggle | no | yes | |
 | Nap | no | yes | Eyes close, "Z z z" |
-| Open laptop | yes ("Prompt on laptop") | yes | Laptop appears on the side away from the other buddy; lid opens, code types out, loops. Lasts 12 s from the menu |
+| Open laptop | yes ("Prompt on laptop") | yes | A side-view laptop with a glowing screen appears on the side away from the other buddy. Hands tap the keys in turn, shaded for depth. Lasts 12 s from the menu |
 | Chase | skits only | n/a | June Vic runs after Claude, who bolts away; if the card is too small, Claude leaps to another card and June Vic leaps after him |
 
 ## Pick them up (drag with the mouse or a finger)

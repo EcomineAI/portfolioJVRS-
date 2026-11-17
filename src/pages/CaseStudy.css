@@ -36,6 +36,14 @@
   line-height: 1.45;
   max-width: 40ch;
 }
+.cs-hero__banner {
+  margin: 4px 0;
+  border: 3px solid var(--border);
+}
+.cs-hero__banner .cs-frame__zoom img {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
 .cs-hero__former { font-size: var(--text-lg); color: var(--muted-fg); }
 .cs-hero__former-label {
   margin-right: 8px;
@@ -351,3 +359,288 @@
 .cs-pager__link--next { text-align: right; }
 .cs-pager__dir { font-size: var(--text-base); color: var(--muted-fg); }
 .cs-pager__title { font-family: var(--font-pixel); font-size: 1rem; line-height: 1.5; }
+
+/* ---- Hero KPI strip ------------------------------------------------------ */
+.cs-kpis {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (min-width: 768px) { .cs-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.cs-kpi {
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 3px solid var(--border);
+  box-shadow: 3px 3px 0 0 var(--shadow-color);
+}
+.cs-kpi__val {
+  font-family: var(--font-pixel);
+  font-size: 1.35rem;
+  line-height: 1.25;
+  color: var(--primary);
+}
+.cs-kpi__lbl {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  line-height: 1.15;
+  color: var(--muted-fg);
+}
+
+/* ---- Structured Cards & Grids ------------------------------------------- */
+.cs-split-2,
+.cs-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 720px) {
+  .cs-split-2,
+  .cs-cards-grid--2 { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 900px) {
+  .cs-cards-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.cs-subcard {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  padding: 18px;
+  background: var(--card);
+  border: 3px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+.cs-subcard--red { border-top: 8px solid #ef4444; }
+.cs-subcard--blue { border-top: 8px solid var(--primary); }
+.cs-subcard--amber { border-top: 8px solid var(--world-learn); }
+.cs-subcard--code { border-top: 8px solid var(--world-code); }
+
+.cs-subcard__meta {
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  color: var(--muted-fg);
+  margin-top: 2px;
+}
+
+.cs-card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.cs-card-head h3 { font-size: 1.05rem; line-height: 1.35; }
+
+.cs-num-badge {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border: 3px solid var(--border);
+  font-family: var(--font-ui);
+  font-size: var(--text-lg);
+  line-height: 1;
+}
+.cs-num-badge--red { background: #ef4444; color: #ffffff; }
+.cs-num-badge--blue { background: var(--primary); color: var(--primary-fg); }
+.cs-num-badge--amber { background: var(--world-learn); color: var(--ink); }
+.cs-num-badge--code { background: var(--world-code); color: var(--ink); }
+.cs-num-badge--slate { background: var(--surface); color: var(--fg); }
+
+/* ---- Tabs (Interface & Journeys) ---------------------------------------- */
+.cs-interactive,
+.cs-journey-box { display: grid; gap: 16px; }
+.cs-tabs { display: flex; flex-wrap: wrap; gap: 10px; }
+.cs-tab {
+  min-height: 44px;
+  padding: 6px 14px;
+  background: var(--card);
+  color: var(--fg);
+  border: 3px solid var(--border);
+  box-shadow: 3px 3px 0 0 var(--shadow-color);
+  font-family: var(--font-ui);
+  font-size: var(--text-lg);
+  cursor: var(--cursor-pointer);
+  transition: transform 80ms var(--step-ease), box-shadow 80ms var(--step-ease);
+}
+.cs-tab:hover { transform: translate(1px, 1px); box-shadow: 2px 2px 0 0 var(--shadow-color); }
+.cs-tab.is-active { background: var(--primary); color: var(--primary-fg); }
+
+.cs-ui-grid { display: grid; gap: 20px; grid-template-columns: 1fr; }
+@media (min-width: 820px) {
+  .cs-ui-grid.is-split { grid-template-columns: 1fr 1fr; }
+}
+.cs-ui-col,
+.cs-ui-stack { display: grid; gap: 14px; align-content: start; }
+
+/* Zoomable screenshots */
+.cs-frame__zoom {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+.cs-frame__zoom img { display: block; width: 100%; height: auto; }
+.cs-frame__hint {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 2px 8px;
+  background: var(--card);
+  color: var(--fg);
+  border: 2px solid var(--border);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+.cs-frame__zoom:hover .cs-frame__hint,
+.cs-frame__zoom:focus-visible .cs-frame__hint { opacity: 1; }
+
+/* ---- Personas ----------------------------------------------------------- */
+.cs-persona__top {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.cs-persona__photo {
+  width: 84px;
+  height: 84px;
+  flex: none;
+  padding: 0;
+  border: 3px solid var(--border);
+  box-shadow: 3px 3px 0 0 var(--shadow-color);
+  background: var(--surface);
+  overflow: hidden;
+  cursor: zoom-in;
+}
+.cs-persona__photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 20%;
+}
+.cs-persona__id { display: grid; gap: 4px; }
+.cs-persona__id h3 { font-size: 1.15rem; }
+.cs-persona__role { font-size: 0.95rem; color: var(--muted-fg); }
+.cs-persona__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.cs-persona__meta span {
+  padding: 1px 8px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+}
+.cs-persona__quote {
+  margin: 0;
+  padding: 8px 12px;
+  background: var(--surface);
+  border-left: 4px solid var(--primary);
+  font-style: italic;
+}
+.cs-persona__bio { color: var(--muted-fg); font-size: 0.96rem; }
+
+/* ---- Journeys ----------------------------------------------------------- */
+.cs-journey-head h3 { font-size: 1.15rem; }
+.cs-journey-steps {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+}
+.cs-jstep {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  padding: 12px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+}
+.cs-jstep__title { font-size: 0.95rem; line-height: 1.35; }
+.cs-mood {
+  width: fit-content;
+  padding: 1px 8px;
+  border: 2px solid var(--border);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+}
+.cs-mood--neg { background: #ffe5ea; color: #8c1732; }
+.cs-mood--mid { background: #fff5cc; color: #6b4800; }
+.cs-mood--pos { background: #d9fbf0; color: #0b5d47; }
+[data-theme='dark'] .cs-mood--neg { background: #36121d; color: #ff9ec0; }
+[data-theme='dark'] .cs-mood--mid { background: #2e2408; color: #f7d44a; }
+[data-theme='dark'] .cs-mood--pos { background: #0b2d26; color: #5cf2c8; }
+.cs-jstep__opp { font-size: 0.9rem; color: var(--muted-fg); line-height: 1.45; }
+
+/* ---- Usability Findings ------------------------------------------------- */
+.cs-finding-list {
+  list-style: none;
+  padding-left: 0 !important;
+  display: grid;
+  gap: 14px;
+}
+.cs-finding-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.cs-finding-item + .cs-finding-item { margin-top: 0; }
+.cs-finding-item strong { display: block; font-size: 0.98rem; margin-bottom: 2px; }
+.cs-finding-item p { font-size: 0.92rem; color: var(--muted-fg); line-height: 1.5; }
+
+/* ---- Image Lightbox ----------------------------------------------------- */
+.cs-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  padding: 20px;
+  background: rgba(13, 18, 38, 0.85);
+  display: grid;
+  place-items: center;
+}
+.cs-lightbox__panel {
+  max-width: min(1040px, 100%);
+  max-height: calc(100vh - 40px);
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  background: var(--card);
+  border: 4px solid var(--border);
+  box-shadow: var(--shadow-md);
+}
+.cs-lightbox__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--font-ui);
+  font-size: var(--text-lg);
+}
+.cs-lightbox__close {
+  min-height: 36px;
+  padding: 4px 12px;
+  background: var(--primary);
+  color: var(--primary-fg);
+  border: 3px solid var(--border);
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  cursor: var(--cursor-pointer);
+}
+.cs-lightbox__panel img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(100vh - 130px);
+  width: auto;
+  height: auto;
+  margin: 0 auto;
+  object-fit: contain;
+  border: 2px solid var(--border);
+}

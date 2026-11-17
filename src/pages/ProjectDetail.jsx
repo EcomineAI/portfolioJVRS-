@@ -13,14 +13,14 @@ const hrefFor = p => (p.slug === CASE_STUDY_SLUG ? '/case-study' : `/projects/${
 function NotFound({ slug }) {
   return (
     <div className="container pd-page pd-missing">
-      <Link to="/projects" className="pd-back"><span aria-hidden="true">←</span> Projects</Link>
+      <Link to="/projects" className="pd-back" data-uisfx="back" data-uisfx-pack="minimal"><span aria-hidden="true">←</span> Projects</Link>
       <PixelCard pad className="pd-missing__card" data-spray-surface="true">
         <p className="pd-missing__code" aria-hidden="true">404</p>
         <h1 className="pd-missing__title">Project not found</h1>
         <p className="prose">
           There is no project called <strong>“{slug}”</strong>. It may have been renamed or moved.
         </p>
-        <PixelButton to="/projects">Back to all projects</PixelButton>
+        <PixelButton to="/projects" data-uisfx="back" data-uisfx-pack="minimal">Back to all projects</PixelButton>
       </PixelCard>
     </div>
   );
@@ -96,6 +96,27 @@ function TeamBlock({ project: p }) {
   );
 }
 
+function HighlightsBlock({ project: p }) {
+  const highlights = Array.isArray(p.highlights) ? p.highlights : [];
+  if (highlights.length === 0) return null;
+
+  return (
+    <PixelCard as="section" className="pd-team" aria-labelledby="pd-highlights-title" data-spray-surface="true">
+      <h2 id="pd-highlights-title" className="pd-h2">System overview</h2>
+      <div className="pd-team__mine">
+        {highlights.map(section => (
+          <div key={section.title}>
+            <h3 className="pd-h3">{section.title}</h3>
+            <ul className="prose pd-team__list">
+              {section.items.map((item, i) => <li key={i}>{item}</li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </PixelCard>
+  );
+}
+
 function Pager({ slug }) {
   const i = projects.findIndex(p => p.slug === slug);
   const prev = i > 0 ? projects[i - 1] : null;
@@ -133,7 +154,7 @@ export default function ProjectDetail() {
 
   return (
     <article className="container pd-page" data-world={p.world}>
-      <Link to="/projects" className="pd-back"><span aria-hidden="true">←</span> Projects</Link>
+      <Link to="/projects" className="pd-back" data-uisfx="back" data-uisfx-pack="minimal"><span aria-hidden="true">←</span> Projects</Link>
 
       <header className="pd-head">
         <div className="pd-meta">
@@ -165,6 +186,8 @@ export default function ProjectDetail() {
       </header>
 
       <CoverPanel project={p} />
+
+      <HighlightsBlock project={p} />
 
       <TeamBlock project={p} />
 

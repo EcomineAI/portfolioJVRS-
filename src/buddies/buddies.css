@@ -62,7 +62,9 @@
   cursor: var(--cursor-pointer);
 }
 .buddy__body { display: block; }
-.buddy__sprite { display: block; }
+.buddy__sprite { position: relative; display: block; line-height: 0; }
+.buddy__svg { display: block; }
+.buddy__armor { position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none; line-height: 0; }
 
 .buddy__btn:hover .buddy__sprite { filter: drop-shadow(0 -3px 0 var(--primary-soft)); }
 
@@ -175,27 +177,13 @@
 .buddy__menu-item.is-active { color: var(--primary); font-weight: 700; }
 .buddy__menu-back { border-top: 2px dashed var(--hairline); margin-top: 4px; padding-top: 4px; }
 
-/* ---- Heart --------------------------------------------------------------- */
-.buddy-floor__heart {
-  position: absolute;
-  left: 0;
-  bottom: 70px;
-  z-index: 3;
-  pointer-events: none;
-}
-.buddy-floor__heart svg { animation: buddy-heart 900ms steps(3, end) infinite alternate; }
-@keyframes buddy-heart {
-  from { transform: translateY(0); }
-  to { transform: translateY(-6px); }
-}
-
 /* ---- Paused / reduced motion -------------------------------------------- */
 .buddy-world.is-paused * { animation-play-state: paused !important; }
 
 .buddy-world.is-reduced .buddy,
 .buddy-world.is-reduced .buddy * { animation: none !important; transition: none !important; }
 @media (prefers-reduced-motion: reduce) {
-  .buddy, .buddy * , .buddy-floor__heart svg { animation: none !important; transition: none !important; }
+  .buddy, .buddy * { animation: none !important; transition: none !important; }
 }
 
 /* Thin 1px black outline around June Vic's sprite (doesn't change the sprite's size) */
@@ -206,6 +194,9 @@
     drop-shadow(0 1px 0 #000)
     drop-shadow(0 -1px 0 #000);
 }
+
+/* June Vic sprint: slight forward lean */
+.buddy--vic.is-run .buddy__sprite { transform: skewX(-4deg); transform-origin: 50% 100%; }
 
 /* Claude "Wiggle": quick side-to-side shimmy */
 .buddy.is-wiggle .buddy__sprite { animation: buddy-wiggle 240ms steps(2, end) infinite; transform-origin: 50% 100%; }
@@ -355,7 +346,7 @@
 .buddy__emote { width: max-content; }
 .buddy__emote svg { display: block; max-width: none; }
 .buddy__emote--anger { animation: buddy-emote-pop 200ms steps(3, end), buddy-emote-throb 500ms steps(2, end) 200ms infinite; }
-.buddy__emote--sweat { top: -8px; }
+.buddy__emote--sweat { top: -10px; animation: buddy-emote-pop 200ms steps(3, end), buddy-emote-drip 750ms steps(3, end) 200ms infinite; }
 .buddy__emote--dots { top: -6px; }
 @keyframes buddy-emote-pop {
   from { transform: scale(0.3); opacity: 0; }
@@ -364,6 +355,10 @@
 @keyframes buddy-emote-float {
   from { transform: translateY(0); }
   to   { transform: translateY(-4px); }
+}
+@keyframes buddy-emote-drip {
+  from { transform: translateY(0); }
+  to   { transform: translateY(5px); }
 }
 @keyframes buddy-emote-throb {
   0%, 100% { transform: scale(1); }

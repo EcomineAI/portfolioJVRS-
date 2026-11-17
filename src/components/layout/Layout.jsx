@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { useScrollToTop } from '../../hooks/useScrollToTop.js';
 import { useTheme } from '../../hooks/useTheme.js';
 import { SprayProvider } from '../../spray/SprayContext.jsx';
+import { SoundProvider } from '../../sound/SoundContext.jsx';
 import SprayLayer from '../../spray/SprayLayer.jsx';
 import BuddyWorld from '../../buddies/BuddyWorld.jsx';
 import BugEvent from '../../bugEvent/BugEvent.jsx';
@@ -19,21 +20,23 @@ export default function Layout() {
   useScrollToTop();
 
   return (
-    <SprayProvider>
-      <PixelBackground />
-      <a href="#main" className="skip-link">Skip to content</a>
-      <Header theme={theme} onToggleTheme={toggle} />
-      <main id="main" tabIndex={-1}>
-        <Outlet />
-      </main>
-      {!hideSayHi && <SayHi />}
-      <Footer />
-      {/* Pixel buddies: roam every page, standing on top of cards */}
-      <BuddyWorld />
-      {/* Bug Attack: just-for-fun boss fight (green bug button in the header) */}
-      <BugEvent />
-      <Chatbot />
-      <SprayLayer />
-    </SprayProvider>
+    <SoundProvider>
+      <SprayProvider>
+        <PixelBackground />
+        <a href="#main" className="skip-link">Skip to content</a>
+        <Header theme={theme} onToggleTheme={toggle} />
+        <main id="main" tabIndex={-1}>
+          <Outlet />
+        </main>
+        {!hideSayHi && <SayHi />}
+        <Footer />
+        {/* Pixel buddies: roam every page, standing on top of cards */}
+        <BuddyWorld />
+        {/* Bug Attack: just-for-fun boss fight (green bug button in the header) */}
+        <BugEvent />
+        <Chatbot />
+        <SprayLayer />
+      </SprayProvider>
+    </SoundProvider>
   );
 }

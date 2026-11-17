@@ -31,8 +31,8 @@ import { applyFace } from '../buddies/Buddy.jsx';
 import { claude, laptop, vic, vicFight } from '../buddies/sprites.js';
 import { navItems } from '../data/profile.js';
 import {
-  ARMOR_PALETTE, ARMOR_PIECES, BUG_H, BUG_POSES, BUG_RAGE_PALETTE, BUG_TYPES, BUG_W,
-  MINION_FRAMES, MINION_H, MINION_W, WINGS, WING_PALETTE, CLAUDE_WING_PALETTE, AMB_PALETTE, AURA_FRAMES, AURA_PALETTE, AURA_PALETTE_ORANGE,
+  ARMOR_PALETTE, ARMOR_PIECES, armorGridFor, BUG_H, BUG_POSES, BUG_RAGE_PALETTE, BUG_TYPES, BUG_W,
+  MINION_FRAMES, MINION_H, MINION_POSES, MINION_W, NIMBUS_FRAMES, NIMBUS_PALETTE, AMB_PALETTE, AURA_FRAMES, AURA_PALETTE, AURA_PALETTE_ORANGE,
 } from './bugSprites.js';
 import * as snd from './sound.js';
 import './bugEvent.css';
@@ -2128,7 +2128,7 @@ export default function BugEvent() {
           setMode(g.vic, 'vcarried'); g.vic.ground = false;
           say(g.vic, 'Fly me up! Let me hit them!', 2);
         } else if (g.stageIdx === 1) {
-          say(g.claude, 'Wings deployed!', 1.6);
+          say(g.claude, 'Flying Nimbus!', 1.6);
         }
       }
     }
@@ -3369,7 +3369,7 @@ export default function BugEvent() {
         }
       }
       f.frameT += dt;
-      if (f.frameT > 0.12) { f.frameT = 0; f.frame = (f.frame + 1) % 2; }
+      if (f.frameT > 0.12) { f.frameT = 0; f.frame = (f.frame + 1) % 60; }
       if (f.bubbleT > 0 && (f.bubbleT -= dt) <= 0) f.bubble = null;
       f.gulp = Math.max(0, f.gulp - dt);
       f.shield = Math.max(0, (f.shield || 0) - dt);
@@ -3594,32 +3594,54 @@ export default function BugEvent() {
   const { vic: v, boss: b } = g;
   const sx = window.scrollX, sy = window.scrollY;
 
-  const fighterGrid = f => {
-    const sp = f.key === 'vic' ? vic : claude;
-    let grid = sp.stand;
+  const fighterPose = f => {
     const p = f.pose || (f.mode === 'atk' ? f.move?.pose : null);
     const air = !f.ground && ['enter', 'idle', 'run', 'hop', 'fin'].includes(f.mode);
     if (f.key === 'vic') {
-      const kickG = v.ssj ? vicFight.ssjKick : vicFight.kick;
       const ssjDash = f.mode === 'ssjfly' && g.ls?.go && !g.ls?.wiped;
-      if (p === 'kick' || p === 'spin' || ['flykick', 'jumpkick', 'xkick'].includes(f.mode) || ssjDash) grid = kickG;
-      else if (p === 'punch' || f.mode === 'charge' || f.mode === 'beam') grid = vic.poses.vacuum[0];
-      else if (p === 'upper' || p === 'parry' || ['hurt', 'lift', 'deploy', 'grabbed', 'power', 'dodge', 'shakeoff', 'spring', 'buried', 'kneel', 'vcarried'].includes(f.mode) || air) grid = vic.poses.held[['grabbed', 'shakeoff', 'vcarried'].includes(f.mode) ? f.frame : 0];
-      else if (f.mode === 'run') grid = vic.walk[f.frame];
-      else if (f.mode === 'vacuum') grid = vic.poses.vacuum[f.frame];
-      else if (f.mode === 'laptop' || f.mode === 'typing') grid = vic.poses.laptop[f.frame];
-      else if (f.mode === 'cheer') grid = vic.poses.wave[f.frame];
+      if (p === 'kick' || p === 'spin' || ['flykick', 'jumpkick', 'xkick'].includes(f.mode) || ssjDash) return 'kick';
+      if (p === 'punch' || f.mode === 'charge' || f.mode === 'beam') return 'punch';
+      if (p === 'upper' || p === 'parry' || ['hurt', 'lift', 'deploy', 'grabbed', 'power', 'dodge', 'shakeoff', 'spring', 'buried', 'kneel', 'vcarried'].includes(f.mode) || air) return 'held';
+      if (f.mode === 'run') return 'run';
+      if (f.mode === 'vacuum') return 'vacuum';
+      if (f.mode === 'laptop' || f.mode === 'typing') return 'laptop';
+      if (f.mode === 'cheer') return 'cheer';
+      return 'idle';
+    }
+    if (f.mode === 'inventfly') return 'laptop';
+    if (['hurt', 'carried', 'grabbed', 'dodge', 'shakeoff', 'boost', 'held'].includes(f.mode) || (f.mode === 'cflight' && (p || Math.abs(f.vx) > 90)) || air) return 'held';
+    if (f.mode === 'vacuumed') return 'vacuum';
+    if (f.mode === 'run') return 'run';
+    if (f.mode === 'dance') return 'dance';
+    return 'idle';
+  };
+
+  const fighterGrid = f => {
+    const sp = f.key === 'vic' ? vic : claude;
+    const pose = fighterPose(f);
+    let grid = sp.stand;
+    if (f.key === 'vic') {
+      const kickG = v.ssj ? vicFight.ssjKick : vicFight.kick;
+      if (pose === 'kick') grid = kickG;
+      else if (pose === 'punch') grid = vic.poses.vacuum[0];
+      else if (pose === 'held') grid = vic.poses.held[['grabbed', 'shakeoff', 'vcarried'].includes(f.mode) ? f.frame % vic.poses.held.length : 0];
+      else if (pose === 'run') grid = vic.run[f.frame % vic.run.length];
+      else if (pose === 'vacuum') grid = vic.poses.vacuum[f.frame % vic.poses.vacuum.length];
+      else if (pose === 'laptop') grid = vic.poses.laptop[f.frame % vic.poses.laptop.length];
+      else if (pose === 'cheer') grid = vic.poses.wave[f.frame % vic.poses.wave.length];
       else if (v.ssj) grid = vicFight.ssj;
       if (v.ssj && grid !== kickG && grid !== vicFight.ssj) grid = grid.map((r, i) => (i < 2 ? vicFight.ssj[i] : r));
-    } else if (f.mode === 'inventfly') grid = claude.poses.laptop[f.frame];
-    else if (['hurt', 'carried', 'grabbed', 'dodge', 'shakeoff', 'boost', 'held'].includes(f.mode) || (f.mode === 'cflight' && (p || Math.abs(f.vx) > 90)) || air) grid = claude.poses.held[f.mode === 'held' && f.drain > 0.6 ? 0 : f.frame];
-    else if (f.mode === 'vacuumed') grid = claude.poses.vacuum[f.frame];
-    else if (f.mode === 'dance') grid = claude.poses.held[Math.floor(f.timer * 4) % 2];
+    } else if (pose === 'laptop') grid = claude.poses.laptop[f.frame % claude.poses.laptop.length];
+    else if (pose === 'held') grid = claude.poses.held[f.mode === 'held' && f.drain > 0.6 ? 0 : f.frame % claude.poses.held.length];
+    else if (pose === 'vacuum') grid = claude.poses.vacuum[f.frame % claude.poses.vacuum.length];
+    else if (pose === 'run') grid = claude.run[f.frame % claude.run.length];
+    else if (pose === 'dance') grid = claude.poses.held[Math.floor(f.timer * 4) % claude.poses.held.length];
     const face = ['hurt', 'down', 'fallen', 'cry', 'buried', 'kneel', 'held'].includes(f.mode) ? 'sad'
       : f.mode === 'confused' ? 'surprised'
       : ['cheer', 'ride', 'laptop', 'typing', 'inventfly', 'deploy', 'tokens', 'heal', 'dance'].includes(f.mode) ? 'happy'
       : ['carried', 'thrown', 'vacuumed', 'hop', 'enter', 'grabbed'].includes(f.mode) ? 'surprised' : 'angry';
-    if (sp.faces[face]) grid = applyFace(grid, sp.faces[face], sp.faceCols);
+    const faceSet = f.mode === 'run' && sp.runFaces ? sp.runFaces : sp.faces;
+    if (faceSet[face]) grid = applyFace(grid, faceSet[face], sp.faceCols);
     if (f.eyesClosed) grid = grid.map(r => r.replaceAll('E', sp.blinkChar));
     return grid;
   };
@@ -3640,21 +3662,22 @@ export default function BugEvent() {
     if (f.mode === 'vcarried') body = `rotate(${clamp(-g.claude.vx * 0.045, -16, 16).toFixed(1)}deg) ${body}`;
     const palette = f.key === 'vic' && v.ssj ? vicFight.ssjPalette : sp.palette;
     if (f.mode === 'kneel' || f.mode === 'buried') body = `translateY(${f.mode === 'kneel' ? 9 : 4}px) ${body}`;
+    const armorPose = fighterPose(f);
     return (
       <div key={f.key} className={`bug-fighter bug-fighter--${f.key} is-${f.mode}${p ? ` pose-${p}` : ''}${f.gulp > 0 ? ' is-gulp' : ''}${f.inv > 0 && !['hurt', 'dodge'].includes(f.mode) ? ' is-inv' : ''}${f.key === 'vic' && v.ssj ? ' is-ssj' : ''}${f.vanish ? ' is-vanish' : ''}${f.landT > 0 ? ' is-land' : ''}${!f.ground && f.vy < -260 && !['ssjfly', 'beam', 'held', 'heal', 'cflight', 'vcarried'].includes(f.mode) ? ' is-rise' : ''}`} style={{ transform: `translate(${Math.round(f.x)}px, ${Math.round(f.y)}px)`, width: f.w, height: f.h, '--dir': f.dir }}>
         {f.shield > 0 && <span className="bug-bubble-shield" />}
         {f.bubble && <p className={`buddy__bubble buddy__bubble--${side}${['laptop', 'typing', 'inventfly'].includes(f.mode) ? ' is-typing' : ''}`}>{f.bubble}</p>}
         <span className="bug-fighter__body" style={{ transform: body || undefined, filter: f.drain ? `grayscale(${f.drain.toFixed(2)}) brightness(${(1 - f.drain * 0.25).toFixed(2)})` : undefined }}>
           {f.key === 'claude' && g.claudeFly && (!f.ground || f.mode === 'cflight') && (
-            <span className="bug-wings" aria-hidden="true">
-              <PixelSprite grid={WINGS[Math.floor(g.real * (p ? 24 : 14)) % WINGS.length]} palette={CLAUDE_WING_PALETTE} scale={S} />
+            <span className="bug-nimbus" aria-hidden="true">
+              <PixelSprite grid={NIMBUS_FRAMES[Math.floor(g.real * (p ? 18 : 10)) % NIMBUS_FRAMES.length]} palette={NIMBUS_PALETTE} scale={S} />
             </span>
           )}
           <PixelSprite grid={fighterGrid(f)} palette={palette} scale={S} />
           {f.mode === 'cry' && <span className="bug-tears" aria-hidden="true"><i /><i /></span>}
           {g.armor && ARMOR_PIECES[f.key].map(piece => (f.armor[piece.id] < 2 ? (
             <span key={piece.id} className={`bug-armor bug-armor--${piece.id}`} style={{ top: piece.top * S }}>
-              <PixelSprite grid={piece.frames[f.armor[piece.id]]} palette={ARMOR_PALETTE} scale={S} />
+              <PixelSprite grid={armorGridFor(piece, { pose: armorPose, crackLevel: f.armor[piece.id] })} palette={ARMOR_PALETTE} scale={S} />
             </span>
           ) : null))}
         </span>
@@ -3683,28 +3706,35 @@ export default function BugEvent() {
 
   const bugSprite = q => {
     if (q.kind === 'minion' || q.kind === 'elite' || q.kind === 'blocked') {
-      return <PixelSprite grid={MINION_FRAMES[Math.floor(q.frameT / 0.1) % 2]} palette={BUG_TYPES[q.kind].palette} scale={S} />;
+      const mFrames = ['lunge', 'dive', 'latch', 'drop'].includes(q.mode) ? MINION_POSES.attack
+        : ['tele', 'divetele', 'predrop'].includes(q.mode) ? MINION_POSES.wind
+        : MINION_POSES.walk;
+      return <PixelSprite grid={mFrames[Math.floor(q.frameT / 0.08) % mFrames.length]} palette={BUG_TYPES[q.kind].palette} scale={S} />;
     }
     const P = BUG_POSES;
-    const fr = Math.floor(q.frameT / 0.14) % 2;
-    let grid = P.idle[fr];
-    if (q.mode === 'walk') grid = P.walk[fr];
-    else if (['wind', 'heave', 'air', 'leap'].includes(q.mode)) grid = P.wind[0];
-    else if (['punch', 'grab'].includes(q.mode)) grid = P.punch[0];
-    else if (q.mode === 'upper') grid = P.uppercut[0];
-    else if (['bite', 'bite-page'].includes(q.mode)) grid = P.bite[0];
-    else if (q.mode === 'watch') grid = P.watch[0];
-    else if (q.mode === 'beam' || (q.mode === 'sky' && q.skyPose === 'punch') || q.mode === 'tele') grid = q.mode === 'tele' ? P.wind[0] : P.punch[0];
-    else if (q.mode === 'sky') grid = q.skyPose === 'hurt' ? P.hurt[0] : P.wind[0];
-    else if (['stunned', 'fin', 'juggle'].includes(q.mode) || q.flash > 0) grid = P.hurt[0];
-    if (q.boss) {
-      if (q.mode === 'hold') grid = P.hold[0];
-      else if (q.mode === 'block') grid = P.block[0];
-      else if (q.mode === 'dash' || q.mode === 'charge') grid = P.charge[0];
-      else if (q.mode === 'spin') grid = P.punch[0];
-      else if (q.mode === 'air' && q.kicking) grid = P.kick[0];
-      else if (q.mode === 'air' && q.pounding) grid = P.slam[0];
-    }
+    const fr = Math.floor(q.frameT / 0.09);
+    const poseFor = () => {
+      if (q.boss) {
+        if (q.mode === 'hold') return P.hold;
+        if (q.mode === 'block') return P.block;
+        if (q.mode === 'dash' || q.mode === 'charge') return P.charge;
+        if (q.mode === 'spin') return P.punch;
+        if (q.mode === 'air' && q.kicking) return P.kick;
+        if (q.mode === 'air' && q.pounding) return P.slam;
+      }
+      if (q.mode === 'walk') return P.walk;
+      if (['wind', 'heave', 'air', 'leap'].includes(q.mode)) return P.wind;
+      if (['punch', 'grab'].includes(q.mode)) return P.punch;
+      if (q.mode === 'upper') return P.uppercut;
+      if (['bite', 'bite-page'].includes(q.mode)) return P.bite;
+      if (q.mode === 'watch') return P.watch;
+      if (q.mode === 'beam' || (q.mode === 'sky' && q.skyPose === 'punch') || q.mode === 'tele') return q.mode === 'tele' ? P.wind : P.punch;
+      if (q.mode === 'sky') return q.skyPose === 'hurt' ? P.hurt : P.wind;
+      if (['stunned', 'fin', 'juggle'].includes(q.mode) || q.flash > 0) return P.hurt;
+      return P.idle;
+    };
+    const frames = poseFor();
+    const grid = frames[fr % frames.length];
     return <PixelSprite grid={grid} palette={q.rage ? BUG_RAGE_PALETTE : BUG_TYPES[q.type].palette} scale={S * q.size} />;
   };
   // small bugs crawling upside down on the ceiling, up the walls, or any direction across the background
@@ -3803,7 +3833,7 @@ export default function BugEvent() {
       {/* card decals: rendered INSIDE each damaged card so they tilt, swing and fall with it */}
       {[...g.hosts].map(([el, h]) => createPortal(<>{g.damage.filter(d => d.local && d.el === el).map(decal)}</>, h.node, `decals-${h.id}`))}
 
-      <div className="bug-event" data-no-spray="true">
+      <div className="bug-event" data-no-spray="true" data-no-sfx="true">
         <div className="bug-event__dim" style={{ opacity: g.dim }} aria-hidden="true" />
         <div ref={camRef} className="bug-cam">
           {g.phase === 'intro' && shadowX !== null && shadowX < g.W + 540 && !g.reduced && (
@@ -3830,7 +3860,7 @@ export default function BugEvent() {
           )}
           {g.claude.mode === 'inventfly' && (
             <span className="bug-laptop" style={{ transform: `translate(${Math.round(g.claude.dir > 0 ? g.claude.x + g.claude.w + 2 : g.claude.x - 44)}px, ${Math.round(g.claude.y)}px)` }} aria-hidden="true">
-              <PixelSprite grid={laptopGridAt(g.claude.timer)} palette={laptop.palette} scale={3} />
+              <PixelSprite grid={laptopGridAt(g.claude.timer)} palette={laptop.claudePalette} scale={3} />
             </span>
           )}
 

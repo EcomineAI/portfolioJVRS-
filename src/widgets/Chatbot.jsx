@@ -143,15 +143,15 @@ export default function Chatbot() {
   };
 
   return (
-    <div className={`jvbot${open ? ' is-open' : ''}`} data-no-spray="true" onKeyDown={onRootKeyDown}>
+    <div className={`jvbot${open ? ' is-open' : ''}`} data-no-spray="true" data-uisfx-pack="scifi" onKeyDown={onRootKeyDown}>
       {open && (
         <section ref={panelRef} className="jvbot__panel" role="dialog" aria-modal="false" aria-labelledby={titleId}>
           <header className="jvbot__head">
             <div className="jvbot__portrait"><BotPortrait /></div>
             <h2 className="jvbot__name" id={titleId}>{BOT_NAME}<span className="sr-only"> chat assistant</span></h2>
             <div className="jvbot__head-actions">
-              <button type="button" className="jvbot__icon-btn" onClick={reset} aria-label="Clear conversation" title="Clear">↺</button>
-              <button type="button" className="jvbot__icon-btn" onClick={close} aria-label="Close chat" title="Close (Esc)">✕</button>
+              <button type="button" className="jvbot__icon-btn" data-uisfx="undo" onClick={reset} aria-label="Clear conversation" title="Clear">↺</button>
+              <button type="button" className="jvbot__icon-btn" data-uisfx="close" onClick={close} aria-label="Close chat" title="Close (Esc)">✕</button>
             </div>
           </header>
 
@@ -200,7 +200,7 @@ export default function Chatbot() {
 
           <div className="jvbot__chips" role="group" aria-label="Suggested questions">
             {quickChips.map(c => (
-              <button key={c.label} type="button" className="jvbot__chip" onClick={() => send(c.msg)} disabled={thinking}>
+              <button key={c.label} type="button" className="jvbot__chip" data-uisfx="select" onClick={() => send(c.msg)} disabled={thinking}>
                 {c.label}
               </button>
             ))}
@@ -220,7 +220,7 @@ export default function Chatbot() {
                 maxLength={200}
                 autoComplete="off"
               />
-              <button type="submit" className="jvbot__send" disabled={!input.trim() || thinking}>
+              <button type="submit" className="jvbot__send" data-uisfx="send" disabled={!input.trim() || thinking}>
                 Send
               </button>
             </div>
@@ -232,6 +232,7 @@ export default function Chatbot() {
         ref={launcherRef}
         type="button"
         className="jvbot__launcher"
+        data-uisfx={open ? 'close' : 'open'}
         aria-label={open ? 'Close chat assistant' : 'Open chat assistant'}
         aria-expanded={open}
         onClick={() => (open ? close() : setOpen(true))}

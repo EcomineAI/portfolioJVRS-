@@ -1,10 +1,10 @@
 Tech logos used on the About page.
 
 Devicon (https://devicon.dev), MIT License, Copyright (c) 2015 konpa:
-  css, deno, git, github, html5, javascript, nodedotjs, postgresql, python, react, reactrouter, supabase, tailwindcss, typescript, vercel, vite, vitest
+  antigravity, blender, css, deno, figma, git, github, googlecolab, html5, javascript, nodedotjs, postgresql, python, react, reactrouter, supabase, tailwindcss, typescript, vercel, vite, vitest
 
 Simple Icons (https://simpleicons.org), CC0 1.0:
-  ffmpeg, framer, pwa
+  ffmpeg, framer, n8n, pwa
 
 All logos are trademarks of their respective owners and are shown only to name the tools I use.
 

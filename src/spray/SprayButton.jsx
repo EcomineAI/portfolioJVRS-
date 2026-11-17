@@ -59,7 +59,7 @@ export default function SprayButton() {
   }, [panelOpen, setPanelOpen]);
 
   return (
-    <div className="spray-tool" ref={wrapRef} data-no-spray="true">
+    <div className="spray-tool" ref={wrapRef} data-no-spray="true" data-uisfx-pack="arcade">
       <button
         ref={btnRef}
         type="button"
@@ -68,6 +68,7 @@ export default function SprayButton() {
         aria-expanded={panelOpen}
         aria-controls="spray-panel"
         title="Spray paint"
+        data-uisfx={panelOpen ? 'close' : 'open'}
         onClick={() => setPanelOpen(o => !o)}
       >
         <SprayCanIcon />

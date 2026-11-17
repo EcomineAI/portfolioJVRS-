@@ -454,16 +454,10 @@ html.bug-locked a[href^="/"]:not(.bug-event a) { opacity: 0.45; cursor: not-allo
 .bug-boss--minion.is-walk .bug-boss__body svg { animation: bug-run 160ms steps(2, end) infinite; }
 .bug-boss--elite .bug-boss__body svg { filter: drop-shadow(0 0 4px #ff2a2a) drop-shadow(2px 2px 0 #000); }
 .bug-boss.is-dive .bug-boss__body { rotate: 25deg; }
-/* wings sit behind the sprite (drawn first inside the body), centred on the torso */
-.bug-wings { position: absolute; left: 50%; top: 35%; z-index: -1; width: max-content; translate: -50% -50%; transform-origin: 50% 50%; pointer-events: none; transition: scale 100ms steps(2, end); }
-.bug-wings svg { display: block; max-width: none; filter: none !important; }
-.bug-wings--big { left: 50%; top: 42%; }
-.bug-boss.is-punch .bug-wings,
-.bug-boss.is-bite .bug-wings,
-.bug-boss.is-bite-page .bug-wings,
-.bug-boss.is-charge .bug-wings,
-.bug-boss.is-upper .bug-wings { scale: 1.15 0.9; }
-.bug-boss.is-wind .bug-wings { scale: 0.9 1.08; }
+/* Flying Nimbus sits behind Claude's feet while airborne */
+.bug-nimbus { position: absolute; left: 44%; top: 76%; z-index: -1; width: max-content; translate: -50% 0; pointer-events: none; animation: bug-nimbus-bob 360ms steps(2, end) infinite alternate; }
+.bug-nimbus svg { display: block; max-width: none; filter: drop-shadow(0 2px 6px rgba(255, 216, 77, 0.45)); }
+@keyframes bug-nimbus-bob { from { translate: -50% 0; } to { translate: -50% 2px; } }
 .bug-boss.is-watch .bug-boss__body svg { animation: bug-breathe 1.4s steps(2, end) infinite; }
 .bug-shield {
   position: absolute; left: 50%; top: 10%; translate: -50% 0; z-index: 2; padding: 6px 8px; text-align: center;
@@ -861,9 +855,6 @@ html.bug-sad main, html.bug-sad .bug-bgfx, html.bug-sad .bug-damage { filter: gr
   45% { translate: calc(var(--dir) * 14px) 6px; rotate: calc(var(--dir) * 24deg); scale: 1.14 0.9; }
   100% { translate: 0 0; rotate: 0deg; scale: 1 1; }
 }
-.bug-fighter--claude.is-cflight.pose-headbutt .bug-wings,
-.bug-fighter--claude.is-cflight.pose-spin .bug-wings,
-.bug-fighter--claude.is-cflight.pose-dive .bug-wings { scale: 1.18 0.92; }
 /* running leans into the direction, landings squash, take-offs stretch */
 .bug-fighter.is-run .bug-fighter__body { rotate: calc(var(--dir) * 6deg); }
 .bug-fighter.is-land .bug-fighter__body { animation: bug-mv-land 140ms steps(4, end); transform-origin: 50% 100%; }

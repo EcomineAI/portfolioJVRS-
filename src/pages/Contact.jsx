@@ -36,7 +36,7 @@ export default function Contact() {
         </p>
       </header>
 
-      <SayHi headingLevel="h2" />
+      <SayHi headingLevel="h2" inline />
 
       <section className="container section contact-more" aria-labelledby="faq-title">
         <div className="contact-faq">

@@ -15,14 +15,14 @@ export default function Footer() {
     <footer className="site-footer" data-no-spray="true">
       <div className="container">
         <div className="site-footer__grid">
-          <nav className="site-footer__col" aria-labelledby="footer-nav-title">
+          <nav className="site-footer__col" aria-labelledby="footer-nav-title" data-uisfx-pack="minimal">
             <h2 id="footer-nav-title" className="site-footer__label" data-world="code"><span className="world-dot" aria-hidden="true" />Navigation</h2>
             <ul className="site-footer__nav">
-              {navItems.map(item => <li key={item.to}><Link to={item.to}>{item.label}</Link></li>)}
+              {navItems.map(item => <li key={item.to}><Link to={item.to} data-uisfx="forward">{item.label}</Link></li>)}
             </ul>
           </nav>
 
-          <div className="site-footer__col">
+          <div className="site-footer__col" data-uisfx-pack="studio">
             <h2 className="site-footer__label" data-world="create"><span className="world-dot" aria-hidden="true" />Connect</h2>
             <ul className="site-footer__social">
               {CONNECT.map(({ href, label, Icon, external, download }) => (
@@ -32,6 +32,7 @@ export default function Footer() {
                     className="site-footer__icon"
                     aria-label={label}
                     title={label}
+                    data-uisfx={download ? 'complete' : 'open'}
                     {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                     {...(download ? { download: '' } : {})}
                   >

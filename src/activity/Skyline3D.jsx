@@ -314,9 +314,9 @@ export default function Skyline3D({ grid }) {
         onDoubleClick={onReset}
       />
       <div className="skyline__zoom">
-        <button type="button" onClick={() => zoomBy(1.25)} aria-label="Zoom in">+</button>
-        <button type="button" onClick={() => zoomBy(1 / 1.25)} aria-label="Zoom out">−</button>
-        <button type="button" onClick={onReset} aria-label="Reset view">⟲</button>
+        <button type="button" data-uisfx="expand" onClick={() => zoomBy(1.25)} aria-label="Zoom in">+</button>
+        <button type="button" data-uisfx="collapse" onClick={() => zoomBy(1 / 1.25)} aria-label="Zoom out">−</button>
+        <button type="button" data-uisfx="undo" onClick={onReset} aria-label="Reset view">⟲</button>
       </div>
       <p className="skyline__hint" aria-hidden="true">
         Drag to spin and tilt · scroll or +/− to zoom · double-click to reset

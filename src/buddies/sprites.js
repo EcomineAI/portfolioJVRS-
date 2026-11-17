@@ -77,8 +77,10 @@ const vicStand = [...vicTop, ...vicLegs];
 // between two positions. The hand that was at the side is removed.
 const armUp = [[13, 14, 'B'], [15, 14, '.'], [16, 14, '.']];
 const vicWave = [
+  setPx(vicStand, [...armUp, [10, 14, 'S'], [11, 14, 'B'], [12, 14, 'B']]),
   setPx(vicStand, [...armUp, [8, 14, 'S'], [9, 14, 'S'], [10, 14, 'B'], [11, 14, 'B'], [12, 14, 'B']]),
   setPx(vicStand, [...armUp, [7, 15, 'S'], [8, 15, 'S'], [9, 14, 'B'], [10, 14, 'B'], [11, 14, 'B'], [12, 14, 'B']]),
+  setPx(vicStand, [...armUp, [8, 14, 'S'], [9, 14, 'S'], [10, 14, 'B'], [11, 14, 'B'], [12, 14, 'B']]),
 ];
 
 // Facial expressions: row overrides for the face (rows 5, 6, 9, 10).
@@ -86,9 +88,18 @@ const vicWave = [
 const vicFaces = {
   happy:     { 5: '..HSSESSSSESSH..', 6: '..HSESESSESESH..', 9: '...SSSMMMMSSS...', 10: '....sSSMMSSs....' },  // ^ ^ eyes, big smile
   surprised: { 5: '..HSSEESSEESSH..', 6: '..HSSEESSEESSH..', 9: '...SSSSMMSSSS...', 10: '....sSSMMSSs....' },  // tall eyes, O mouth
-  angry:     { 5: '..HSEESSSSEESH..', 6: '..HSSEESSEESSH..', 9: '...SSSSMMSSSS...', 10: '....sSMSSMSs....' },  // slanted brows over the eyes, frown
-  sad:       { 5: '..HSSSESSESSSH..', 6: '..HSSESSSSESSH..', 9: '...SSSSMMSSSS...', 10: '....sSMSSMSs....' },  // inner brows raised, eyes low, frown
-  neutral:   { 9: '...SSSSSSSSSS...', 10: '....sSSMMSSs....' },                                              // flat mouth
+  angry:     { 5: '..HSEsSSSSsESH..', 6: '..HSSEESSEESSH..', 9: '...SSSSMMSSSS...', 10: '....sSMSSMSs....' },  // slanted \ / brows + full glare eyes + frown
+  sad:       { 5: '..HSSSsESEsSSH..', 6: '..HSSEESSEESSH..', 9: '...SSSSMMSSSS...', 10: '....sSMSSMSs....' },  // raised inner / \ brows + full eyes + frown
+  neutral:   { 5: '..HSSSSSSSSSSH..', 6: '..HSSEESSEESSH..', 9: '...SSSMMMMSSS...', 10: '....sSSSSSSs....' },  // calm eyes + straight flat mouth
+};
+
+// Directional expressions for the right-facing run profile (eyes at cols 8-9 & 12-13).
+const vicRunFaces = {
+  happy:     { 5: '..HHHHSSESSSES..', 6: '..HHHHSESESESE..', 9: '...HHSSSSMMMM...', 10: '....sSSSSMMMs...' },
+  surprised: { 5: '..HHHHSSEESSEE..', 6: '..HHHHSSEESSEE..', 9: '...HHSSSSSMMS...', 10: '....sSSSSMMMs...' },
+  angry:     { 5: '..HHHHSEESSSSE..', 6: '..HHHHSSEESSEE..', 9: '...HHSSSSSMMS...', 10: '....sSSSSMSSMs..' },
+  sad:       { 5: '..HHHHSSSESSES..', 6: '..HHHHSSEESSEE..', 9: '...HHSSSSSMMS...', 10: '....sSSSSMSSMs..' },
+  neutral:   { 5: '..HHHHSSSSSSSS..', 6: '..HHHHSSEESSEE..', 9: '...HHSSSSSMMM...', 10: '....sSSSSSSSSs..' },
 };
 
 // Held up by the shirt (dragged with the mouse): arms shoot up beside the head,
@@ -103,7 +114,9 @@ const vicHeldTop = setPx(vicTop, vicArmsUp).map((row, r) =>
   : row);
 const vicHeld = [
   [...vicHeldTop, '..PPP......PPP..', '.KKK........KKK.'],
+  [...vicHeldTop, '..PPP....PPP....', '..KKK....KKK....'],
   [...vicHeldTop, '....PPP..PPP....', '....KKK.KKK.....'],
+  [...vicHeldTop, '....PPP....PPP..', '....KKK....KKK..'],
 ];
 
 // Vacuuming: both hands out in front at chest height (the far arm is hidden
@@ -114,7 +127,9 @@ const vicVacTop = setPx(vicTop, [
 ]);
 const vicVacuum = [
   [...vicVacTop, '..PPP......PPP..', '.KKK........KKK.'],
+  [...vicVacTop, '...PPP....PPP...', '...KKK....KKK...'],
   [...vicVacTop, '....PPP..PPP....', '....KKK.KKK.....'],
+  [...vicVacTop, '...PPP....PPP...', '...KKK....KKK...'],
 ];
 
 const vicShadeArms = g => shadeRegion(g, [13, 14, 15, 16], [0, 1, 14, 15], [
@@ -122,9 +137,134 @@ const vicShadeArms = g => shadeRegion(g, [13, 14, 15, 16], [0, 1, 14, 15], [
   { base: 'S', hi: 'L', lo: 's' },
 ]);
 
+// Run: 4-frame directional sprint cycle facing RIGHT (mirrored with scaleX(-1) when running left).
+const vicRunTop = [
+  '....HHHHHHH.....',
+  '...HHHHHHHHHH...',
+  '.HHHHhHHHHHHhH..',   // hair trails left in the wind
+  '..HHHHHHHHHHHH..',
+  '..HHHHHHHSSSHH..',
+  '..HHHHSSSSSSSS..',
+  '..HHHHSSEESSEE..',   // eyes shifted right so direction is unmistakable
+  '..HHsSSSSSSSSs..',
+  '...HHSSSSSSSS...',
+  '...HHSSSSSMMM...',   // smile shifted right
+  '....sSSSSMMMs...',
+  '.....sSSSSSs....',
+  '.....WWBSSBWW...',
+  '...BBBBBWBBWBBB.',
+  '..BBBBBBBBBBBBb.',
+  '..BBBBBBBBBBBBb.',
+  '...BBBBBBBBBBb..',
+  '....PPPPPPPPPP..',
+];
+const vicRunStrideA = vicShadeArms([
+  ...setPx(vicRunTop, [
+    [13, 2, 'B'], [14, 1, 'B'], [15, 0, 'S'], [15, 1, 'b'],
+    [13, 13, 'B'], [13, 14, 'S'], [13, 15, 'S'], [14, 13, 'b'], [14, 14, 'S'],
+  ]),
+  '..PPP.......PPP.',
+  '.KK........KKKK.',
+]);
+const vicRunPushA = vicShadeArms([
+  ...setPx(vicRunTop, [
+    [13, 1, 'B'], [14, 0, 'B'], [15, 0, 'S'],
+    [12, 14, 'S'], [13, 13, 'B'], [13, 14, 'B'], [13, 15, 'S'], [14, 13, 'b'],
+  ]),
+  '.PPP........PPP.',
+  '.KK.........KKK.',
+]);
+const vicRunPassA = vicShadeArms([
+  ...setPx(vicRunTop, [
+    [14, 2, 'B'], [15, 2, 'S'],
+    [14, 12, 'b'], [15, 12, 'S'],
+  ]),
+  '.....PPP..PPP...',
+  '.....KKK..KKKK..',
+]);
+const vicRunStrideB = vicShadeArms([
+  ...setPx(vicRunTop, [
+    [13, 1, 'B'], [14, 0, 'B'], [14, 1, 'S'], [15, 0, 'S'],
+    [12, 14, 'S'], [13, 13, 'B'], [13, 14, 'B'], [13, 15, 'S'], [14, 12, 'b'],
+  ]),
+  '..PPP.......PPP.',
+  '..KK.......KKKK.',
+]);
+const vicRunPushB = vicShadeArms([
+  ...setPx(vicRunTop, [
+    [13, 2, 'B'], [14, 1, 'S'], [15, 1, 'S'],
+    [13, 13, 'B'], [14, 13, 'B'], [14, 14, 'S'],
+  ]),
+  '...PPP....PPP...',
+  '...KKK....KKK...',
+]);
+const vicRunPassB = vicShadeArms([
+  ...setPx(vicRunTop, [
+    [14, 2, 'B'], [15, 3, 'S'],
+    [14, 13, 'b'], [15, 13, 'S'],
+  ]),
+  '....PPP...PPP...',
+  '....KKKK..KKK...',
+]);
+
+// Fall & Land: shirt stays tucked down (no belly showing) while arms flail / brace.
+const vicFallBase = vicTop.map((row, r) => (r === 15 ? '..BBBBBBBBBBBB..' : r === 16 ? '..bBBBBBBBBBBb..' : row));
+const vicFall = [
+  vicShadeArms([
+    ...setPx(vicFallBase, [
+      [10, 0, 'S'], [11, 0, 'S'], [12, 1, 'B'], [13, 1, 'B'],
+      [10, 15, 'S'], [11, 15, 'S'], [12, 14, 'B'], [13, 14, 'B'],
+    ]),
+    '..PPP......PPP..',
+    '.KKK........KKK.',
+  ]),
+  vicShadeArms([
+    ...setPx(vicFallBase, [
+      [11, 0, 'S'], [12, 0, 'S'], [12, 1, 'B'], [13, 1, 'B'],
+      [11, 15, 'S'], [12, 15, 'S'], [12, 14, 'B'], [13, 14, 'B'],
+    ]),
+    '...PPP....PPP...',
+    '..KKK......KKK..',
+  ]),
+  vicShadeArms([
+    ...setPx(vicFallBase, [
+      [12, 0, 'S'], [13, 0, 'S'], [13, 1, 'B'], [14, 1, 'B'],
+      [12, 15, 'S'], [13, 15, 'S'], [13, 14, 'B'], [14, 14, 'B'],
+    ]),
+    '....PPP..PPP....',
+    '...KKK....KKK...',
+  ]),
+  vicShadeArms([
+    ...setPx(vicFallBase, [
+      [11, 0, 'S'], [12, 0, 'S'], [13, 1, 'B'], [14, 1, 'B'],
+      [11, 15, 'S'], [12, 15, 'S'], [13, 14, 'B'], [14, 14, 'B'],
+    ]),
+    '..PPP......PPP..',
+    '..KKK......KKK..',
+  ]),
+];
+const vicLandA = vicShadeArms([
+  ...setPx(vicFallBase, [
+    [14, 0, 'B'], [15, 0, 'S'], [15, 1, 'S'],
+    [14, 15, 'B'], [15, 15, 'S'], [15, 14, 'S'],
+  ]),
+  '..PPP......PPP..',
+  '..KKK......KKK..',
+]);
+const vicLandDeep = vicShadeArms([
+  ...setPx(vicFallBase, [
+    [14, 0, 'B'], [15, 0, 'S'], [16, 0, 'S'],
+    [14, 15, 'B'], [15, 15, 'S'], [16, 15, 'S'],
+  ]),
+  '.PPPP......PPPP.',
+  '.KKK........KKK.',
+]);
+const vicLand = [vicLandA, vicLandDeep, vicLandA];
+
 export const vic = {
   palette: vicPalette,
   faces: vicFaces,
+  runFaces: vicRunFaces,
   faceCols: [2, 13],
   blinkChar: 's',            // eyes → skin-shade line while blinking
   stand: vicStand,
@@ -132,17 +272,23 @@ export const vic = {
   poses: {
     wave: vicWave,
     held: vicHeld,
-    fall: vicHeld[0],
+    fall: vicFall,
+    land: vicLand,
     vacuum: vicVacuum,
     laptop: [
       vicShadeArms(setPx(vicStand, [[14, 1, 'S'], [15, 1, 'B'], [14, 14, 'B'], [15, 14, 'S']])),
+      vicShadeArms(setPx(vicStand, [[14, 1, 'B'], [15, 1, 'S'], [14, 14, 'B'], [15, 14, 'S']])),
       vicShadeArms(setPx(vicStand, [[14, 1, 'B'], [15, 1, 'S'], [14, 14, 'S'], [15, 14, 'B']])),
+      vicShadeArms(setPx(vicStand, [[14, 1, 'S'], [15, 1, 'B'], [14, 14, 'S'], [15, 14, 'B']])),
     ],
   },  // array of frames = animated pose
   walk: [
     [...vicTop, '..PPP......PPP..', '.KKK........KKK.'],
+    vicStand,
     [...vicTop, '....PPP..PPP....', '....KKK.KKK.....'],
+    vicStand,
   ],
+  run: [vicRunStrideA, vicRunPushA, vicRunPassA, vicRunStrideB, vicRunPushB, vicRunPassB],
 };
 
 /* ---- Claude: drawn by hand in claude-sprite.txt -------------------------- */
@@ -201,25 +347,62 @@ const claudeFaces = {
   neutral:   {},
 };
 
+// Directional expressions for Claude's right-facing scuttle/run (eyes shifted right).
+const claudeRunFaces = {
+  happy:     { 2: '..OOOEOOOOEO..', 3: 'OOOOEOEOOEOEOO' },
+  surprised: { 2: '..OOOEEOOEEO..', 3: 'OOOOOEEOOEEOOO' },
+  angry:     { 2: '..OOOOEOOEOO..', 3: 'OOOOOOEOOOEOOO' },
+  sad:       { 2: '..OOOOOOOOOO..', 3: 'OOOOOEOOOOEOOO' },
+  neutral:   {},
+};
+
+const claudeWalkA = claudeFrames.walk || claudeStand;
+const claudeWalkB = claudeFrames.walk2 || claudeStand;
+const claudeStepMid = claudeFrames.walk
+  ? setPx(claudeStand, [[8, 3, '.'], [8, 8, '.']])
+  : claudeStand;
+const claudeStepMidB = claudeFrames.walk
+  ? setPx(claudeStand, [[8, 5, '.'], [8, 10, '.']])
+  : claudeStand;
+const claudeType1 = claudeShadeArms(claudeFrames.type1 || claudeStand);
+const claudeType2 = claudeShadeArms(claudeFrames.type2 || claudeStand);
+const claudeTypeBoth = claudeShadeArms(setPx(claudeFrames.type1 || claudeStand, [[4, 12, 'O'], [4, 13, 'O']]));
+const claudeNap = claudeFrames.nap || claudeStand;
+const claudeNapDeep = claudeFrames.nap
+  ? setPx(claudeNap, [[8, 3, '.'], [8, 10, '.']])
+  : claudeNap;
+const claudeLandA = claudeFrames.walk
+  ? setPx(claudeStand, [[8, 2, 'O'], [8, 3, '.'], [8, 10, '.'], [8, 11, 'O']])
+  : claudeStand;
+const claudeLandDeep = claudeFrames.walk
+  ? setPx(claudeStand, [[7, 2, 'O'], [7, 3, '.'], [7, 10, '.'], [7, 11, 'O'], [8, 2, 'O'], [8, 3, '.'], [8, 10, '.'], [8, 11, 'O']])
+  : claudeStand;
+const claudeRunA = claudeShadeArms(setPx(claudeWalkA, [[2, 4, 'O'], [2, 5, 'E'], [2, 9, 'O'], [2, 10, 'E'], [3, 4, 'O'], [3, 5, 'E'], [3, 9, 'O'], [3, 10, 'E']]));
+const claudeRunB = claudeShadeArms(setPx(claudeWalkB, [[2, 4, 'O'], [2, 5, 'E'], [2, 9, 'O'], [2, 10, 'E'], [3, 4, 'O'], [3, 5, 'E'], [3, 9, 'O'], [3, 10, 'E']]));
+const claudeRunPassA = setPx(claudeRunA, [[8, 3, '.'], [8, 8, '.']]);
+const claudeRunPassB = setPx(claudeRunB, [[8, 5, '.'], [8, 10, '.']]);
+
 export const claude = {
   palette: claudePalette,
   faces: claudeFaces,
+  runFaces: claudeRunFaces,
   faceCols: [2, 11],
   blinkChar: 'o',
   stand: claudeStand,
   poses: {
-    nap: claudeFrames.nap || claudeStand,
+    nap: [claudeNap, claudeNapDeep, claudeNap],
     // typing: eyes on the laptop, arms tapping in turn
-    laptop: [claudeShadeArms(claudeFrames.type1 || claudeStand), claudeShadeArms(claudeFrames.type2 || claudeStand)],
+    laptop: [claudeType1, claudeTypeBoth, claudeType2, claudeTypeBoth],
     // dragged with the mouse: legs kick in turn
-    held: [claudeFrames.walk || claudeStand, claudeFrames.walk2 || claudeStand],
+    held: [claudeWalkA, claudeStepMid, claudeWalkB, claudeStepMidB],
     // used as a vacuum by June Vic: legs kick the same way
-    vacuum: [claudeFrames.walk || claudeStand, claudeFrames.walk2 || claudeStand],
-    fall: claudeFrames.walk || claudeStand,
+    vacuum: [claudeWalkA, claudeStepMid, claudeWalkB, claudeStepMidB],
+    fall: [claudeWalkA, claudeStepMid, claudeWalkB, claudeStepMidB],
+    land: [claudeLandA, claudeLandDeep, claudeStand],
   },
-  // Legs don't animate: Claude uses the standing pose while walking/running.
-  // (The [walk]/[walk2] frames in claude-sprite.txt are kept; put them back here to re-enable.)
-  walk: [claudeStand],
+  // Walk animates subtly; scuttling/running looks forward-right and kicks legs in turn.
+  walk: [claudeStand, claudeWalkA, claudeWalkB],
+  run: [claudeRunA, claudeRunPassA, claudeRunB, claudeRunPassB],
 };
 
 /* ---- Laptop prop, front view (used by the Bug Attack game; the buddies use laptopSide below) ------------------------------ */
@@ -279,6 +462,11 @@ export const laptop = {
     W: '#dbe7ff', C: '#5cf2c8',
     K: '#c3c9d6', k: '#6f7789', T: '#a3aabb', M: '#5a6170',   // deck · keys · trackpad · front edge
   },
+  claudePalette: {
+    G: '#2b130a', D: '#120a07', P: '#ff8a4c', B: '#ffd8bf', Y: '#f7d44a',
+    W: '#fff4ec', C: '#ff8a4c',
+    K: '#ffd8bf', k: '#b85c3e', T: '#ee9a78', M: '#7a3119',
+  },
   opening: [closed, half],
   typing: typingFrames(),
 };
@@ -290,22 +478,23 @@ export const emotes = {
   anger: { palette: { R: '#e5484d' }, grid: ['RR.RR', 'R...R', '.....', 'R...R', 'RR.RR'] },
   sweat: { palette: { B: '#7cc8ff', W: '#ffffff' }, grid: ['..B..', '.BBB.', 'BBWBB', 'BBBBB', '.BBB.'] },
   note: { palette: { P: '#a78bfa' }, grid: ['..PPP', '..P.P', '..P.P', 'PPP.P', 'PPP..'] },
-  dots: { palette: { K: '#6f7789' }, grid: ['K.K.K'] },
-  zz: { palette: { B: '#5b8def' }, grid: ['BBBB', '..B.', '.B..', 'BBBB'] },
-  sparkle: { palette: { Y: '#f7d44a' }, grid: ['..Y..', '..Y..', 'YYYYY', '..Y..', '..Y..'] },
-};
-
-/* ---- Heart ---------------------------------------------------------------- */
-export const heart = {
-  palette: { R: '#ff5c8a', r: '#d63a68', w: '#ffd0dd' },
-  grid: [
-    '.RR.RR.',
-    'RwRRRRR',
-    'RRRRRRR',
-    '.RRRRr.',
-    '..RRr..',
-    '...r...',
-  ],
+  dots: { palette: { K: '#6f7789' }, grid: ['K.K.K'], frames: [['K....'], ['K.K..'], ['K.K.K']] },
+  zz: {
+    palette: { B: '#5b8def' },
+    grid: ['BBBB', '..B.', '.B..', 'BBBB'],
+    frames: [
+      ['BBBB.', '..B..', '.B...', 'BBBB.', '.....'],
+      ['.BBBB', '...B.', '..B..', '.BBBB', '.....'],
+    ],
+  },
+  sparkle: {
+    palette: { Y: '#f7d44a', W: '#fff6b3' },
+    grid: ['..Y..', '..Y..', 'YYYYY', '..Y..', '..Y..'],
+    frames: [
+      ['..Y..', '..Y..', 'YYWYY', '..Y..', '..Y..'],
+      ['..W..', '.YYY.', 'WYYYW', '.YYY.', '..W..'],
+    ],
+  },
 };
 
 /* ---- World icons (hero card placeholders) -------------------------------- */
@@ -352,14 +541,28 @@ export const worldIcons = {
 };
 
 /* ---- Bug Attack only: fighting poses + Super Saiyan June Vic ---------------- */
-// side kick: the front leg shoots out at hip height (the other leg plants)
-const vicKick = [...vicTop.slice(0, 17), '...PPPPPPPPPPPPK', '...PPP..........', '...KKK..........'];
-// golden, spikier hair
-const ssjTop = vicTop.map((r, i) => (i === 0 ? '..H.HH.HH.HH.H..' : i === 1 ? '..HHHHHHHHHHHH..' : r));
+// high side kick: torso leans back-left, trailing arm pulls back, kicking boot drives up-right
+const vicKickBody = [
+  '...WWBSSBWW.....',
+  '.BBBBBWBBWBBBSS.',
+  'SSBBBBBBBBBBSS..',
+  '.bBBBBBBb..PPPKK',
+  '..BBBBPPPPPPPKKK',
+  '...PPPPPPP......',
+  '..PPPP..........',
+  '.KKK............',
+];
+const vicKick = vicShadeArms([...vicTop.slice(0, 12), ...vicKickBody]);
+// golden, spiky Dragon-Ball style hair (3 clean triangle tufts centered on the head)
+const SSJ_HAIR = [
+  '...h...hh...h...',
+  '..HHh.HHHH.hHH..',
+];
+const ssjTop = vicTop.map((r, i) => (i < SSJ_HAIR.length ? SSJ_HAIR[i] : r));
 export const vicFight = {
   kick: vicKick,
   ssj: [...ssjTop, ...vicLegs],
-  ssjKick: [...ssjTop.slice(0, 17), '...PPPPPPPPPPPPK', '...PPP..........', '...KKK..........'],
+  ssjKick: vicShadeArms([...ssjTop.slice(0, 12), ...vicKickBody]),
   ssjPalette: { ...vicPalette, H: '#f7c52b', h: '#fff3a0' },
 };
 
@@ -433,6 +636,13 @@ const vicCostumesRaw = [
     palette: vicFight.ssjPalette,
     spikyHair: true,
   },
+  {
+    id: 'armor',
+    label: 'Bug Attack Armour',
+    quip: 'Ready for a production incident.',
+    palette: vicPalette,
+    armor: true,
+  },
 ];
 
 const claudeCostumesRaw = [
@@ -474,13 +684,19 @@ const claudeCostumesRaw = [
     palette: claudePalette,
     hat: 'partyHat',
   },
+  {
+    id: 'armor',
+    label: 'Bug Attack Armour',
+    quip: 'Helmet on. Zero warnings.',
+    palette: claudePalette,
+    armor: true,
+  },
 ];
 
 /* ---- Laptop prop (beside whoever is typing, SIDE view, shaded) ------------ */
 // Side view with flat pixel shading: highlighted key tops, a mid-tone front, a shaded underside and a
-// floor shadow; the lid is tilted back with a dark screen panel, a light shell and a shaded back, and
-// glows mint toward the typist while little code dots float up.
-// W highlight, K light, k mid, m shade, b outline, D screen, C glow, c soft glow, z floor shadow
+// floor shadow; the lid is tilted back with a dark screen panel, a light shell and a shaded back.
+// W highlight, K light, k mid, m shade, b outline, D screen, C code dot, z floor shadow
 // P pressed key, H/L/h hand (base / highlight / shade, set per buddy)
 const LP_W = 14, LP_H = 12;
 function laptopFrames() {
@@ -497,10 +713,9 @@ function laptopFrames() {
     for (let c = 2; c <= 12; c++) g[11][c] = 'z';   // shadow on the floor
     for (let r = 0; r <= 6; r++) {                  // lid, leaning back
       const L = 9 + Math.floor((6 - r) / 3);
-      g[r][L] = r === 0 ? 'C' : 'D';              // screen panel (bright at the top edge)
-      g[r][L + 1] = r === 0 ? 'W' : 'K';          // shell, highlighted at the corner
-      g[r][L + 2] = 'm';                          // shaded back
-      if (r < 6 && (r + i) % 3 !== 0) g[r][L - 1] = 'c';   // screen light spilling toward the typist, flickering
+      g[r][L] = 'D';                                // dark screen panel (no green/blue glow)
+      g[r][L + 1] = r === 0 ? 'W' : 'K';            // shell, highlighted at the corner
+      g[r][L + 2] = 'm';                            // shaded back
     }
     // code dots floating up from the screen
     const dot = (r, c) => { if (g[r]?.[c] === '.') g[r][c] = 'C'; };
@@ -521,9 +736,14 @@ function laptopFrames() {
 }
 export const laptopSide = {
   palette: {
-    b: '#0d1226', W: '#ffffff', K: '#e8ecf5', k: '#aab6d3', m: '#7f8db0', D: '#1c2030',
-    C: '#5cf2c8', c: 'rgba(92, 242, 200, 0.35)', z: 'rgba(13, 18, 38, 0.32)', P: '#5cf2c8',
+    b: '#18181b', W: '#ffffff', K: '#e4e4e7', k: '#a1a1aa', m: '#71717a', D: '#1c2030',
+    C: '#e4e4e7', z: 'rgba(13, 18, 38, 0.32)', P: '#a1a1aa',
     H: '#c98d64', L: '#e3ad85', h: '#a5694a',
+  },
+  claudePalette: {
+    b: '#2b130a', W: '#fff4ec', K: '#ffd8bf', k: '#ee9a78', m: '#b85c3e', D: '#1e120d',
+    C: '#ff8a4c', z: 'rgba(43, 19, 10, 0.32)', P: '#ff8a4c',
+    H: '#D77757', L: '#EE9A78', h: '#B85C3E',
   },
   width: LP_W,
   frames: laptopFrames(),

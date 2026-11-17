@@ -101,7 +101,7 @@ export default function SkillKeys({ scrollPose = false }) {
   const used = current ? current.projects.map(s => projectBySlug[s]?.title).filter(Boolean) : [];
 
   return (
-    <div ref={rootRef} className={`skillkeys${playing ? ' skillkeys--intro' : ''}`}>
+    <div ref={rootRef} className={`skillkeys${playing ? ' skillkeys--intro' : ''}`} data-no-sfx="true">
       <p className="skillkeys__hint">Hint: press a key</p>
       <div className="skillkeys__stage">
         <div className="skillkeys__rig" ref={rigRef}>
@@ -125,7 +125,6 @@ export default function SkillKeys({ scrollPose = false }) {
                   aria-label={label}
                   aria-pressed={shown && active === sk.letter}
                   onClick={() => summon(sk.letter)}
-                  onMouseEnter={() => keySound('tick')}
                 >
                   <span className="key__left" aria-hidden="true" />
                   <span className="key__front" aria-hidden="true" />

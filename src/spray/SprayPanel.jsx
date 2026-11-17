@@ -50,6 +50,7 @@ function ChipGroup({ label, options, value, onChange, disabled, renderExtra }) {
             type="button"
             className={`spray-chip${value === o.id ? ' is-active' : ''}`}
             aria-pressed={value === o.id}
+            data-uisfx="select"
             onClick={() => onChange(o.id)}
           >
             {renderExtra?.(o)}
@@ -89,6 +90,7 @@ export default function SprayPanel({ id, onClose }) {
           aria-checked={enabled}
           aria-labelledby={`${id}-switch-label`}
           className={`spray-switch${enabled ? ' is-on' : ''}`}
+          data-uisfx={enabled ? 'toggle-off' : 'toggle-on'}
           onClick={() => setEnabled(v => !v)}
         >
           <span className="spray-switch__track" aria-hidden="true"><span className="spray-switch__knob" /></span>
@@ -128,6 +130,7 @@ export default function SprayPanel({ id, onClose }) {
             aria-checked={touchMode}
             aria-labelledby={`${id}-touch-label`}
             className={`spray-switch${touchMode ? ' is-on' : ''}`}
+            data-uisfx={touchMode ? 'toggle-off' : 'toggle-on'}
             onClick={() => setTouchMode(v => !v)}
             disabled={!enabled}
           >
@@ -138,11 +141,11 @@ export default function SprayPanel({ id, onClose }) {
       )}
 
       <div className="spray-panel__row spray-panel__row--foot">
-        <button type="button" className="pixel-btn pixel-btn--outline pixel-btn--sm" onClick={() => { clear(); setCleared(true); }}>
+        <button type="button" className="pixel-btn pixel-btn--outline pixel-btn--sm" data-uisfx="delete" onClick={() => { clear(); setCleared(true); }}>
           Clear the screen
         </button>
         <span className="spray-panel__status" role="status">{cleared ? 'Cleared' : ''}</span>
-        <button type="button" className="pixel-btn pixel-btn--ghost pixel-btn--sm" onClick={onClose}>
+        <button type="button" className="pixel-btn pixel-btn--ghost pixel-btn--sm" data-uisfx="close" onClick={onClose}>
           Close
         </button>
       </div>

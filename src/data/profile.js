@@ -10,7 +10,7 @@ export const profile = {
     display: 'June Vic Abello',
   },
   initials: 'JVA',
-  role: 'AI & Web Developer',
+  role: 'Web Developer',
   roleParts: [
     { text: 'AI', world: 'code' },
     { text: ' / ' },

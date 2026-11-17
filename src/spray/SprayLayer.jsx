@@ -217,12 +217,13 @@ function SprayHint({ dismissNow }) {
 
   if (!show) return null;
   return (
-    <div className="spray-hint" role="status" data-no-spray="true">
+    <div className="spray-hint" role="status" data-no-spray="true" data-uisfx-pack="arcade">
       <span className="spray-hint__icon" aria-hidden="true">■</span>
       <p className="spray-hint__text">Tip: press and hold anywhere empty to spray paint <span aria-hidden="true">🎨</span></p>
       <button
         type="button"
         className="spray-hint__close"
+        data-uisfx="close"
         onClick={() => { remember(); setShow(false); }}
         aria-label="Dismiss spray paint tip"
       >

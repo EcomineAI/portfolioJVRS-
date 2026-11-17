@@ -40,4 +40,5 @@ desktop.ini
 *.sw?
 
 # Local AI-assistant settings
-.claude/settings.local.json
+.claude/
+graphify-out/

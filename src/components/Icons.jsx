@@ -40,3 +40,19 @@ export const PlusIcon = props => (
 export const DownloadIcon = props => (
   <svg viewBox="0 0 24 24" {...stroke} strokeWidth="2.5" {...props}><path d="M12 3v12" /><polyline points="6 10 12 16 18 10" /><path d="M4 20h16" /></svg>
 );
+
+export const VolumeOnIcon = props => (
+  <svg viewBox="0 0 24 24" {...stroke} strokeWidth="2" {...props}>
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+    <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+    <path d="M18.5 5.5a9 9 0 0 1 0 13" />
+  </svg>
+);
+
+export const VolumeOffIcon = props => (
+  <svg viewBox="0 0 24 24" {...stroke} strokeWidth="2" {...props}>
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+    <line x1="22" y1="9" x2="16" y2="15" />
+    <line x1="16" y1="9" x2="22" y2="15" />
+  </svg>
+);

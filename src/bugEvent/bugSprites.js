@@ -30,18 +30,28 @@ const BODY = [
 const LEGS = {
   stand: ['....LL.LL', '....LL.LL', '...LL...LL', '...LL...LL', '..LLL...LLL', '.KKK.....KKK', ''],
   bend: ['....LL.LL', '...LL...LL', '...LL...LL', '..LL.....LL', '..LL.....LL', '.KKK.....KKK', ''],
+  wide: ['....LL.LL', '...LL...LL', '..LL.....LL', '.LL.......LL', '.LLL.....LLL', 'KKK.......KKK', ''],
   stepA: ['....LL.LL', '...LL...LL', '..LL.....LL', '..L.......LL', '.LL........L', 'KKK.......KKK', ''],
+  passA: ['....LL.LL', '....LL.LL', '...LL..LL', '...LL..L.', '..LLL..KKK', '.KKK......', ''],
   stepB: ['....LL.LL', '....LL.LL', '....LL.LL', '....LL.LL', '...LLL.LLL', '..KKK...KKK', ''],
+  passB: ['....LL.LL', '....LL.LL', '...LL..LL', '....L..LL', '..KKK..LLL', '......KKK.', ''],
 };
 const build = (head, body, legs) => [...head, ...body, ...legs].map(row);
+const shiftHead = (head, dx) => head.map(r => (dx > 0 ? '.'.repeat(dx) + r : dx < 0 ? r.slice(-dx) : r));
+const headBright = HEAD.map(r => r.replaceAll('E', 'e'));
 
 const bodyWind = BODY.map((r, i) => (i === 0 ? '..SBBBBBBBSAC' : i === 1 ? '.ABBXBBBXBBA' : i >= 2 && i <= 4 ? r.slice(0, -1) + 'B' : r));
+const bodyWindDeep = BODY.map((r, i) => (i === 0 ? 'C.SBBBBBBBS..' : i === 1 ? 'A.BBXBBBXBB..' : i >= 2 && i <= 4 ? '.' + r.slice(1, -1) + 'B' : r));
 const bodyPunch = BODY.map((r, i) => (i === 1 ? '.ABBXBBBXBBAAAAC' : i === 2 ? '.ABBBBBBBBBAAAAC' : i >= 3 && i <= 4 ? r.slice(0, -1) + 'B' : r));
+const bodyPunchMax = BODY.map((r, i) => (i === 1 ? '.ABBXBBBXBBAAAAAC' : i === 2 ? '.ABBBBBBBBBAAAAAC' : i >= 3 && i <= 4 ? r.slice(0, -1) + 'B' : r));
+const bodyPunchFollow = BODY.map((r, i) => (i === 1 ? '.ABBXBBBXBBAAAC.' : i === 2 ? '.ABBBBBBBBBAAAC.' : i >= 3 && i <= 4 ? r.slice(0, -1) + 'B' : r));
 // arms crossed over the chest (watching from the side)
 const bodyWatch = ['..SBBBBBBBS', '..BBXBBBXBB', '.BAAAAAAAAAB', '.BCAAAAAAACB', '..BBBXBXBBB', '..BBBBBBBBB', '...BbBBBbB', '...BBBBBBB'];
 // uppercut: the front arm goes straight up
 const bodyUpper = BODY.map((r, i) => (i === 0 ? '..SBBBBBBBSA' : i === 1 ? '.ABBXBBBXBBA' : i >= 2 && i <= 4 ? r.slice(0, -1) + 'B' : r));
 const headUpper = HEAD.map((r, i) => (i === 7 ? '...FHHHHHF.C' : i === 8 ? '...F.....F.A' : r));
+const headUpperHigh = HEAD.map((r, i) => (i === 5 ? `${r}.C` : i === 6 ? `${r}.A` : i === 7 ? '...FHHHHHF.A' : r));
+const headUpperPeak = HEAD.map((r, i) => (i === 3 ? `${r}.C` : i === 4 ? `${r}.A` : i === 5 ? `${r}.A` : r));
 const headBite = [
   '.....S.....S',
   '......S...S.',
@@ -53,32 +63,126 @@ const headBite = [
   '.....FHMMMMMMF',
   '....FF.MMMM.FF',
 ];
+const headBiteSnap = [
+  '.....S.....S',
+  '......S...S.',
+  '.....HHHHHHH',
+  '....HHHHHHHHH',
+  '....HEEHHHEEH',
+  '....HEeHHHEeH',
+  '....HHHHHHHHHF',
+  '.....FFMMMMFF.',
+  '..............',
+];
 const headHurt = HEAD.map(r => r.replaceAll('e', 'E'));
 
-// v6.2 moves: kick (leg out), charge (leaning in, head down), block (arms crossed high),
-// slam (both fists overhead), hold (one arm straight up, gripping)
+// v6.2 moves (5 frames each): kick, charge, block, slam, hold, plus 5-frame idle/walk/attack cycles
+const legsKickChamber = ['....LL.LLL', '....LL.LLK', '...LL..LL', '...LL', '..LLL', '.KKK', ''];
 const legsKick = ['....LL.LLLLLLLLK', '....LL.LLLLLLLLK', '...LL', '...LL', '..LLL', '.KKK', ''];
+const legsKickHigh = ['....LL.LLLLLLLLKK', '....LL.LLLLLL....', '...LL', '...LL', '..LLL', '.KKK', ''];
 const headCharge = HEAD.map(r => '..' + r);
 const bodyCharge = BODY.map((r, i) => (i < 3 ? '.' + r : r));
 const bodyBlock = ['..SBBBBBBBS', '.CAAAAAAAAAC', '.BAAAAAAAAAB', '.ABbBBBBBbBA', '..BBBXBXBBB', '..BBBBBBBBB', '...BbBBBbB', '...BBBBBBB'];
+const bodyBlockBrace = ['..SBBBBBBBS', '..CAAAAAAAAAC', '..BAAAAAAAAAB', '.ABbBBBBBbBA', '..BBBXBXBBB', '..BBBBBBBBB', '...BbBBBbB', '...BBBBBBB'];
 const headSlam = HEAD.map((r, i) => (i === 0 ? 'C..S.....S..C' : i === 1 ? 'A...S...S...A' : i === 2 ? 'A..HHHHHHH..A' : i === 3 ? 'A.HHHHHHHHH.A' : r));
+const headSlamPeak = HEAD.map((r, i) => (i === 0 ? 'CC.S.....S.CC' : i === 1 ? 'A...S...S...A' : i === 2 ? 'A..HHHHHHH..A' : r));
 const bodySlam = BODY.map((r, i) => (i === 0 ? 'A.SBBBBBBBS.A' : i === 1 ? '.ABBXBBBXBBA' : i >= 2 && i <= 4 ? '.' + r.slice(1, -1) + 'B' : r));
+const bodySlamDown = ['..SBBBBBBBS', '.BBBXBBBXBB', '.BBBBBBBBBB', '.ABbBBBBBbBA', 'ABBBXBXBBBBA', 'C.BBBBBBBBB.C', 'C..BbBBBbB..C', '.C.BBBBBBB.C.'];
 const headHold = HEAD.map((r, i) => (i === 0 ? '...S.....S.CC' : i === 1 ? '....S...S..CC' : i === 2 ? '...HHHHHHH.A' : i === 3 ? '..HHHHHHHHHA' : i >= 4 && i <= 8 ? r.padEnd(11, '.') + 'A' : r));
+const headHoldTight = HEAD.map((r, i) => (i === 0 ? '...S.....SCC.' : i === 1 ? '....S...S.CC.' : i === 2 ? '...HHHHHHH.A' : i === 3 ? '..HHHHHHHHHA' : i >= 4 && i <= 8 ? r.padEnd(11, '.') + 'A' : r));
 
 export const BUG_POSES = {
-  kick: [build(HEAD, BODY, legsKick)],
-  charge: [build(headCharge, bodyCharge, LEGS.stepA)],
-  block: [build(HEAD, bodyBlock, LEGS.bend)],
-  slam: [build(headSlam, bodySlam, LEGS.bend)],
-  hold: [build(headHold, bodyUpper, LEGS.stand)],
-  idle: [build(HEAD, BODY, LEGS.stand), build(HEAD, BODY, LEGS.bend)],
-  walk: [build(HEAD, BODY, LEGS.stepA), build(HEAD, BODY, LEGS.stepB)],
-  wind: [build(HEAD, bodyWind, LEGS.bend)],
-  punch: [build(HEAD, bodyPunch, LEGS.stepA)],
-  uppercut: [build(headUpper, bodyUpper, LEGS.stepB)],
-  bite: [build(headBite, BODY, LEGS.stepA)],
-  hurt: [build(headHurt, BODY, LEGS.bend)],
-  watch: [build(HEAD, bodyWatch, LEGS.stand)],
+  kick: [
+    build(HEAD, BODY, legsKickChamber),
+    build(shiftHead(HEAD, -1), BODY, legsKick),
+    build(shiftHead(HEAD, -1), BODY, legsKickHigh),
+    build(shiftHead(HEAD, -1), BODY, legsKick),
+    build(HEAD, BODY, legsKickChamber),
+  ],
+  charge: [
+    build(headCharge, bodyCharge, LEGS.stepA),
+    build(headCharge, bodyCharge, LEGS.passA),
+    build(shiftHead(headCharge, 1), bodyCharge, LEGS.stepB),
+    build(headCharge, bodyCharge, LEGS.passB),
+    build(headCharge, bodyCharge, LEGS.stepA),
+  ],
+  block: [
+    build(HEAD, BODY, LEGS.bend),
+    build(HEAD, bodyBlock, LEGS.bend),
+    build(HEAD, bodyBlockBrace, LEGS.wide),
+    build(shiftHead(HEAD, -1), bodyBlockBrace, LEGS.wide),
+    build(HEAD, bodyBlock, LEGS.bend),
+  ],
+  slam: [
+    build(HEAD, BODY, LEGS.stand),
+    build(headSlam, bodySlam, LEGS.stand),
+    build(headSlamPeak, bodySlam, LEGS.wide),
+    build(shiftHead(HEAD, 1), bodySlamDown, LEGS.wide),
+    build(HEAD, bodySlamDown, LEGS.bend),
+  ],
+  hold: [
+    build(HEAD, bodyUpper, LEGS.stand),
+    build(headHold, bodyUpper, LEGS.stand),
+    build(headHoldTight, bodyUpper, LEGS.bend),
+    build(headHold, bodyUpper, LEGS.bend),
+    build(headHoldTight, bodyUpper, LEGS.stand),
+  ],
+  idle: [
+    build(HEAD, BODY, LEGS.stand),
+    build(HEAD, BODY, LEGS.bend),
+    build(headBright, BODY, LEGS.bend),
+    build(HEAD, BODY, LEGS.bend),
+    build(HEAD, BODY, LEGS.stand),
+  ],
+  walk: [
+    build(HEAD, BODY, LEGS.stepA),
+    build(HEAD, BODY, LEGS.passA),
+    build(HEAD, BODY, LEGS.stand),
+    build(HEAD, BODY, LEGS.stepB),
+    build(HEAD, BODY, LEGS.passB),
+  ],
+  wind: [
+    build(HEAD, BODY, LEGS.bend),
+    build(shiftHead(HEAD, -1), bodyWind, LEGS.bend),
+    build(shiftHead(HEAD, -1), bodyWindDeep, LEGS.wide),
+    build(shiftHead(headBright, -1), bodyWindDeep, LEGS.wide),
+    build(HEAD, bodyWind, LEGS.bend),
+  ],
+  punch: [
+    build(HEAD, bodyWind, LEGS.bend),
+    build(shiftHead(HEAD, 1), bodyPunchMax, LEGS.stepA),
+    build(shiftHead(HEAD, 1), bodyPunch, LEGS.stepA),
+    build(HEAD, bodyPunchFollow, LEGS.bend),
+    build(HEAD, bodyPunchFollow, LEGS.stand),
+  ],
+  uppercut: [
+    build(HEAD, bodyWind, LEGS.wide),
+    build(headUpper, bodyUpper, LEGS.bend),
+    build(headUpperHigh, bodyUpper, LEGS.stepB),
+    build(headUpperPeak, bodyUpper, LEGS.stepB),
+    build(headUpper, bodyUpper, LEGS.stand),
+  ],
+  bite: [
+    build(HEAD, BODY, LEGS.bend),
+    build(headBite, BODY, LEGS.stepA),
+    build(shiftHead(headBite, 1), BODY, LEGS.stepA),
+    build(headBiteSnap, BODY, LEGS.bend),
+    build(headBiteSnap, BODY, LEGS.stand),
+  ],
+  hurt: [
+    build(shiftHead(headHurt, -2), BODY, LEGS.wide),
+    build(shiftHead(headHurt, -1), BODY, LEGS.bend),
+    build(headHurt, BODY, LEGS.bend),
+    build(shiftHead(headHurt, 1), BODY, LEGS.stand),
+    build(headHurt, BODY, LEGS.stand),
+  ],
+  watch: [
+    build(HEAD, bodyWatch, LEGS.stand),
+    build(HEAD, bodyWatch, LEGS.bend),
+    build(shiftHead(HEAD, 1), bodyWatch, LEGS.bend),
+    build(HEAD, bodyWatch, LEGS.bend),
+    build(HEAD, bodyWatch, LEGS.stand),
+  ],
 };
 export const BUG_W = W;
 export const BUG_H = BUG_POSES.idle[0].length;
@@ -94,10 +198,59 @@ const MBODY = [
   '.GgGGGgGGGGgHHM.',
   '..GGGGGGGGGG....',
 ];
-export const MINION_FRAMES = [
-  [...MBODY, '...L.L..L.L..L..', '..L...L...L.L...'],
-  [...MBODY, '..L..L.L...L.L..', '...L...L.L...L..'],
+const mCoil = MBODY.map(r => r.slice(1) + '.');
+const mCoilEye = mCoil.map((r, i) => (i === 3 ? r.replace('W', 'K') : r));
+const mOpen = [
+  '..........K...K.',
+  '...........K.K..',
+  '....GGGGGG.HHHHM',
+  '..GGgGGGgGGHWKHM',
+  '.GGGGGGGGGGHHHH.',
+  '.GgGGGgGGGGgHHMM',
+  '..GGGGGGGGGG....',
 ];
+const mLunge = [
+  '...........K...K',
+  '............K.K.',
+  '.....GGGGGGHHHHM',
+  '...GGgGGGgGHWKHM',
+  '..GGGGGGGGGGHHHM',
+  '..GgGGGgGGGGHHMM',
+  '...GGGGGGGGGG...',
+];
+const mSnap = [
+  '...........K...K',
+  '............K.K.',
+  '.....GGGGGG.HHHH',
+  '...GGgGGGgGGHWKH',
+  '..GGGGGGGGGGHHHM',
+  '..GgGGGgGGGGHHM.',
+  '...GGGGGGGGGG...',
+];
+export const MINION_POSES = {
+  walk: [
+    [...MBODY, '...L.L..L.L..L..', '..L...L...L.L...'],
+    [...MBODY, '...L.L..L.L..L..', '...L...L..L...L.'],
+    [...MBODY, '..LL.L.LL.L..L..', '................'],
+    [...MBODY, '..L..L.L...L.L..', '...L...L.L...L..'],
+    [...MBODY, '..L..L.L...L.L..', '..L....L...L..L.'],
+  ],
+  wind: [
+    [...MBODY, '..L.L..L.L..L...', '.L...L....L..L..'],
+    [...mCoil, '..L.L..L.L..L...', '................'],
+    [...mCoilEye, '.L..L..L.L..L...', '................'],
+    [...mCoil, '..L.L..L.L..L...', '................'],
+    [...MBODY, '..L.L..L.L..L...', '.L...L....L..L..'],
+  ],
+  attack: [
+    [...mCoil, '..L.L..L.L..L...', '................'],
+    [...mOpen, '...L.L..L.L..L..', '..L.......L...L.'],
+    [...mLunge, '....L.L...L.L...', '...L........L..L'],
+    [...mSnap, '....L.L...L.L...', '....L........L..'],
+    [...MBODY, '...L.L..L.L..L..', '..L...L...L.L...'],
+  ],
+};
+export const MINION_FRAMES = MINION_POSES.walk;
 export const MINION_W = 16;
 export const MINION_H = MINION_FRAMES[0].length;
 export const MINION_PALETTE = { G: '#3ddc5a', g: '#1f8a3a', H: '#1a6b2c', W: '#ffffff', K: '#0b1f10', M: '#e8f7a0', L: '#0f3d18' };
@@ -105,50 +258,35 @@ export const MINION_PALETTE = { G: '#3ddc5a', g: '#1f8a3a', H: '#1a6b2c', W: '#f
 export const AMB_PALETTE = { G: '#121a14', g: '#0b110c', H: '#0d150f', W: '#ff3b2a', K: '#ff3b2a', M: '#1c261d', L: '#0b110c' };
 export const ELITE_PALETTE = { ...MINION_PALETTE, G: '#2fbf4d', g: '#14702c', W: '#ff2a2a', K: '#ffd166', M: '#ff4d4d' };
 
-// ---- wings: one half is drawn then mirrored, so both wings match and tuck in behind the torso
-// W highlight · w membrane · V vein · O outline
-const WING_HALF = [
+// ---- Flying Nimbus: golden cloud under Claude while flying ----------------
+// W cream highlight · Y golden nimbus · O warm shadow · o outline/wisp
+export const NIMBUS_FRAMES = [
   [
-    '.OOOOO..........',
-    'OWWWWWOO........',
-    'OWWwwwwwOO......',
-    '.OOOOwwwwwOO....',
-    '.OWWWwwwwVwwOO..',
-    '..OOOOwwwVwwwwO.',
-    '..OWWWwwwVwwwO..',
-    '...OOOOwwVwwO...',
-    '....OWWwwwwO....',
-    '.....OOOOOO.....',
-    '................',
+    '.........oooo..oooo...',
+    '.......ooWWWWooWWWWo..',
+    '.YY...oWWYYYYYYYYYYYo.',
+    'o..YooWYYYYYYYYYYOOOOo',
+    '..ooOOYYYYYYYYYOOOOOo.',
+    '.....ooooooooooooooo..',
   ],
   [
-    '................',
-    '................',
-    '....OOOOOO......',
-    '..OOWWWWWWOO....',
-    '.OWWWWwwwwwwOO..',
-    'OWWWwwwwVwwwwwO.',
-    '.OOOOwwwVwwwwO..',
-    '.OWWWwwwVwwwO...',
-    '..OOOOwwVwwO....',
-    '...OWWwwwwO.....',
-    '....OOOOOO......',
+    '........oooo..oooo....',
+    '..W...ooWWWWooWWWWoo..',
+    '....YoWWYYYYYYYYYYYYo.',
+    '.YYooWWYYYYYYYYYYOOOOo',
+    '...ooOOYYYYYYYYOOOOoo.',
+    '.....ooooooooooooooo..',
+  ],
+  [
+    '.........oooo...oooo..',
+    '.Y.....ooWWWWooWWWWoo.',
+    '...ooooWYYYYYYYYYYYYo.',
+    'Y..ooWWYYYYYYYYYYOOOOo',
+    '..o.ooYYYYYYYYYOOOOOo.',
+    '......oooooooooooooo..',
   ],
 ];
-const mirror = r => r + [...r].reverse().join('');
-export const WINGS = WING_HALF.map(f => f.map(r => mirror(r)));
-export const CLAUDE_WING_PALETTE = {
-  O: '#5c220a',
-  V: '#b84a18',
-  W: '#ffe4bd',
-  w: '#e87b48',
-};
-export const WING_PALETTE = {
-  O: '#0d2a2a',
-  V: '#2fbfa0',
-  W: '#e6fffb',
-  w: 'rgba(178, 245, 234, 0.85)',
-};
+export const NIMBUS_PALETTE = { W: '#fff6b3', Y: '#ffd84d', O: '#e6a325', o: '#8c530b' };
 
 const base = { E: '#ff2a2a', e: '#fff2a8', F: '#f4f4f4', M: '#5a0710', K: '#0b0b10' };
 /** Bosses (one per GitHub repo) + the armies. */
@@ -175,22 +313,83 @@ const VIC_HELMET = [
   '..M..........M..',
 ];
 const VIC_CHEST = [
-  '.PMMMMMMMMMMMMP.',
-  '..MmMMMBBMMMmM..',
+  '.mM..........Mm.',
+  '.PBMMMMMMMMMMBP.',
+  '.mPMmMMBBMMMmPm.',
   '..MMMMMBBMMMMM..',
   '...MMMMMMMMMM...',
 ];
+const VIC_CHEST_HELD = [
+  '.m............m.',
+  '.PBMMMMMMMMMMBP.',
+  '.mPMmMMBBMMMmPm.',
+  '..MMMMMMMMMMMM..',
+  '...MMMMMMMMMM...',
+];
+const VIC_CHEST_KICK = [
+  '.mM........Mm...',
+  '.PBMMMMMMMMBP...',
+  '..mPMMBBMMmP....',
+  '..MMMMBBM.......',
+  '..MMMM..........',
+];
+const VIC_HELMET_RUN = [
+  '....MMMMMMM.....',
+  '...MMmMMMMMMM...',
+  '.MMMMMMMMMMMMM..',
+  '..MMMMMBBBBBBM..',
+  '..MMMM..........',
+  '..MMM...........',
+  '..MM............',
+];
+const VIC_CHEST_RUN = [
+  '..mM........Mm..',
+  '..PBMMMMMMMMBP..',
+  '..mPMmMBBMMMmP..',
+  '...MMMMMBBMMMM..',
+  '....MMMMMMMMM...',
+];
 const CL_HELMET = ['.....MMMM.....', '...MMmMMMMM...', '..MBBBBBBBBM..', '..M........M..'];
+const CL_HELMET_RUN = ['......MMMM....', '....MMmMMMMM..', '...MBBBBBBBBM.', '...M........M.'];
+const CL_CHEST = ['..mM......Mm..', '..PBMMMMMMBP..', '...MmBBBBmM...'];
+const CL_CHEST_RUN = ['..mM......Mm..', '..PBBMMMMMBP..', '...MMmBBBmM...'];
 const crack = (grid, spots) => grid.map((r, y) => [...r].map((ch, x) => (ch !== '.' && spots.some(([sx, sy]) => sx === x && sy === y) ? 'k' : ch)).join(''));
 export const ARMOR_PIECES = {
   vic: [
-    { id: 'helmet', top: 0, frames: [VIC_HELMET, crack(VIC_HELMET, [[5, 1], [6, 2], [10, 2], [7, 0], [11, 3]])] },
-    { id: 'chest', top: 13, frames: [VIC_CHEST, crack(VIC_CHEST, [[4, 1], [11, 2], [7, 3], [9, 0], [5, 2]])] },
+    {
+      id: 'helmet', top: 0,
+      frames: [VIC_HELMET, crack(VIC_HELMET, [[5, 1], [6, 2], [10, 2], [7, 0], [11, 3]])],
+      runFrames: [VIC_HELMET_RUN, crack(VIC_HELMET_RUN, [[4, 1], [5, 2], [9, 2], [7, 0], [4, 4]])],
+    },
+    {
+      id: 'chest', top: 12,
+      frames: [VIC_CHEST, crack(VIC_CHEST, [[2, 1], [4, 2], [11, 3], [7, 4], [13, 1]])],
+      runFrames: [VIC_CHEST_RUN, crack(VIC_CHEST_RUN, [[3, 1], [5, 2], [11, 3], [7, 4], [12, 1]])],
+      heldFrames: [VIC_CHEST_HELD, crack(VIC_CHEST_HELD, [[2, 1], [4, 2], [11, 3], [7, 4], [13, 1]])],
+      kickFrames: [VIC_CHEST_KICK, crack(VIC_CHEST_KICK, [[2, 1], [4, 2], [6, 3], [4, 4], [11, 1]])],
+    },
   ],
   claude: [
-    { id: 'helmet', top: -2, frames: [CL_HELMET, crack(CL_HELMET, [[6, 0], [8, 1], [5, 2], [9, 2]])] },
+    {
+      id: 'helmet', top: -2,
+      frames: [CL_HELMET, crack(CL_HELMET, [[6, 0], [8, 1], [5, 2], [9, 2]])],
+      runFrames: [CL_HELMET_RUN, crack(CL_HELMET_RUN, [[7, 0], [9, 1], [6, 2], [10, 2]])],
+    },
+    {
+      id: 'chest', top: 4,
+      frames: [CL_CHEST, crack(CL_CHEST, [[3, 0], [5, 1], [8, 2], [10, 1]])],
+      runFrames: [CL_CHEST_RUN, crack(CL_CHEST_RUN, [[3, 0], [6, 1], [8, 2], [11, 1]])],
+    },
   ],
 };
+/** Pick the matching armour grid for a buddy's current pose and crack level. */
+export function armorGridFor(piece, { pose, crackLevel = 0 } = {}) {
+  const list = (pose === 'run' && piece.runFrames)
+    || (pose === 'kick' && piece.kickFrames)
+    || (pose === 'held' && piece.heldFrames)
+    || piece.frames;
+  return list[crackLevel] || list[0];
+}
 export const ARMOR_PALETTE = { M: '#c3c9d6', m: '#ffffff', B: '#4c6ef6', P: '#8a93a8', k: '#2a2f3a' };
 
 // ---- Super Saiyan aura: 4 frames of pixel flame (cream core, yellow spikes) -----------

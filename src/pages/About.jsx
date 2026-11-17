@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ActivityPanel from '../activity/ActivityPanel.jsx';
-import { Eyebrow, PixelCard, SectionHeading, Todo } from '../components/ui/index.jsx';
+import { Eyebrow, PixelCard, SectionHeading } from '../components/ui/index.jsx';
 import { profile } from '../data/profile.js';
 import { CASE_STUDY_SLUG, projectBySlug } from '../data/projects.js';
 import { skillGroups, troubleshooting } from '../data/skills.js';
@@ -22,10 +22,15 @@ const facts = [
 
 const journey = [
   { when: '2024', title: 'Started BS Computer Science', text: 'Enrolled at Gordon College, Olongapo City.' },
-  { when: '2024 →', title: 'Local LLM experiments', text: 'Running and prompting open models on my own PC with LM Studio.' },
-  { when: 'Apr–Oct 2026', title: 'Askademic', text: 'Team software engineering project: real-time faculty appointments for the CCS department.', to: '/case-study' },
-  { when: '2026', title: 'GC Assist', text: 'Solo AI campus assistant on a local model with a scraped knowledge base.', to: '/projects/gc-assist' },
-  { when: '2026 →', title: 'JALgorithm thesis', text: 'Chatbot for salon booking and reminders. In progress.', to: '/projects/jalgorithm' },
+  { when: 'Mid 2024', title: 'Linux & cybersecurity basics', text: 'Linux experiments and hands-on practice with basic cybersecurity using Linux.' },
+  { when: '2024 →', title: 'Local LLM experiments', text: 'Running and prompting open models (Qwen, Gemma, Llama) on my own PC with LM Studio.' },
+  { when: 'Jun–Jul 2025', title: 'DOLE SPES (Subic Bay Freeport Zone)', text: 'Completed 20 days as Production Helper in the Assembly Group under the Department of Labor & Employment.' },
+  { when: 'Feb–Nov 2026', title: 'Askademic (Ctrl Alt Elite)', text: 'Project & documentation lead for our team software engineering project: real-time faculty consultation system for Gordon College CCS.', to: '/case-study' },
+  { when: 'May 2026', title: 'GCCCS TechFest Hackathon 2026', text: 'Competed with Team VisioMotus in Team1 Philippines × Gordon College CCS, building blockchain-based sustainability solutions.' },
+  { when: 'Jun–Jul 2026', title: '200-Hour OJT · Columban College, Inc.', text: 'Completed 200 hours of On-the-Job Training at the College of Arts, Sciences, and Education (CASEd).' },
+  { when: '2026', title: 'GC-Assist', text: 'Solo AI-powered conversational information system for Gordon College using a local open-source LLM and RAG over a JSON knowledge base.', to: '/projects/gc-assist' },
+  { when: '2026 →', title: 'JALgorithm research', text: 'Lead developer for an ML salon booking chatbot and stylist dashboard (Makeup and Hair by Trev Luna).', to: '/projects/jalgorithm' },
+  { when: 'Nov 2026', title: 'Certifications & www.junevicabello.site', text: 'Completed Cisco, Fortinet NSE 1, DICT Data Privacy, OpenAI Academy, and Claude Academy certifications and shipped this portfolio.' },
 ];
 
 const usedIn = skill => skill.projects.map(slug => projectBySlug[slug]).filter(Boolean);
@@ -40,12 +45,12 @@ function SkillTile({ skill }) {
       className="skill-tile"
       tabIndex={0}
       style={brand ? { '--brand': brand } : undefined}
-      aria-label={`${skill.name}: used in ${used.length} project${used.length === 1 ? '' : 's'}, ${names}`}
+      aria-label={used.length ? `${skill.name}: used in ${used.length} project${used.length === 1 ? '' : 's'}, ${names}` : `${skill.name}: a tool I use day to day`}
     >
       <PixelLogo src={logoSrc(skill.icon)} size={48} />
       <span className="skill-tile__name">{skill.short || skill.name}</span>
-      <span className="skill-tile__count" aria-hidden="true">×{used.length}</span>
-      <span className="skill-tile__tip" aria-hidden="true">{names}</span>
+      {used.length > 0 && <span className="skill-tile__count" aria-hidden="true">×{used.length}</span>}
+      <span className="skill-tile__tip" aria-hidden="true">{names || 'A tool I use day to day'}</span>
     </li>
   );
 }
@@ -134,7 +139,6 @@ export default function About() {
               {' '}like UI graphics, video and photography.
             </p>
           </div>
-          <Todo>Rewrite this bio in your own voice (the prof requires personalized text).</Todo>
         </div>
 
         <figure className="about-photo pixel-card" data-spray-surface="true">
@@ -185,7 +189,7 @@ export default function About() {
                         const used = usedIn(sk);
                         return (
                           <li key={sk.name} className="also-chip" title={`Used in: ${used.map(p => p.title).join(', ')}`}>
-                            {sk.name}<span className="also-chip__n"> ×{used.length}</span>
+                            {sk.name}{used.length > 0 && <span className="also-chip__n"> ×{used.length}</span>}
                           </li>
                         );
                       })}

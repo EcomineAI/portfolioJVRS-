@@ -26,11 +26,9 @@ We recreate *patterns and tokens*, not their code, copy, images or branding.
 - **Accessibility:** skip-to-content link, visible focus rings (pixel style), semantic landmarks/headings, alt text on all images, buddy menu is a real `<button>` + keyboard-operable menu, canvases `aria-hidden`, `prefers-reduced-motion` disables physics/wandering, contrast checked in both themes, chatbot input labelled.
 - **Consistency:** single token file; every card/button uses the same primitives.
 
-### Publishing (no domain owned yet)
+### Publishing (domain purchased: `www.junevicabello.site`)
 
-**Availability check (RDAP lookup, Nov 9 2026, not registered = likely available):**
-`junevicabello.com` ✅ · `junevicabello.dev` ✅ · `junevicabello.me` ✅ · `jvabello.com` ✅ · `junevic.dev` ✅ · `junevicabello.site` ✅ · `junevicabello.xyz` ✅
-→ **Recommended: `junevicabello.com`** — full name (meets "based on your own name"), most familiar TLD, easy to say aloud. `.dev` is a good second choice for a developer (HTTPS-only, which is fine).
+**Purchased domain:** `www.junevicabello.site` (apex `junevicabello.site`) — full name (meets "based on your own name"). Keep the purchase receipt as proof of a *paid* domain for the prof.
 
 **Where to buy (approx. yearly prices; confirm at checkout, renewals may differ):**
 
@@ -46,11 +44,11 @@ We recreate *patterns and tokens*, not their code, copy, images or branding.
 - If only the domain must be paid → **Vercel Hobby + custom domain** (repo already has `vercel.json`).
 - If hosting must be paid too → Hostinger "Premium Web Hosting" (often bundles a free domain for year 1) or Netlify/Vercel Pro. On Apache hosts add `.htaccess` SPA fallback to `index.html`.
 
-**Step by step (Porkbun + Vercel path):**
-1. Buy `junevicabello.com` on Porkbun; turn on WHOIS privacy and auto-renew; save the receipt (proof of a *paid* domain for the prof).
+**Step by step (Vercel + `www.junevicabello.site`):**
+1. Domain `www.junevicabello.site` purchased; keep WHOIS privacy, auto-renew, and the payment receipt (proof of a *paid* domain for the prof).
 2. In Vercel: import `EcomineAI/portfolioJVRS-` → it auto-detects Vite → deploy.
-3. Vercel → Project → Settings → Domains → add `junevicabello.com` and `www.junevicabello.com` (redirect www → apex).
-4. In Porkbun DNS: `A @ → 76.76.21.21` and `CNAME www → cname.vercel-dns.com` (use the exact values Vercel shows). Delete Porkbun's default parking records.
+3. Vercel → Project → Settings → Domains → add `www.junevicabello.site` and `junevicabello.site` (redirect apex → `www.junevicabello.site` or vice versa).
+4. In registrar DNS: point `www` (`CNAME` → `cname.vercel-dns.com` or the exact value Vercel shows) and apex `@` (`A` → `76.76.21.21`), removing any default parking records.
 5. Wait for DNS (minutes to a few hours); Vercel issues HTTPS automatically.
 6. Verify: open on desktop + a phone on mobile data, test deep links (`/projects`, `/case-study`) load directly, test the contact links.
 7. Put the URL in the GitHub repo "About" field and in the résumé.
@@ -83,7 +81,7 @@ We recreate *patterns and tokens*, not their code, copy, images or branding.
 |---|---|
 | SE project | **Askademic** (repo `CAE-G-CAS`, formerly G-CAS → FACS) |
 | Slide deck, team roles, screenshots, lessons learned | **Template placeholders for now** — render visible `TODO` blocks, fill later |
-| Hosting | **Free Vercel (`*.vercel.app`) for now**; custom domain later |
+| Hosting | **Vercel + paid custom domain (`https://www.junevicabello.site`)** |
 | Pixel avatar source | `public/jv.png` |
 | TryHackMe | **Template slot for now** (no account data yet) |
 | Askademic admin bypass | Not now |
@@ -112,14 +110,18 @@ We recreate *patterns and tokens*, not their code, copy, images or branding.
 
 | Area | Skills (count = projects that use it) |
 |---|---|
-| Frontend | React (4), Vite (4), React Router (3), vanilla CSS theming / dark mode (3), framer-motion (2), Tailwind v4 (1), PWA (1), responsive / mobile-first UI |
-| Backend / data | Supabase (3): PostgreSQL schema, Auth, Realtime subscriptions, Storage, Row Level Security, Edge Functions; optimistic UI with rollback |
-| AI / LLM | LM Studio local inference (4), prompt + context engineering, retrieval/relevance scoring, in-browser ML (transformers.js), token budgeting |
-| Python | web scraping (BeautifulSoup), automation scripts, tunnels (Cloudflare, ngrok), CLI/GUI apps |
-| Desktop / tooling | Electron, Node.js servers, yt-dlp/ffmpeg integration, Windows installers & .bat launchers, ESLint, Git/GitHub, Vercel |
-| UX practice (from FACS) | skeleton loading, toasts, latency masking, confirmation modals for destructive actions, friendly error copy, accessibility settings (reduced motion, dyslexia-friendly font, text size) |
+| Languages | JavaScript (5), HTML (5), CSS (5), SQL / PostgreSQL (3), Python (2), TypeScript (1), Batch scripting (2) |
+| Frontend | React (4), Vite (4), React Router (3), Tailwind CSS (1), framer-motion (2), PWA (1), CSS theming / dark mode (3), Vitest (1) |
+| Backend & data | Supabase (3), Node.js server (1), Edge Functions (1), Auth & row-level security (2), Realtime subscriptions (1) |
+| AI / LLM | LM Studio (4), transformers.js (1), prompt & context engineering (3), retrieval / relevance scoring (1), token counting (1) |
+| Automation & scripts | n8n (no project count), yt-dlp & FFmpeg (1), web scraping, PDF parsing, Python GUI |
+| Design & 3D | Figma, Blender (no project count) |
+| Editors & IDEs | VS Code (6), Antigravity IDE, Google Colab (no project count) |
+| Dev workflow | Git (6), GitHub (6), Vercel (4), Vitest (1) |
 
-**Skill display idea:** keep the pixel XP/LVL bars, but make `LVL = number of shipped projects using it` and list those projects under each skill. That is honest and easy to defend.
+Tools with no project count are ones I use day to day but that aren't tied to one repo. They show "daily tool" instead of a number.
+
+**Skill display (built):** instead of XP/LVL bars, skills are logo tiles grouped by category, and the home hero shows a 3D keycap board (6 columns × 4 rows of logos). Each key's count is the number of shipped projects using it; tools without a repo show no count.
 
 ### Content corrections for the current site
 - The current copy ("No frameworks, no bloat", "No OpenAI, no cloud", "fully local") undersells the work. The real projects use React, Supabase cloud and Vercel. Rewrite to match.
@@ -135,7 +137,7 @@ The CAE-G-CAS README publishes an **admin bypass login** (`Admin@gmail.com` / `a
 
 **serkanuslu.com/en (layout)** — Next.js on Vercel, `/en` + `/tr` routes.
 - Home = hero → Code → Create → Explore → "Say hi" → "Hi, I'm …" sign-off. Each world: intro, "Now" featured card, list rows, "View all (N) →".
-- Hero: giant name (top edge faded), role line with colored marker highlights, lead sentence, mono meta line, pills `● 01 CODE ● 02 CREATE ● 03 EXPLORE ↓`, floating project cards on the right, floor line with two pixel buddies.
+- Hero: giant name (top edge faded), role line with colored marker highlights, lead sentence, mono meta line, pills `● 01 CODE ● 02 CREATE ● 03 EXPLORE ↓`, a 3D keycap board of skills on the right (click a key to open its projects; the board spins in on a fresh page load), floor line with two pixel buddies.
 - List row: title · one-liner · meta `type / date / tags` · arrow link. No filter tabs.
 - Project page: back link, meta strip (type, date, read time), eyebrow, title, summary, tags, cover + caption, Live/Source buttons, My role, Tools and their roles, numbered "In this story" TOC, prose + screenshots, CTA repeat, prev/next pager.
 - About: bio, numbered Journey timeline, How I work, "On my desk" tools list, Bookmarks. Contact: Say hi + email Copy + location + socials + résumé PDF. Same Say hi block ends every page.
@@ -180,8 +182,8 @@ The CAE-G-CAS README publishes an **admin bypass login** (`Admin@gmail.com` / `a
 ```
 /                 Home        hero(+floor & buddies) → ★ Featured case study → 01 Code → 02 Create → 03 Learn
                               (short previews) → Say hi → sign-off
-/about            About       photo, bio, interests, skills as XP/LVL bars, troubleshooting "skill tree",
-                              journey timeline (education, certs), "On my desk" tools
+/about            About       photo, bio, interests, skills as logo tiles by category, certificates (pictures, click to enlarge), troubleshooting "skill tree",
+                              journey timeline (education), "On my desk" tools
 /projects         Projects    ★ SE case study card first (large) → groups Code / Create / Learn
                               (anchor pills or filter chips); each row: title · one-liner · type/date/tags · role
 /projects/:slug   Project     short project page; team projects always show My role + Contributions
@@ -213,7 +215,7 @@ Plus: sticky numbered table of contents on desktop, prev/next pager.
 
 **Hero**
 1. Giant two-line name **JUNE VIC / ABELLO** in Press Start 2P, top edge faded with a CSS mask gradient.
-2. Role line: **AI / WEB DEVELOPER** with chunky pixel marker highlights behind words (mint under "AI", pink under "WEB").
+2. Role line: **Web Developer** with a chunky pixel marker highlight behind the words (the "AI" part was removed from the role on purpose).
 3. Lead sentence (large VT323): what I build.
 4. Mono meta line: `2nd-year BSCS · Gordon College · Python, JS · LM Studio, Gemma, Qwen`.
 5. Anchor pills with colored dots: `● 01 CODE  ● 02 CREATE  ● 03 LEARN  ↓`.
@@ -341,7 +343,7 @@ Needs from owner: screenshots/covers, dates, short "how I made it" write-ups (ca
 | 3d | **Activity widget**: fetch script + JSON, 2D heatmap, 3D skyline canvas, stats, a11y table | `src/activity/*` | ✅ agent |
 | 4 | Integration + QA: 360px mobile, keyboard, contrast both themes, reduced motion, Lighthouse, perf of spray on low-end, prune dead CSS | polish | no |
 | 4b | **Personalize & explain**: owner rewrites all copy in own voice; write `DECISIONS.md` (each choice → UI/UX principle → why); rehearse explaining spray engine, buddies, routing, a11y | defensible project | no |
-| 5 | Buy `junevicabello.com` (see §Publishing steps), connect to hosting, DNS, HTTPS, SPA fallback; build + deploy; test on real phone; commit, push | public site on own domain | no — **domain can be bought anytime earlier** so DNS is ready |
+| 5 | Domain `www.junevicabello.site` purchased; connect to Vercel, DNS, HTTPS, SPA fallback; build + deploy; test on real phone; commit, push | public site on own domain (`https://www.junevicabello.site`) | in progress — domain purchased, wire DNS & deploy |
 
 Agents for 2a–3c work in separate git worktrees on disjoint files, against the Phase 1 primitives; I merge and do Phase 4.
 

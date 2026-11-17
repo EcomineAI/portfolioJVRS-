@@ -24,12 +24,13 @@ const responses = {
     "Hi! I can talk about the Askademic case study, his other builds, his stack, or hiring. What's your quest?",
     'Hello! Pick a topic from the chips below or type a question.',
   ],
-  projects: `June Vic has shipped <strong>5 coding projects</strong> so far:<br><br>
+  projects: `June Vic has shipped <strong>6 coding projects</strong> so far:<br><br>
     ★ <strong>Askademic</strong>: faculty appointment &amp; consultation system for Gordon College CCS (team of 3, featured SE case study)<br>
-    ▸ <strong>GC Assist</strong>: AI campus assistant running on a local LLM via LM Studio<br>
-    ▸ <strong>JALgorithm</strong>: ML chatbot for salon booking &amp; reminders (thesis, in progress)<br>
+    ▸ <strong>GC-Assist</strong>: AI campus assistant running on a local LLM via LM Studio<br>
+    ▸ <strong>JALgorithm</strong>: ML chatbot for salon booking &amp; reminders (research, in progress)<br>
     ▸ <strong>jv-ytdlp</strong>: Electron desktop video downloader<br>
-    ▸ <strong>TwitchChat Sim</strong>: AI Twitch chat simulator in Python<br><br>
+    ▸ <strong>TwitchChat Sim</strong>: AI Twitch chat simulator in Python<br>
+    ▸ <strong>State and Effect</strong>: interactive React lesson slide deck<br><br>
     See them all on the <a href="/projects">Projects page</a>.`,
   caseStudy: `<strong>Askademic</strong> (formerly G-CAS / FACS) is the featured software engineering project.<br><br>
     Students see which faculty are available in real time, book consultation slots and get notified when requests are approved.

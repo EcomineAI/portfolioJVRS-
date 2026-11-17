@@ -14,13 +14,17 @@ const isExternal = href => /^https?:\/\//.test(href || '');
  */
 export function PixelButton({ to, href, variant = 'primary', size, icon, loading, className, children, ...rest }) {
   const classes = cx('pixel-btn', `pixel-btn--${variant}`, size && `pixel-btn--${size}`, icon && 'pixel-btn--icon', loading && 'is-loading', className);
+  const sfxProps = {
+    'data-uisfx-pack': rest['data-uisfx-pack'] ?? 'studio',
+    'data-uisfx': rest['data-uisfx'] ?? (rest.download !== undefined ? 'complete' : href ? 'open' : to ? 'forward' : 'press'),
+  };
   if (loading) rest = { ...rest, 'aria-busy': true, disabled: true };
-  if (to) return <Link to={to} className={classes} {...rest}>{children}</Link>;
+  if (to) return <Link to={to} className={classes} {...sfxProps} {...rest}>{children}</Link>;
   if (href) {
     const ext = isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {};
-    return <a href={href} className={classes} {...ext} {...rest}>{children}</a>;
+    return <a href={href} className={classes} {...ext} {...sfxProps} {...rest}>{children}</a>;
   }
-  return <button type="button" className={classes} {...rest}>{children}</button>;
+  return <button type="button" className={classes} {...sfxProps} {...rest}>{children}</button>;
 }
 
 export function PixelCard({ as = 'div', pad = false, interactive = false, className, children, ...rest }) {
