@@ -1,0 +1,23 @@
+.retro-type { position: relative; display: inline-block; }
+.retro-type__sr {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+.retro-type__visual { position: relative; display: inline-block; }
+.retro-type__ghost { visibility: hidden; }
+.retro-type__live {
+  position: absolute; left: 0; top: 0; white-space: nowrap;
+  color: var(--fg);
+}
+.retro-type__cursor {
+  display: inline-block;
+  width: 0.55em; height: 0.9em;
+  margin-left: 4px;
+  vertical-align: -0.08em;
+  background: var(--world-code);
+  border: 2px solid var(--border);
+  animation: retro-blink 760ms steps(1) infinite;
+}
+.retro-type__cursor.is-solid { animation: none; }
+@keyframes retro-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .retro-type__cursor { animation: none; } }

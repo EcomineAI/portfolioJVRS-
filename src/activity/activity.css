@@ -9,16 +9,17 @@
   --act-2: color-mix(in srgb, var(--primary) 55%, var(--surface));
   --act-3: color-mix(in srgb, var(--primary) 80%, var(--surface));
   --act-4: var(--primary);
-  --cell: 12px;
+  --cell: 10px;
   --gap: 2px;
-  --dow-w: 34px;
+  --dow-w: 28px;
 
   display: grid;
-  gap: 20px;
-  padding: clamp(14px, 3vw, 24px);
+  gap: 10px;
+  padding: clamp(12px, 2vw, 18px);
   min-width: 0;
+  max-width: 820px;
 }
-@media (min-width: 1100px) { .activity { --cell: 14px; } }
+@media (min-width: 1100px) { .activity { --cell: 11px; } }
 
 /* ---- Header ---- */
 .activity__head {
@@ -46,7 +47,7 @@
 @keyframes activity-blink { 50% { opacity: 0.25; } }
 
 .activity__badge {
-  padding: 2px 10px;
+  padding: 0 8px;
   border: 3px solid var(--border);
   background: var(--primary);
   color: var(--primary-fg);
@@ -65,8 +66,8 @@
   background: var(--card);
 }
 .activity__radio {
-  min-height: 44px;
-  padding: 4px 14px;
+  min-height: 36px;
+  padding: 2px 12px;
   border: 0;
   background: transparent;
   color: var(--fg);
@@ -119,7 +120,7 @@
 .heatmap__scroll {
   overflow-x: auto;
   overscroll-behavior-x: contain;
-  padding: 4px 4px 10px;   /* room for focus rings and the scrollbar */
+  padding: 2px 4px 6px;   /* room for focus rings and the scrollbar */
   scrollbar-color: var(--muted-fg) var(--surface);
 }
 .heatmap__inner {
@@ -208,8 +209,8 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px 24px;
-  padding-top: 16px;
+  gap: 6px 20px;
+  padding-top: 10px;
   border-top: 2px dashed var(--hairline);
 }
 .activity__stats {
@@ -238,15 +239,15 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px 16px;
+  gap: 4px 16px;
   width: 100%;
 }
 .activity__link {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 44px;
-  font-size: var(--text-lg);
+  min-height: 32px;
+  font-size: var(--text-base);
   color: var(--fg);
   text-underline-offset: 4px;
 }
@@ -264,9 +265,9 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  min-height: 44px;
+  min-height: 32px;
   cursor: var(--cursor-pointer);
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
   list-style: none;
 }
 .activity__table summary::-webkit-details-marker { display: none; }

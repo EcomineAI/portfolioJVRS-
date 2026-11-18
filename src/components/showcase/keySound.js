@@ -1,3 +1,4 @@
+import { uisfx } from '../../sound/SoundContext.jsx';
 // Mechanical-keyboard click, synthesized with Web Audio (no audio files).
 // "down" = sharp click + low thock, "up" = lighter clack, "tick" = faint hover tick.
 let ctx = null;
@@ -44,9 +45,21 @@ function thock(c, t, { from, to, dur, gain }) {
 
 // Clacky = hard, bright plastic: a sharp click, a high bottom-out clack, very little low end.
 export function keySound(kind = 'down') {
+  if (!uisfx.isEnabled()) return;   // follow the site's sound toggle
   try {
     const c = ensure();
-    if (!c || c.state !== 'running') return;
+    if (!c) return;
+    // The first press happens while the context is still suspended: wait for it, then play.
+    if (c.state !== 'running') {
+      c.resume().then(() => play(c, kind)).catch(() => {});
+      return;
+    }
+    play(c, kind);
+  } catch { /* audio is optional */ }
+}
+
+function play(c, kind) {
+  try {
     const t = c.currentTime;
     if (kind === 'down') {
       burst(c, t, { freq: 4800, q: 1.4, dur: 0.02, gain: 0.55 });              // click

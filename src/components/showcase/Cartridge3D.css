@@ -1,0 +1,309 @@
+/* ==========================================================================
+   3D Pixel Game Cartridge (CSS 3D preserve-3d, zero Three.js)
+   ========================================================================== */
+
+.cartridge-stage {
+  --cart-depth: 36px;
+  --cart-half: 18px;
+  --cart-shell: var(--surface);
+  --cart-edge: color-mix(in srgb, var(--surface) 74%, var(--border));
+
+  position: relative;
+  width: min(100%, 340px);
+  margin: 0 auto;
+  perspective: 1100px;
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+}
+
+.cartridge-idle {
+  width: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.cartridge-btn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: var(--cursor-pointer, pointer);
+  transform-style: preserve-3d;
+}
+.cartridge-btn:focus-visible {
+  outline: 3px dashed var(--focus);
+  outline-offset: 8px;
+}
+
+.cartridge-tilt {
+  display: block;
+  width: 100%;
+  transform-style: preserve-3d;
+  transition: transform 160ms ease-out;
+}
+
+.cartridge-flip {
+  position: relative;
+  display: block;
+  width: 100%;
+  transform-style: preserve-3d;
+  transition: transform 560ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cartridge-flip.is-flipped {
+  transform: rotateY(180deg);
+}
+
+/* ---- Faces ---- */
+.cartridge__face {
+  display: grid;
+  grid-template-rows: auto 1fr auto auto;
+  gap: 10px;
+  padding: 12px 14px 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: var(--cart-shell);
+  border: var(--border-w) solid var(--border);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+/* Front face sits in flow so the shell is exactly as tall as its content;
+   the back face and the extruded sides size themselves to match. */
+.cartridge__face--front {
+  position: relative;
+  inset: auto;
+  padding-bottom: 0;
+  transform: translateZ(var(--cart-half));
+}
+.cartridge__face--back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg) translateZ(var(--cart-half));
+}
+
+/* ---- Extruded 3D thickness sides ---- */
+.cartridge__side {
+  position: absolute;
+  background: var(--cart-edge);
+  border: 3px solid var(--border);
+  pointer-events: none;
+}
+.cartridge__side--left,
+.cartridge__side--right {
+  top: 0;
+  bottom: 0;
+  width: var(--cart-depth);
+}
+.cartridge__side--left {
+  left: 0;
+  transform: rotateY(-90deg) translateZ(var(--cart-half));
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--cart-edge) 0 10px,
+    var(--border) 10px 13px,
+    var(--cart-edge) 13px 22px
+  );
+}
+.cartridge__side--right {
+  right: 0;
+  transform: rotateY(90deg) translateZ(var(--cart-half));
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--cart-edge) 0 10px,
+    var(--border) 10px 13px,
+    var(--cart-edge) 13px 22px
+  );
+}
+.cartridge__side--top,
+.cartridge__side--bottom {
+  left: 0;
+  right: 0;
+  height: var(--cart-depth);
+}
+.cartridge__side--top {
+  top: 0;
+  transform: rotateX(90deg) translateZ(var(--cart-half));
+}
+.cartridge__side--bottom {
+  bottom: 0;
+  transform: rotateX(-90deg) translateZ(var(--cart-half));
+  background: var(--ink);
+}
+
+/* ---- Top lip & ridged grips ---- */
+.cartridge__lip {
+  display: grid;
+  grid-template-columns: 28px 1fr 28px;
+  align-items: center;
+  gap: 8px;
+}
+.cartridge__lip--back {
+  grid-template-columns: 1fr;
+}
+.cartridge__grip {
+  height: 18px;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--border) 0 3px,
+    transparent 3px 6px
+  );
+}
+.cartridge__notch {
+  display: block;
+  text-align: center;
+  padding: 3px 8px;
+  background: var(--card);
+  border: 2px solid var(--border);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  letter-spacing: 0.08em;
+  color: var(--fg);
+}
+
+/* ---- Front label ---- */
+.cartridge__label {
+  display: grid;
+  grid-template-rows: auto auto;
+  gap: 10px;
+  padding: 10px;
+  background: var(--card);
+  border: 3px solid var(--border);
+  box-shadow: inset 0 0 0 2px var(--hairline);
+}
+.cartridge__photo {
+  display: block;
+  padding: 5px;
+  background: var(--primary-soft);
+  border: 3px solid var(--border);
+  overflow: hidden;
+}
+.cartridge__photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border: 2px solid var(--border);
+  background: var(--surface);
+}
+.cartridge__meta {
+  display: grid;
+  gap: 4px;
+}
+.cartridge__title {
+  font-family: var(--font-pixel);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--fg);
+}
+.cartridge__sub {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  color: var(--muted-fg);
+}
+.cartridge__badge {
+  padding: 1px 7px;
+  background: var(--world-learn);
+  color: var(--ink);
+  border: 2px solid var(--border);
+  font-size: var(--text-sm);
+}
+
+/* ---- Back label ---- */
+.cartridge__back-label {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 10px;
+  padding: 12px;
+  background: var(--card);
+  border: 3px solid var(--border);
+}
+.cartridge__back-head {
+  font-family: var(--font-pixel);
+  font-size: 0.72rem;
+  color: var(--fg);
+  padding-bottom: 6px;
+  border-bottom: 2px dashed var(--hairline);
+}
+.cartridge__specs {
+  margin: 0;
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+.cartridge__spec-row {
+  display: grid;
+  gap: 1px;
+  padding: 5px 8px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+}
+.cartridge__spec-row dt {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  color: var(--muted-fg);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.cartridge__spec-row dd {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.9rem;
+  line-height: 1.25;
+}
+.cartridge__back-foot {
+  justify-self: start;
+  padding: 2px 8px;
+  background: var(--world-code);
+  color: var(--ink);
+  border: 2px solid var(--border);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+}
+
+/* ---- Flip hint & gold connector pins ---- */
+.cartridge__hint {
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  letter-spacing: 0.08em;
+  color: var(--muted-fg);
+}
+.cartridge__pins {
+  display: block;
+  height: 14px;
+  margin-inline: 18px;
+  background: repeating-linear-gradient(
+    to right,
+    var(--world-learn) 0 10px,
+    var(--ink) 10px 15px
+  );
+  border-top: 3px solid var(--border);
+  border-inline: 3px solid var(--border);
+}
+
+/* ---- Grounded levitation shadow ---- */
+.cartridge-shadow {
+  width: 78%;
+  height: 16px;
+  background: var(--shadow-color);
+  opacity: 0.35;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cartridge-tilt,
+  .cartridge-flip {
+    transition: none;
+  }
+}

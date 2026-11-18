@@ -1,14 +1,20 @@
 // /about — background, interests, evidence-based skills, troubleshooting, live activity, journey.
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import RetroType from '../components/showcase/RetroType';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+import Cartridge3D from '../components/showcase/Cartridge3D.jsx';
+
 import { Link } from 'react-router-dom';
+import activity from '../data/contributions.json';
 import ActivityPanel from '../activity/ActivityPanel.jsx';
 import { Eyebrow, PixelCard, SectionHeading } from '../components/ui/index.jsx';
 import { profile } from '../data/profile.js';
-import { CASE_STUDY_SLUG, projectBySlug } from '../data/projects.js';
-import { skillGroups, troubleshooting } from '../data/skills.js';
+import { troubleshooting } from '../data/skills.js';
 import { certifications } from '../data/certifications.js';
-import { brandColor, logoSrc } from '../data/techIcons.js';
-import PixelLogo from '../components/PixelLogo.jsx';
+import PixelGadget from '../components/showcase/PixelGadget.jsx';
+import PegBoard from '../components/showcase/PegBoard.jsx';
+import SkillChains from '../components/showcase/SkillChains.jsx';
 import './About.css';
 
 
@@ -17,45 +23,23 @@ const facts = [
   { term: 'Program', value: profile.program },
   { term: 'Year', value: profile.year },
   { term: 'Location', value: `${profile.location} (${profile.timezone})` },
-  { term: 'Status', value: profile.status },
 ];
 
 const journey = [
-  { when: '2024', title: 'Started BS Computer Science', text: 'Enrolled at Gordon College, Olongapo City.' },
-  { when: 'Mid 2024', title: 'Linux & cybersecurity basics', text: 'Linux experiments and hands-on practice with basic cybersecurity using Linux.' },
-  { when: '2024 →', title: 'Local LLM experiments', text: 'Running and prompting open models (Qwen, Gemma, Llama) on my own PC with LM Studio.' },
-  { when: 'Jun–Jul 2025', title: 'DOLE SPES (Subic Bay Freeport Zone)', text: 'Completed 20 days as Production Helper in the Assembly Group under the Department of Labor & Employment.' },
-  { when: 'Feb–Nov 2026', title: 'Askademic (Ctrl Alt Elite)', text: 'Project & documentation lead for our team software engineering project: real-time faculty consultation system for Gordon College CCS.', to: '/case-study' },
-  { when: 'May 2026', title: 'GCCCS TechFest Hackathon 2026', text: 'Competed with Team VisioMotus in Team1 Philippines × Gordon College CCS, building blockchain-based sustainability solutions.' },
-  { when: 'Jun–Jul 2026', title: '200-Hour OJT · Columban College, Inc.', text: 'Completed 200 hours of On-the-Job Training at the College of Arts, Sciences, and Education (CASEd).' },
-  { when: '2026', title: 'GC-Assist', text: 'Solo AI-powered conversational information system for Gordon College using a local open-source LLM and RAG over a JSON knowledge base.', to: '/projects/gc-assist' },
-  { when: '2026 →', title: 'JALgorithm research', text: 'Lead developer for an ML salon booking chatbot and stylist dashboard (Makeup and Hair by Trev Luna).', to: '/projects/jalgorithm' },
-  { when: 'Nov 2026', title: 'Certifications & www.junevicabello.site', text: 'Completed Cisco, Fortinet NSE 1, DICT Data Privacy, OpenAI Academy, and Claude Academy certifications and shipped this portfolio.' },
+  { when: '2024', gadget: 'laptop', title: 'Started BS Computer Science', text: 'Enrolled at Gordon College, Olongapo City.' },
+  { when: 'Mid 2024', gadget: 'terminal', title: 'Linux & cybersecurity basics', text: 'Linux experiments and hands-on practice with basic cybersecurity using Linux.' },
+  { when: '2024 →', gadget: 'chip', title: 'Local LLM experiments', text: 'Running and prompting open models (Qwen, Gemma, Llama) on my own PC with LM Studio.' },
+  { when: 'Jun–Jul 2025', gadget: 'badge', title: 'DOLE SPES (Subic Bay Freeport Zone)', text: 'Completed 20 days as Production Helper in the Assembly Group under the Department of Labor & Employment.' },
+  { when: 'Feb–Nov 2026', gadget: 'bubble', title: 'Askademic (Ctrl Alt Elite)', text: 'Project & documentation lead for our team software engineering project: real-time faculty consultation system for Gordon College CCS.', to: '/case-study' },
+  { when: 'May 2026', gadget: 'trophy', title: 'GCCCS TechFest Hackathon 2026', text: 'Competed with Team VisioMotus in Team1 Philippines × Gordon College CCS, building blockchain-based sustainability solutions.' },
+  { when: 'Jun–Jul 2026', gadget: 'briefcase', title: '200-Hour OJT · Columban College, Inc.', text: 'Completed 200 hours of On-the-Job Training at the College of Arts, Sciences, and Education (CASEd).' },
+  { when: '2026', gadget: 'robot', title: 'GC-Assist', text: 'Solo AI-powered conversational information system for Gordon College using a local open-source LLM and RAG over a JSON knowledge base.', to: '/projects/gc-assist' },
+  { when: '2026 →', gadget: 'scissors', title: 'JALgorithm research', text: 'Lead developer for an ML salon booking chatbot and stylist dashboard (Makeup and Hair by Trev Luna).', to: '/projects/jalgorithm' },
+  { when: 'Nov 2026', gadget: 'medal', title: 'Certifications & www.junevicabello.site', text: 'Completed Cisco, Fortinet NSE 1, DICT Data Privacy, OpenAI Academy, and Claude Academy certifications and shipped this portfolio.' },
 ];
 
-const usedIn = skill => skill.projects.map(slug => projectBySlug[slug]).filter(Boolean);
-
-/** A tool with a real logo: pixel-art logo tile. Hover or focus lists the projects that use it. */
-function SkillTile({ skill }) {
-  const used = usedIn(skill);
-  const brand = brandColor(skill.icon);
-  const names = used.map(p => p.title).join(', ');
-  return (
-    <li
-      className="skill-tile"
-      tabIndex={0}
-      style={brand ? { '--brand': brand } : undefined}
-      aria-label={used.length ? `${skill.name}: used in ${used.length} project${used.length === 1 ? '' : 's'}, ${names}` : `${skill.name}: a tool I use day to day`}
-    >
-      <PixelLogo src={logoSrc(skill.icon)} size={48} />
-      <span className="skill-tile__name">{skill.short || skill.name}</span>
-      {used.length > 0 && <span className="skill-tile__count" aria-hidden="true">×{used.length}</span>}
-      <span className="skill-tile__tip" aria-hidden="true">{names || 'A tool I use day to day'}</span>
-    </li>
-  );
-}
-
-/* Certificates are pictures: thumbnails in a grid, click to enlarge (Esc or click to close). */
+/* Certificates: a pixel bulletin board. Each certificate is a picture pinned to the cork with a short name;
+   click to enlarge (Esc or click to close). */
 function CertGrid({ items }) {
   const [open, setOpen] = useState(null);
   useEffect(() => {
@@ -65,47 +49,38 @@ function CertGrid({ items }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [open]);
 
-  if (!items.length) {
-    return (
-      <ul className="cert-grid">
-        <li>
-          <PixelCard pad className="cert-card cert-card--empty">
-            <p className="cert-card__badge" aria-hidden="true">+</p>
-            <h3 className="cert-card__title">Certificates coming soon</h3>
-            <p className="cert-card__issuer">Drop images in public/assets/certs and list them in src/data/certifications.js</p>
-          </PixelCard>
-        </li>
-      </ul>
-    );
-  }
-  const current = open !== null ? items[open] : null;
   const label = (c, i) => c.title || `Certificate ${i + 1}`;
+  const current = open !== null ? items[open] : null;
   return (
     <>
-      <ul className="cert-grid">
-        {items.map((c, i) => (
-          <li key={c.image || c.title}>
-            <PixelCard interactive className="cert-card" data-spray-surface="true">
-              <button type="button" className="cert-card__open" onClick={() => setOpen(i)} aria-label={`View ${label(c, i)} larger`}>
-                <img className="cert-card__img" src={c.image} alt={`${label(c, i)}${c.issuer ? `, ${c.issuer}` : ''}`} loading="lazy" />
-              </button>
-              {(c.title || c.issuer || c.date) && (
-                <div className="cert-card__text">
-                  {c.title && <h3 className="cert-card__title">{c.title}</h3>}
-                  {(c.issuer || c.date) && (
-                    <p className="cert-card__issuer">{c.issuer}{c.issuer && c.date && ' · '}{c.date && <time className="cert-card__date">{c.date}</time>}</p>
-                  )}
-                  {c.url && <a className="cert-card__link" href={c.url} target="_blank" rel="noopener noreferrer">Verify<span className="sr-only"> (opens in a new tab)</span></a>}
-                </div>
-              )}
-            </PixelCard>
-          </li>
-        ))}
-      </ul>
+      <div className="cert-board" data-spray-surface="true">
+        {items.length === 0 ? (
+          <p className="cert-board__empty">Nothing pinned yet. Add images in public/assets/certs and list them in src/data/certifications.js</p>
+        ) : (
+          <ul className="cert-grid">
+            {items.map((c, i) => (
+              <li key={c.image || c.title} className="cert-pin">
+                <button type="button" className="cert-pin__card" onClick={() => setOpen(i)} aria-label={`View ${label(c, i)} larger`}>
+                  <span className="cert-pin__tack" aria-hidden="true" />
+                  <img className="cert-pin__img" src={c.image} alt={`${label(c, i)}${c.issuer ? `, ${c.issuer}` : ''}`} loading="lazy" />
+                  <span className="cert-pin__name">{label(c, i)}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
       {current && (
         <div className="cert-lightbox" role="dialog" aria-modal="true" aria-label={label(current, open)} onClick={() => setOpen(null)}>
           <img src={current.image} alt={label(current, open)} />
-          <button type="button" className="pixel-btn pixel-btn--sm cert-lightbox__close" onClick={() => setOpen(null)}>Close</button>
+          <div className="cert-lightbox__bar">
+            {current.url && (
+              <a className="pixel-btn pixel-btn--sm" href={current.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>
+                Verify<span className="sr-only"> (opens in a new tab)</span>
+              </a>
+            )}
+            <button type="button" className="pixel-btn pixel-btn--sm cert-lightbox__close" onClick={() => setOpen(null)}>Close</button>
+          </div>
         </div>
       )}
     </>
@@ -113,92 +88,145 @@ function CertGrid({ items }) {
 }
 
 export default function About() {
+  const rootRef = useRef(null);
+
+  useGSAP(() => {
+    const mm = gsap.matchMedia();
+    const cleanups = [];
+
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+      // 1. Slot-in entrance for Cartridge + Bio card
+      // Cartridge falls in from above: fast drop, hard stop, small rebound
+      gsap.timeline({ defaults: { overwrite: 'auto' } })
+        .fromTo('.cartridge-stage',
+          { y: -520, rotateX: -24, opacity: 0 },
+          { y: 0, rotateX: 0, opacity: 1, duration: 0.32, ease: 'power3.in', clearProps: 'opacity' })
+        .to('.cartridge-stage', { y: -14, duration: 0.12, ease: 'power2.out' })
+        .to('.cartridge-stage', { y: 0, duration: 0.16, ease: 'power2.in', clearProps: 'transform' });
+
+      // 2. Idle: Zero-G 3D Levitation on Cartridge + grounded shadow (pauses on hover)
+      const idleEl = rootRef.current?.querySelector('.cartridge-idle');
+      const shadowEl = rootRef.current?.querySelector('.cartridge-shadow');
+      if (idleEl) {
+        const floatTween = gsap.to(idleEl, {
+          y: -10,
+          rotateZ: -0.8,
+          rotateY: 3,
+          duration: 2.4,
+          delay: 0.9,
+          ease: 'sine.inOut',
+          yoyo: true,
+          repeat: -1,
+        });
+        const shadowTween = shadowEl
+          ? gsap.to(shadowEl, {
+              scaleX: 0.86,
+              opacity: 0.2,
+              duration: 2.4,
+              delay: 0.9,
+              ease: 'sine.inOut',
+              yoyo: true,
+              repeat: -1,
+            })
+          : null;
+
+        const stageEl = rootRef.current?.querySelector('.cartridge-stage');
+        const onEnter = () => {
+          floatTween.pause();
+          shadowTween?.pause();
+        };
+        const onLeave = () => {
+          floatTween.resume();
+          shadowTween?.resume();
+        };
+        stageEl?.addEventListener('mouseenter', onEnter);
+        stageEl?.addEventListener('mouseleave', onLeave);
+        cleanups.push(() => {
+          stageEl?.removeEventListener('mouseenter', onEnter);
+          stageEl?.removeEventListener('mouseleave', onLeave);
+        });
+      }
+    });
+
+    return () => {
+      cleanups.forEach(fn => fn());
+      mm.revert();
+    };
+  }, { scope: rootRef });
+
   return (
-    <div className="about">
-      {/* ---- Intro ---- */}
+    <div className="about" ref={rootRef}>
+      {/* ---- Intro: Clean Editorial Split + 3D Cartridge ---- */}
       <section className="container section about-intro" aria-labelledby="about-title">
-        <div className="about-intro__text">
-          <nav className="about-intro__jump" aria-label="On this page">
-            <Eyebrow world="code">
-              <a href="#skills-title">Skills</a><span aria-hidden="true">·</span>
-              <a href="#certs-title">Certificates</a><span aria-hidden="true">·</span>
-              <a href="#trouble-title">Side quests</a><span aria-hidden="true">·</span>
-              <a href="#journey-title">Journey</a>
-            </Eyebrow>
-          </nav>
-          <h1 id="about-title" className="about-intro__title">About</h1>
-          <div className="prose about-intro__bio">
-            <p>
-              Hi, I'm <strong>{profile.name.full}</strong>, a {profile.year} {profile.program} student at {profile.school}.
-              I build web apps and AI tools: campus systems with React and Supabase, and assistants that run on
-              local language models.
-            </p>
-            <p>
-              I'm most interested in <strong>local LLMs</strong> (getting useful answers out of models that run on my own
-              hardware), <strong>UX</strong> (making tools that feel calm and obvious to use) and <strong>creative work</strong>
-              {' '}like UI graphics, video and photography.
-            </p>
-          </div>
-        </div>
+        <nav className="about-intro__jump" aria-label="On this page">
+          <Eyebrow world="code">
+            <a href="#skills-title">01 Skills</a><span aria-hidden="true">·</span>
+            <a href="#certs-title">02 Certificates</a><span aria-hidden="true">·</span>
+            <a href="#trouble-title">03 Side quests</a><span aria-hidden="true">·</span>
+            <a href="#proof-title">04 Proof of work</a><span aria-hidden="true">·</span>
+            <a href="#journey-title">05 Journey</a>
+          </Eyebrow>
+        </nav>
 
-        <figure className="about-photo pixel-card" data-spray-surface="true">
-          <div className="about-photo__frame">
-            <img src={profile.photo} alt={`Portrait of ${profile.name.full}`} width="320" height="320" />
-          </div>
-          <figcaption className="about-photo__caption">
-            <span className="about-photo__dot" aria-hidden="true" /> {profile.name.display} · {profile.role}
-          </figcaption>
-        </figure>
-
-        <dl className="facts" aria-label="Quick facts">
-          {facts.map(f => (
-            <div key={f.term} className="facts__item">
-              <dt>{f.term}</dt>
-              <dd>{f.value}</dd>
+        <div className="about-hero">
+          <div className="about-hero__main-wrap">
+          <div
+            className="console about-hero__main"
+            data-spray-surface="true"
+          >
+            <span className="console__face console__face--top" aria-hidden="true" />
+            <span className="console__face console__face--right" aria-hidden="true" />
+            <div className="console__top" aria-hidden="true">
+              <span className="console__led" />
+              <span className="console__brand">JV-OS · 64</span>
+              <span className="console__stripe" />
+              <span className="console__vents"><i /><i /><i /><i /><i /></span>
             </div>
-          ))}
-        </dl>
-      </section>
+            <div className="console__screen">
+              <h1 id="about-title" className="about-hero__title"><RetroType text={profile.name.full} /></h1>
 
-      {/* ---- Skills ---- */}
-      <section className="container section about-section" aria-labelledby="skills-title">
-        <SectionHeading
-          id="skills-title"
-          num="01"
-          label="Skills"
-          title="Skills, by evidence"
-          intro="No self-rated percentages. Each tool is tied to the projects that actually use it."
-        />
-        <p className="skills-legend">Hover a logo to see which projects use it. ×N is how many of my projects use it.</p>
-        <div className="stack-board pixel-card" data-spray-surface="true">
-          {skillGroups.map(g => {
-            const tiles = g.skills.filter(sk => sk.icon);
-            const extra = g.skills.filter(sk => !sk.icon);
-            return (
-              <section key={g.id} className="stack-row" aria-labelledby={`sg-${g.id}`}>
-                <h3 id={`sg-${g.id}`} className="stack-row__title">{g.title}</h3>
-                <div className="stack-row__body">
-                  {tiles.length > 0 && (
-                    <ul className="skill-grid">
-                      {tiles.map(sk => <SkillTile key={sk.name} skill={sk} />)}
-                    </ul>
-                  )}
-                  {extra.length > 0 && (
-                    <ul className="stack-row__also" aria-label={`More ${g.title} skills`}>
-                      {extra.map(sk => {
-                        const used = usedIn(sk);
-                        return (
-                          <li key={sk.name} className="also-chip" title={`Used in: ${used.map(p => p.title).join(', ')}`}>
-                            {sk.name}{used.length > 0 && <span className="also-chip__n"> ×{used.length}</span>}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  )}
+            <div className="prose plate-off about-hero__bio">
+              <p>
+                Hi, I'm <strong>{profile.name.first}</strong>, a {profile.year} {profile.program} student at {profile.school}.
+                I build web apps and AI tools: campus systems with React and Supabase, and assistants that run on{' '}
+                <span className="marker" data-world="code">local LLMs</span>.
+              </p>
+              <p>
+                I care most about <span className="marker" data-world="learn">calm UX</span> (making tools that feel
+                obvious to use), getting practical answers out of open models on my own hardware, and{' '}
+                <span className="marker" data-world="create">creative work</span> like UI graphics and video.
+              </p>
+            </div>
+
+            <dl className="about-facts" aria-label="Quick facts">
+              {facts.map(f => (
+                <div key={f.term} className="about-facts__item">
+                  <dt>{f.term}</dt>
+                  <dd>{f.value}</dd>
                 </div>
-              </section>
-            );
-          })}
+              ))}
+            </dl>
+            </div>
+            <div className="console__bottom" aria-hidden="true">
+              <span className="console__switch"><i />POWER</span>
+              <span className="console__switch console__switch--reset"><i />RESET</span>
+              <span className="console__ports"><i /><i /><i /></span>
+              <span className="console__insert">INSERT CARTRIDGE ▶</span>
+            </div>
+          </div>
+          <SkillChains />
+          </div>
+
+          <div className="cartridge-outro-wrap">
+            <Cartridge3D
+              photo={profile.photo}
+              name={profile.name.full}
+              displayName={profile.name.display}
+              role={profile.role}
+              year={profile.year}
+              facts={facts}
+            />
+          </div>
         </div>
       </section>
 
@@ -220,22 +248,10 @@ export default function About() {
           id="trouble-title"
           num="03"
           label="Side quests"
-          title="Troubleshooting skill tree"
+          title="What I fix"
           intro="Fixing things is how I got into computers. These are the problems I get asked about most."
         />
-        <ul className="trouble-grid">
-          {troubleshooting.map((t, i) => (
-            <li key={t.area}>
-              <PixelCard pad className="trouble-card">
-                <p className="trouble-card__node" aria-hidden="true">{String(i + 1).padStart(2, '0')}</p>
-                <h3 className="trouble-card__title">{t.area}</h3>
-                <ul className="trouble-card__list">
-                  {t.items.map(item => <li key={item}>{item}</li>)}
-                </ul>
-              </PixelCard>
-            </li>
-          ))}
-        </ul>
+        <PegBoard areas={troubleshooting} />
       </section>
 
       {/* ---- Activity ---- */}
@@ -247,21 +263,47 @@ export default function About() {
           title="What I've been shipping"
           intro="My public GitHub activity over the last year, updated on every deploy."
         />
-        <ActivityPanel headingLevel="h3" />
+        <div className="proof-row">
+          <ActivityPanel headingLevel="h3" />
+          <div className="proof-link" aria-hidden="true"><i /></div>
+          <aside className="pcb" aria-label="GitHub activity at a glance">
+            <span className="pcb__hole pcb__hole--tl" aria-hidden="true" />
+            <span className="pcb__hole pcb__hole--tr" aria-hidden="true" />
+            <span className="pcb__hole pcb__hole--bl" aria-hidden="true" />
+            <span className="pcb__hole pcb__hole--br" aria-hidden="true" />
+            <div className="pcb__gpio" aria-hidden="true">{Array.from({ length: 20 }, (_, i) => <i key={i} />)}</div>
+            <p className="pcb__silk" aria-hidden="true">JV-PI 4B <span>· REV 1.0</span></p>
+            <span className="pcb__led pcb__led--red" aria-hidden="true" />
+            <span className="pcb__led pcb__led--green" aria-hidden="true" />
+            <dl className="pcb__chips">
+              <div className="pcb__chip"><dt>Events / yr</dt><dd>{activity.stats.last365.toLocaleString('en-US')}</dd></div>
+              <div className="pcb__chip"><dt>Streak</dt><dd>{activity.stats.longestStreak}<small>d</small></dd></div>
+              <div className="pcb__chip"><dt>Last 30d</dt><dd>{activity.stats.last30.toLocaleString('en-US')}</dd></div>
+            </dl>
+            <a className="pcb__port" href={activity.sources?.github?.url || `https://github.com/${activity.user}`} target="_blank" rel="noopener noreferrer">
+              <span>GITHUB</span> ↗
+              <span className="sr-only"> View on GitHub (opens in a new tab)</span>
+            </a>
+          </aside>
+        </div>
       </section>
 
       {/* ---- Journey ---- */}
       <section className="container section about-section" aria-labelledby="journey-title">
         <SectionHeading id="journey-title" num="05" label="Journey" title="So far" />
-        <ol className="journey">
-          {journey.map(j => (
-            <li key={j.title} className="journey__item">
-              <p className="journey__when">{j.when}</p>
-              <div className="journey__body">
-                <h3 className="journey__title">
+        <ol className="stones">
+          {journey.map((j, i) => (
+            <li key={j.title} className="stone-row">
+              <div className="stone" aria-hidden="true">
+                <PixelGadget name={j.gadget} size={44} />
+                <span className="stone__when">{j.when}</span>
+              </div>
+              <div className="stone-card">
+                <p className="sr-only">{j.when}</p>
+                <h3 className="stone-card__title">
                   {j.to ? <Link to={j.to}>{j.title}</Link> : j.title}
                 </h3>
-                <p className="journey__text prose">{j.text}</p>
+                <p className="stone-card__text">{j.text}</p>
               </div>
             </li>
           ))}

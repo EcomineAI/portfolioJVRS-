@@ -1,0 +1,48 @@
+/* Pixel workshop pegboard: fixed palette like the console and the cork board */
+.pegboard {
+  --peg: #a9b8c4;
+  --peg-hole: #6f8294;
+  --metal: #4b5663;
+  --line: #1f1f26;
+  position: relative;
+  padding: clamp(28px, 3.5vw, 48px) clamp(20px, 3vw, 44px) clamp(30px, 3.5vw, 48px);
+  background:
+    radial-gradient(circle, var(--peg-hole) 0 3px, transparent 3.5px) 0 0 / 28px 28px,
+    var(--peg);
+  border: 12px solid var(--metal);
+  box-shadow:
+    inset 0 0 0 3px var(--line),
+    0 0 0 3px var(--line),
+    7px 8px 0 3px var(--shadow-color);
+}
+.pegboard__grid {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; gap: 40px 28px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+}
+.peg-tag {
+  position: relative;
+  display: grid; gap: 12px; align-content: start;
+  padding: 26px 18px 20px;
+  background: #f5f2e8;
+  border: 3px solid var(--line);
+  box-shadow: 5px 5px 0 rgba(0, 0, 0, .28);
+  color: var(--line);
+}
+.peg-tag:nth-child(odd)  { transform: rotate(-.8deg); }
+.peg-tag:nth-child(even) { transform: rotate(.7deg); }
+/* metal peg hook with a tag hole */
+.peg-tag__hook {
+  position: absolute; left: 50%; top: -18px; margin-left: -9px; width: 18px; height: 30px;
+  background: var(--metal);
+  border: 3px solid var(--line);
+  box-shadow: inset 3px 0 0 rgba(255, 255, 255, .25);
+}
+.peg-tag__title {
+  margin: 0; padding-bottom: 8px;
+  font-family: var(--font-pixel); font-size: 1rem; line-height: 1.3; color: var(--line);
+  border-bottom: 3px dashed rgba(31, 31, 38, .35);
+}
+.peg-tag__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: var(--text-lg); }
+.peg-tag__list li { display: grid; grid-template-columns: 14px 1fr; gap: 8px; align-items: start; }
+.peg-tag__list li::before { content: ''; width: 9px; height: 9px; margin-top: .5em; background: #d8404a; border: 2px solid var(--line); }
