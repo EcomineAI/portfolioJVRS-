@@ -19,25 +19,27 @@
 .cs-hero { padding-top: clamp(32px, 6vw, 72px); }
 .cs-hero__card {
   display: grid;
-  gap: 20px;
-  padding: clamp(20px, 4.5vw, 52px);
-  padding-top: calc(clamp(20px, 4.5vw, 52px) + 8px);
-  border-width: 6px;
-  box-shadow: 12px 12px 0 0 var(--shadow-color);
+  gap: 14px;
+  max-width: 980px;
+  padding: clamp(16px, 3vw, 32px);
+  padding-top: calc(clamp(16px, 3vw, 32px) + 8px);
+  border-width: 5px;
+  box-shadow: 8px 8px 0 0 var(--shadow-color);
   background:
     linear-gradient(90deg, var(--world-code) 0 33.3%, var(--world-create) 33.3% 66.6%, var(--world-learn) 66.6%) top / 100% 8px no-repeat,
     var(--card);
 }
 .cs-hero__card .eyebrow { flex-wrap: wrap; }
-.cs-hero__title { font-size: clamp(1.75rem, 7vw, 3.5rem); line-height: 1.25; overflow-wrap: anywhere; }
+.cs-hero__title { font-size: clamp(1.4rem, 5vw, 2.5rem); line-height: 1.25; overflow-wrap: anywhere; }
 .cs-hero__tagline {
   font-family: var(--font-prose);
-  font-size: clamp(1.15rem, 2.4vw, 1.5rem);
+  font-size: clamp(1rem, 2vw, 1.25rem);
   line-height: 1.45;
-  max-width: 40ch;
+  max-width: 44ch;
 }
 .cs-hero__banner {
-  margin: 4px 0;
+  margin: 2px 0;
+  max-width: 560px;
   border: 3px solid var(--border);
 }
 .cs-hero__banner .cs-frame__zoom img {
@@ -56,17 +58,15 @@
 
 .cs-meta {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0;
   margin: 0;
   border: 3px solid var(--border);
 }
-@media (min-width: 640px) { .cs-meta { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 1024px) { .cs-meta { grid-template-columns: repeat(4, 1fr); } }
 .cs-meta__item {
   display: grid;
   gap: 4px;
-  padding: 12px 14px;
+  padding: 8px 12px;
   background: var(--surface);
   border: 1px dashed var(--hairline);
 }
@@ -86,10 +86,11 @@
 .cs-tools__list {
   list-style: none;
   display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: clamp(14px, 3.5vw, 40px);
   gap: 0;
   border-top: 2px dashed var(--hairline);
 }
-@media (min-width: 768px) { .cs-tools__list { grid-template-columns: 1fr 1fr; column-gap: 40px; } }
 .cs-tool {
   display: grid;
   gap: 2px;
@@ -103,38 +104,45 @@
 /* ---- Layout: TOC + content ----------------------------------------------- */
 .cs-layout {
   display: grid;
-  gap: 40px;
-  padding-top: clamp(48px, 7vw, 80px);
+  grid-template-columns: clamp(86px, 23vw, 260px) minmax(0, 1fr);
+  gap: clamp(10px, 3.2vw, 56px);
+  align-items: start;
+  padding-top: clamp(28px, 7vw, 80px);
 }
-.cs-layout__content { display: grid; gap: clamp(56px, 8vw, 96px); min-width: 0; }
+.cs-layout__toc {
+  position: sticky;
+  top: calc(var(--header-h) + 16px);
+  max-height: calc(100vh - var(--header-h) - 32px);
+  overflow-y: auto;
+}
+.cs-layout__content { display: grid; gap: clamp(32px, 8vw, 96px); min-width: 0; }
+.cs-section { min-width: 0; }
+.cs-section__body { min-width: 0; }
 
 @media (min-width: 1024px) {
-  .cs-layout { grid-template-columns: 260px minmax(0, 1fr); gap: 56px; align-items: start; }
   .cs-layout__toc {
-    position: sticky;
     top: calc(var(--header-h) + 24px);
     max-height: calc(100vh - var(--header-h) - 48px);
-    overflow-y: auto;
   }
 }
 
 .cs-toc {
-  padding: 18px;
+  padding: clamp(6px, 1.8vw, 18px);
   background: var(--card);
-  border: var(--border-w) solid var(--border);
+  border: clamp(2px, 0.4vw, 4px) solid var(--border);
   box-shadow: var(--shadow-sm);
 }
-.cs-toc__title { font-size: 1rem; margin-bottom: 12px; }
+.cs-toc__title { font-size: clamp(0.55rem, 1.8vw, 1rem); margin-bottom: clamp(6px, 1.4vw, 12px); }
 .cs-toc__list { list-style: none; display: grid; gap: 2px; }
 .cs-toc__link {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-height: 44px;
-  padding: 4px 10px;
-  border-left: 4px solid transparent;
+  gap: clamp(4px, 1vw, 12px);
+  min-height: clamp(24px, 4vw, 44px);
+  padding: clamp(2px, 0.5vw, 4px) clamp(4px, 1vw, 10px);
+  border-left: clamp(2px, 0.4vw, 4px) solid transparent;
   color: var(--muted-fg);
-  font-size: var(--text-lg);
+  font-size: clamp(0.65rem, 1.9vw, var(--text-lg));
   line-height: 1.1;
   text-decoration: none;
   transition: background-color 120ms var(--step-ease), color 120ms var(--step-ease);
@@ -147,9 +155,6 @@
   border-left-color: var(--primary);
 }
 .cs-toc__link[aria-current='true'] .cs-toc__num { color: var(--primary); }
-@media (min-width: 560px) and (max-width: 1023px) {
-  .cs-toc__list { grid-template-columns: 1fr 1fr; column-gap: 12px; }
-}
 
 /* ---- Sections ------------------------------------------------------------ */
 .cs-section { display: grid; gap: 24px; scroll-margin-top: 8px; }
@@ -215,9 +220,9 @@
   list-style: none;
   padding-left: 0 !important;
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
-@media (min-width: 640px) { .cs-users { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); } }
 .cs-user {
   display: grid;
   gap: 8px;
@@ -283,13 +288,11 @@
 /* Image slots */
 .cs-gallery {
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 20px;
   align-items: start;
 }
-@media (min-width: 640px) {
-  .cs-gallery { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
-  .cs-gallery:has(.cs-frame--tall) { grid-template-columns: 2fr 1fr; }
-}
+.cs-gallery:has(.cs-frame--tall) { grid-template-columns: 2fr 1fr; }
 .cs-frame {
   margin: 0;
   background: var(--card);
@@ -338,11 +341,11 @@
 
 .cs-pager {
   display: grid;
-  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(8px, 2vw, 16px);
   padding-top: 32px;
   border-top: 2px dashed var(--hairline);
 }
-@media (min-width: 640px) { .cs-pager { grid-template-columns: 1fr 1fr; } }
 .cs-pager__link {
   display: grid;
   gap: 6px;
@@ -358,15 +361,14 @@
 .cs-pager__link:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 0 var(--shadow-color); }
 .cs-pager__link--next { text-align: right; }
 .cs-pager__dir { font-size: var(--text-base); color: var(--muted-fg); }
-.cs-pager__title { font-family: var(--font-pixel); font-size: 1rem; line-height: 1.5; }
+.cs-pager__title { font-family: var(--font-pixel); font-size: 1rem; line-height: 1.5; overflow-wrap: anywhere; }
 
 /* ---- Hero KPI strip ------------------------------------------------------ */
 .cs-kpis {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
 }
-@media (min-width: 768px) { .cs-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .cs-kpi {
   display: grid;
   gap: 2px;
@@ -395,13 +397,9 @@
   grid-template-columns: 1fr;
   gap: 16px;
 }
-@media (min-width: 720px) {
-  .cs-split-2,
-  .cs-cards-grid--2 { grid-template-columns: 1fr 1fr; }
-}
-@media (min-width: 900px) {
-  .cs-cards-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
+.cs-split-2,
+.cs-cards-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cs-cards-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
 .cs-subcard {
   display: grid;
@@ -468,9 +466,7 @@
 .cs-tab.is-active { background: var(--primary); color: var(--primary-fg); }
 
 .cs-ui-grid { display: grid; gap: 20px; grid-template-columns: 1fr; }
-@media (min-width: 820px) {
-  .cs-ui-grid.is-split { grid-template-columns: 1fr 1fr; }
-}
+.cs-ui-grid.is-split { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .cs-ui-col,
 .cs-ui-stack { display: grid; gap: 14px; align-content: start; }
 
@@ -554,7 +550,7 @@
 .cs-journey-steps {
   display: grid;
   gap: 10px;
-  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 .cs-jstep {
   display: grid;
@@ -564,7 +560,7 @@
   background: var(--surface);
   border: 2px solid var(--border);
 }
-.cs-jstep__title { font-size: 0.95rem; line-height: 1.35; }
+.cs-jstep__title { font-size: 0.95rem; line-height: 1.35; overflow-wrap: anywhere; }
 .cs-mood {
   width: fit-content;
   padding: 1px 8px;
@@ -643,4 +639,21 @@
   margin: 0 auto;
   object-fit: contain;
   border: 2px solid var(--border);
+}
+
+/* ---- Mobile proportional scaling (keeps every multi-column desktop layout) ---- */
+@media (max-width: 899px) {
+  .cs-hero__card { zoom: 0.72; }
+  .cs-tools__list { zoom: 0.72; }
+  .cs-layout__content { zoom: 0.62; }
+}
+@media (max-width: 639px) {
+  .cs-hero__card { zoom: 0.50; }
+  .cs-tools__list { zoom: 0.50; }
+  .cs-layout__content { zoom: 0.40; }
+}
+@media (max-width: 479px) {
+  .cs-hero__card { zoom: 0.39; }
+  .cs-tools__list { zoom: 0.44; }
+  .cs-layout__content { zoom: 0.285; }
 }

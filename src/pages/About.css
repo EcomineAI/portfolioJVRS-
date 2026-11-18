@@ -30,14 +30,37 @@
 
 .about-hero {
   display: grid;
-  gap: 32px;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 360px);
+  gap: clamp(28px, 4vw, 56px);
   align-items: start;
 }
-@media (min-width: 900px) {
+@media (max-width: 1199px) {
   .about-hero {
-    grid-template-columns: minmax(0, 1.35fr) minmax(300px, 360px);
-    gap: clamp(28px, 4vw, 56px);
+    grid-template-columns: 980px 330px;
+    gap: 40px;
+    width: 1350px;
+    zoom: 0.69;
   }
+  .about-hero__title { font-size: 2.35rem; }
+}
+@media (max-width: 1023px) {
+  .about-hero { zoom: 0.58; }
+}
+@media (max-width: 859px) {
+  .about-hero { zoom: 0.46; }
+}
+@media (max-width: 679px) {
+  .about-hero { zoom: 0.35; }
+}
+@media (max-width: 519px) {
+  .about-hero { zoom: 0.275; }
+}
+@media (max-width: 409px) {
+  .about-hero { zoom: 0.24; }
+}
+@media (max-width: 560px) {
+  .about-intro__jump { padding: 4px 10px; }
+  .about-intro__jump .eyebrow { font-size: clamp(0.68rem, 2.5vw, var(--text-base)); gap: 4px 8px; }
 }
 
 .about-hero__main-wrap {
@@ -173,8 +196,25 @@
 @media (prefers-reduced-motion: reduce) { .skill-tile { transition: none; } }
 
 /* ---- Proof of work: heatmap beside three big numbers ---- */
-.proof-row { display: grid; gap: 20px; align-items: start; }
-@media (min-width: 1000px) { .proof-row { grid-template-columns: minmax(0, 820px) 64px minmax(220px, 300px); gap: 0; } }
+.proof-row {
+  display: grid;
+  grid-template-columns: minmax(0, 820px) 64px minmax(220px, 300px);
+  gap: 0;
+  align-items: start;
+}
+@media (max-width: 999px) {
+  .proof-row {
+    grid-template-columns: 760px 56px 260px;
+    width: 1076px;
+    zoom: 0.68;
+  }
+  .proof-row .activity__toggle { margin-left: auto; width: auto; }
+  .proof-row .activity__radio { flex: 0 0 auto; }
+}
+@media (max-width: 799px) { .proof-row { zoom: 0.54; } }
+@media (max-width: 639px) { .proof-row { zoom: 0.42; } }
+@media (max-width: 499px) { .proof-row { zoom: 0.34; } }
+@media (max-width: 399px) { .proof-row { zoom: 0.30; } }
 /* Mini single-board-computer look: green PCB, copper traces, GPIO header, chips, a silver port */
 .pcb {
   --pcb: #1c7a4d; --pcb-dark: #135c39; --trace: #2fa56b; --gold: #e9c75a; --silver: #c9ced4; --chip: #16181d; --silk: #f1f5ec;
@@ -243,19 +283,20 @@
 .stones { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .stone-row {
   position: relative;
-  display: grid; gap: 14px 22px; align-items: center;
-  grid-template-columns: 188px minmax(0, 1fr);
+  display: grid; gap: 22px 28px; align-items: center;
+  grid-template-columns: minmax(0, 1fr) 188px minmax(0, 1fr);
   padding-block: 6px;
 }
 /* pebble trail from each stone down to the next */
 .stone-row:not(:last-child)::after {
-  content: ''; position: absolute; left: 64px; bottom: -14px; width: 8px; height: 8px;
+  content: ''; position: absolute; left: calc(50% - 70px + 10px); bottom: -14px; width: 8px; height: 8px;
   background: var(--border); opacity: .55;
   box-shadow: 14px 12px 0 var(--border), 28px 24px 0 var(--border);
 }
-.stone-row:nth-child(even):not(:last-child)::after { left: 130px; box-shadow: -14px 12px 0 var(--border), -28px 24px 0 var(--border); }
+.stone-row:nth-child(even):not(:last-child)::after { left: calc(50% + 70px - 10px); box-shadow: -14px 12px 0 var(--border), -28px 24px 0 var(--border); }
 .stone {
   --edge: #1f1f26;
+  grid-column: 2; grid-row: 1; justify-self: center;
   position: relative; width: 188px; height: 84px;
   display: flex; align-items: center; gap: 10px; padding: 0 16px 6px 18px;
   background: var(--edge);
@@ -271,25 +312,21 @@
 .stone .pixel-gadget { flex: none; image-rendering: pixelated; filter: drop-shadow(2px 3px 0 rgba(0,0,0,.25)); }
 .stone__when { font-family: var(--font-pixel); font-size: .58rem; line-height: 1.5; letter-spacing: .04em; color: #1f1f26; }
 .stone-row:last-child .stone::before { background: linear-gradient(#f3dd8a 0 58%, #d9b94f 58% 100%); }
-.stone-row:hover .stone { transform: translateY(-3px); }
-.stone-card { display: grid; gap: 4px; padding: 10px 14px; background: color-mix(in srgb, var(--card) 70%, transparent); border-left: 4px solid var(--border); }
+.stone-card { display: grid; gap: 4px; padding: 10px 14px; background: color-mix(in srgb, var(--card) 70%, transparent); border-left: 4px solid var(--border); min-width: 0; }
 .stone-card__title { font-size: 1rem; line-height: 1.4; }
 .stone-card__title a { text-underline-offset: 6px; }
 .stone-card__title a:hover { color: var(--primary); }
 .stone-card__text { margin: 0; color: var(--muted-fg); }
-/* the path winds: even stones sit further right, with the card on their left */
-@media (min-width: 900px) {
-  .stone-row { grid-template-columns: minmax(0, 1fr) 188px minmax(0, 1fr); gap: 22px 28px; }
-  .stone-row .stone { grid-column: 2; grid-row: 1; justify-self: center; }
-  .stone-row:nth-child(odd) .stone { transform: translateX(-70px); }
-  .stone-row:nth-child(even) .stone { transform: translateX(70px); }
-  .stone-row:nth-child(odd):hover .stone { transform: translate(-70px, -3px); }
-  .stone-row:nth-child(even):hover .stone { transform: translate(70px, -3px); }
-  .stone-row:nth-child(odd) .stone-card { grid-column: 3; grid-row: 1; }
-  .stone-row:nth-child(even) .stone-card { grid-column: 1; grid-row: 1; text-align: right; border-left: 0; border-right: 4px solid var(--border); }
-  .stone-row:not(:last-child)::after { left: calc(50% - 70px + 10px); }
-  .stone-row:nth-child(even):not(:last-child)::after { left: calc(50% + 70px - 10px); }
-}
+/* the path winds: odd stones sit slightly left with cards right; even stones sit right with cards left */
+.stone-row:nth-child(odd) .stone { transform: translateX(-70px); }
+.stone-row:nth-child(even) .stone { transform: translateX(70px); }
+.stone-row:nth-child(odd):hover .stone { transform: translate(-70px, -3px); }
+.stone-row:nth-child(even):hover .stone { transform: translate(70px, -3px); }
+.stone-row:nth-child(odd) .stone-card { grid-column: 3; grid-row: 1; }
+.stone-row:nth-child(even) .stone-card { grid-column: 1; grid-row: 1; text-align: right; border-left: 0; border-right: 4px solid var(--border); }
+@media (max-width: 899px) { .stones { zoom: 0.68; } }
+@media (max-width: 639px) { .stones { zoom: 0.50; } }
+@media (max-width: 479px) { .stones { zoom: 0.40; } }
 @media (prefers-reduced-motion: reduce) { .stone { transition: none !important; } }
 
 /* ---- Certificates: pixel bulletin board ---- */
@@ -322,7 +359,7 @@
 }
 .cert-board__empty { margin: 0; padding: 24px; text-align: center; font-family: var(--font-pixel); font-size: .7rem; color: var(--wood-dark); }
 
-.cert-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 44px 32px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); }
+.cert-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(14px, 3vw, 44px) clamp(8px, 2.4vw, 32px); grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .cert-pin { display: grid; }
 .cert-pin:nth-child(3n + 1) { --tilt: -1.4deg; }
 .cert-pin:nth-child(3n + 2) { --tilt: 0.9deg; }
@@ -350,7 +387,7 @@
 }
 .cert-pin__name {
   font-family: var(--font-pixel); font-size: .86rem; line-height: 1.5; letter-spacing: .04em;
-  padding: 4px 4px 2px; min-height: 3.2em; display: grid; place-items: center;
+  padding: 4px 4px 2px; min-height: 3.2em; display: grid; place-items: center; overflow-wrap: anywhere;
 }
 /* red pixel thumbtack */
 .cert-pin__tack {
@@ -358,6 +395,22 @@
   width: 22px; height: 22px; background: #d8404a;
   border: 3px solid var(--ink-line);
   box-shadow: inset 3px 3px 0 #f58a90, 3px 4px 0 rgba(0, 0, 0, .3);
+}
+@media (max-width: 760px) {
+  .cert-board {
+    padding: 16px 8px 14px;
+    border-width: 6px;
+    box-shadow:
+      inset 0 0 0 2px var(--ink-line),
+      0 0 0 2px var(--ink-line),
+      inset 3px 3px 0 rgba(0, 0, 0, .18),
+      4px 5px 0 2px var(--shadow-color);
+  }
+  .cert-board::before { inset: -6px; border-width: 6px; }
+  .cert-pin__card { padding: 5px 5px 4px; gap: 4px; border-width: 2px; box-shadow: 3px 3px 0 rgba(0, 0, 0, .28); }
+  .cert-pin__img { border-width: 2px; }
+  .cert-pin__name { font-size: clamp(0.36rem, 1.35vw, 0.86rem); line-height: 1.35; padding: 2px 2px 0; min-height: 2.8em; }
+  .cert-pin__tack { width: 12px; height: 12px; top: -8px; margin-left: -6px; border-width: 2px; box-shadow: inset 2px 2px 0 #f58a90, 2px 2px 0 rgba(0, 0, 0, .3); }
 }
 
 .cert-lightbox {
@@ -489,10 +542,6 @@
   color: #3b3b42;
 }
 
-@media (max-width: 899px) {
-  .console { --band: 24px; }
-  .console__insert { display: none; }
-}
 .console__screen .about-facts { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
 
 /* ---- Activity panel as a circuit board, wired to the mini board by a ribbon cable ---- */
@@ -570,10 +619,3 @@
 }
 .proof-link::before { left: -8px; } .proof-link::after { right: -8px; }
 .proof-row .pcb { align-self: start; margin-top: 0; }
-@media (max-width: 999px) {
-  .proof-link { height: 48px; width: 92px; margin: 0 auto; }
-  .proof-link i { top: -6px; bottom: -6px; left: 0; right: 0;
-    background: repeating-linear-gradient(to right, #e3cd86 0 7px, #b89a45 7px 10px); border: 3px solid #0d1f17; border-block: 0; }
-  .proof-link::before, .proof-link::after { left: -6px; right: -6px; width: auto; height: 12px; top: auto; bottom: auto; }
-  .proof-link::before { top: -8px; } .proof-link::after { bottom: -8px; }
-}

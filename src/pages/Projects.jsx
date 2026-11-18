@@ -1,6 +1,6 @@
 // /projects — featured SE case study first, then work grouped by world (Code / Create / Learn).
 import { GithubIcon } from '../components/Icons.jsx';
-import { Eyebrow, PixelArrow, PixelButton, PixelCard, SectionHeading, TagList, WorldDot } from '../components/ui/index.jsx';
+import { Eyebrow, PixelArrow, PixelButton, PixelCard, SectionHeading, TagList } from '../components/ui/index.jsx';
 import { CASE_STUDY_SLUG, caseStudyProject, projectsInWorld } from '../data/projects.js';
 import { worlds } from '../data/worlds.js';
 import './Projects.css';
@@ -75,21 +75,6 @@ export default function Projects() {
       <div className="container">
         <FeaturedCaseStudy project={caseStudyProject} />
       </div>
-
-      <nav className="projects-pills" aria-label="Project groups">
-        <ul className="container projects-pills__list">
-          {groups.map(g => (
-            <li key={g.id}>
-              <a href={`#${g.id}`} className="projects-pill" data-world={g.id}>
-                <WorldDot world={g.id} />
-                <span className="projects-pill__num">{g.num}</span>
-                {g.label}
-                <span className="projects-pill__count">({g.items.length})</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
 
       {groups.map(g => (
         <section key={g.id} id={g.id} className="container projects-group" aria-labelledby={`${g.id}-title`}>

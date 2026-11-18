@@ -14,14 +14,25 @@
 /* ---- FAQ + status ---- */
 .contact-more {
   display: grid;
-  gap: 40px;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  column-gap: 48px;
+  gap: 40px 48px;
   align-items: start;
   border-top: var(--border-w) solid var(--border);
 }
-@media (min-width: 900px) {
-  .contact-more { grid-template-columns: minmax(0, 1fr) 340px; column-gap: 48px; }
-}
 .contact-faq { min-width: 0; }
+@media (max-width: 899px) {
+  .contact-more {
+    width: 920px;
+    zoom: 0.62;
+  }
+}
+@media (max-width: 639px) {
+  .contact-more { zoom: 0.46; }
+}
+@media (max-width: 479px) {
+  .contact-more { zoom: 0.355; }
+}
 
 .faq { display: grid; gap: 16px; }
 .faq__item {
@@ -60,7 +71,6 @@
   padding: 4px 16px 18px 58px;
   color: var(--fg);
 }
-@media (max-width: 480px) { .faq__a { padding-left: 16px; } }
 
 /* ---- Status card ---- */
 .status-card { display: grid; gap: 16px; }

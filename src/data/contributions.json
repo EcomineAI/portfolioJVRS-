@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-16T05:34:00.999Z",
+  "generatedAt": "2026-11-18T07:47:40.949Z",
   "user": "EcomineAI",
   "sources": {
     "github": {
@@ -10,16 +10,6 @@
     "tryhackme": null
   },
   "days": [
-    {
-      "date": "2025-11-11",
-      "count": 0,
-      "level": 0
-    },
-    {
-      "date": "2025-11-12",
-      "count": 0,
-      "level": 0
-    },
     {
       "date": "2025-11-13",
       "count": 0,
@@ -1862,17 +1852,27 @@
     },
     {
       "date": "2026-11-16",
+      "count": 3,
+      "level": 1
+    },
+    {
+      "date": "2026-11-17",
       "count": 0,
       "level": 0
+    },
+    {
+      "date": "2026-11-18",
+      "count": 2,
+      "level": 1
     }
   ],
   "stats": {
-    "allTime": 491,
-    "last365": 457,
-    "last30": 178,
-    "longestStreak": 10,
-    "currentStreak": 10,
-    "activeDays": 51,
+    "allTime": 496,
+    "last365": 462,
+    "last30": 183,
+    "longestStreak": 11,
+    "currentStreak": 1,
+    "activeDays": 53,
     "busiestDay": {
       "date": "2026-11-13",
       "count": 39

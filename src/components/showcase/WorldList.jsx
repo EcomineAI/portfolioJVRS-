@@ -3,7 +3,7 @@
 // Switching rows plays a pixel dissolve on the screen.
 // On narrow screens the laptop is hidden and the rows stand alone.
 import { useState } from 'react';
-import { ItemRow, PixelButton, PixelArrow, TagList, Eyebrow } from '../ui/index.jsx';
+import { ItemRow, PixelButton, TagList, Eyebrow } from '../ui/index.jsx';
 import PixelSprite from '../../buddies/PixelSprite.jsx';
 import { worldIcons } from '../../buddies/sprites.js';
 import './WorldList.css';
@@ -73,22 +73,22 @@ function Laptop({ project: p, world, href, index, total }) {
         </div>
       </div>
 
-      {/* hinge + keyboard deck */}
-      <div className="lap__hinge" aria-hidden="true" />
-      <div className="lap__base" aria-hidden="true">
-        <span className="lap__keys" />
-        <span className="lap__pad" />
-      </div>
+      {/* monitor chin + ribbon cable plugged into the board below */}
+      <div className="lap__chin" aria-hidden="true"><span className="lap__led" /></div>
+      <div className="lap__cable" aria-hidden="true"><i /><i /><i /><i /><i /></div>
 
-      {/* the card under the laptop: details */}
-      <div className="lap__card pixel-card">
+      {/* the board under the monitor: details */}
+      <div className="lap__card lap__pcb">
+        <span className="pcb-hole pcb-hole--tl" aria-hidden="true" /><span className="pcb-hole pcb-hole--tr" aria-hidden="true" />
+        <span className="pcb-hole pcb-hole--bl" aria-hidden="true" /><span className="pcb-hole pcb-hole--br" aria-hidden="true" />
+        <span className="lap__dsi" aria-hidden="true" />
+        <p className="lap__silk" aria-hidden="true">JV-PI 4B <span>· DISPLAY OUT</span></p>
         <div className="lap__body">
           <Eyebrow world={world}>{p.type}</Eyebrow>
           <h3 className="lap__title">{p.title}</h3>
           {p.summary && <p className="lap__summary">{p.summary}</p>}
           <TagList tags={p.tags?.slice(0, 5)} />
           <div className="lap__actions">
-            <PixelButton to={href} size="sm">Open <PixelArrow /></PixelButton>
             {p.links?.live && (
               <PixelButton href={p.links.live} variant="outline" size="sm">
                 Live <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span>

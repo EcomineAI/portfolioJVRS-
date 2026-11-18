@@ -32,7 +32,7 @@
   /* Layout */
   --max-w: 1760px;          /* use the full width of large screens (space, not bigger type) */
   --gutter: clamp(16px, 4vw, 72px);
-  --header-h: 72px;
+  --header-h: 54px;
 
   /* World colors (Code / Create / Learn). Text on these is always --ink. */
   --world-code: #5cf2c8;

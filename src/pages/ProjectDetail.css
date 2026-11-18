@@ -104,10 +104,7 @@
   padding: clamp(18px, 3.5vw, 36px);
   border-top: 10px solid var(--dot, var(--primary-soft));
 }
-.pd-team__grid { display: grid; gap: 28px; }
-@media (min-width: 768px) {
-  .pd-team__grid { grid-template-columns: minmax(200px, 1fr) 2.2fr; gap: 40px; }
-}
+.pd-team__grid { display: grid; grid-template-columns: minmax(105px, 1fr) 2.2fr; gap: clamp(12px, 3.5vw, 40px); }
 .pd-team__members { list-style: none; display: grid; gap: 8px; margin-top: 10px; font-size: var(--text-lg); }
 .pd-team__members li::before { content: '■'; margin-right: 10px; font-size: 0.7em; color: var(--muted-fg); }
 .pd-team__me {
@@ -131,12 +128,11 @@
 /* ---- Pager --------------------------------------------------------------- */
 .pd-pager {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(8px, 2vw, 16px);
   padding-top: 32px;
   border-top: 2px dashed var(--hairline);
 }
-@media (min-width: 640px) { .pd-pager { grid-template-columns: 1fr 1fr; } }
 .pd-pager__link {
   display: grid;
   gap: 6px;
@@ -152,7 +148,16 @@
 .pd-pager__link:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 0 var(--shadow-color); }
 .pd-pager__link--next { text-align: right; }
 .pd-pager__dir { font-size: var(--text-base); color: var(--muted-fg); }
-.pd-pager__title { font-family: var(--font-pixel); font-size: 1rem; line-height: 1.5; overflow-wrap: anywhere; }
+.pd-pager__title { font-family: var(--font-pixel); font-size: clamp(0.62rem, 2vw, 1rem); line-height: 1.5; overflow-wrap: anywhere; }
+@media (max-width: 639px) {
+  .pd-team { padding: 14px 12px; gap: 14px; }
+  .pd-team__members { font-size: 0.9rem; gap: 6px; }
+  .pd-team__me { margin-left: 6px; font-size: 0.72rem; }
+  .pd-team__mine { gap: 8px; }
+  .pd-team__mine .prose { font-size: 0.85rem; line-height: 1.5; }
+  .pd-pager__link { padding: 10px 10px; gap: 4px; }
+  .pd-pager__dir { font-size: 0.9rem; }
+}
 
 /* ---- Not found ----------------------------------------------------------- */
 .pd-missing__card { display: grid; gap: 18px; justify-items: start; max-width: 640px; }

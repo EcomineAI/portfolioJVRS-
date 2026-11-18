@@ -78,6 +78,7 @@ export function PixelArrow() {
 
 /** One row in a list of work: title · one-liner · meta · arrow. */
 export function ItemRow({ to, href, title, description, meta = [], role, active = false, onActivate }) {
+  const suppressClickRef = useRef(false);
   const inner = (
     <>
       <span className="item-row__title">{title}</span>
@@ -91,7 +92,21 @@ export function ItemRow({ to, href, title, description, meta = [], role, active 
       <span className="item-row__arrow"><PixelArrow /></span>
     </>
   );
-  const hover = onActivate ? { onMouseEnter: onActivate, onFocus: onActivate } : {};
+  const handlePointerDown = e => {
+    if (!onActivate) return;
+    const isTouch = e.pointerType === 'touch' || window.matchMedia?.('(pointer: coarse)').matches;
+    const clickedArrow = e.target.closest?.('.item-row__arrow');
+    suppressClickRef.current = Boolean(isTouch && !active && !clickedArrow);
+  };
+  const handleClick = e => {
+    if (!onActivate) return;
+    if (suppressClickRef.current) {
+      suppressClickRef.current = false;
+      e.preventDefault();
+      onActivate();
+    }
+  };
+  const hover = onActivate ? { onPointerDown: handlePointerDown, onMouseEnter: onActivate, onFocus: onActivate, onClick: handleClick } : {};
   return (
     <li className={cx('item-row', active && 'is-active')}>
       {to ? (

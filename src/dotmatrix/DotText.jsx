@@ -27,7 +27,7 @@ export default function DotText({ lines, className, colorVar = '--fg' }) {
       sample={sample}
       aspect={aspect}
       // ~2–3 dots per font pixel (a Press Start 2P glyph is 8×8 font pixels)
-      step={w => Math.max(3, Math.round(w / longest / 18))}
+      step={w => Math.max(1.5, Math.round((w / longest / 18) * 2) / 2)}
       radius={70}
       colorVar={colorVar}
       minLevel={0.35}

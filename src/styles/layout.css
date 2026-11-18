@@ -19,7 +19,7 @@
 }
 .logo {
   font-family: var(--font-pixel);
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   text-decoration: none;
   color: var(--fg);
   white-space: nowrap;
@@ -30,9 +30,9 @@
 .site-nav__list { display: flex; gap: 4px; list-style: none; }
 .site-nav__link {
   display: inline-flex; align-items: center;
-  min-height: 44px;
-  padding: 0 12px;
-  font-size: var(--text-lg);
+  min-height: 36px;
+  padding: 0 10px;
+  font-size: var(--text-base);
   text-decoration: none;
   color: var(--muted-fg);
 }
@@ -41,7 +41,9 @@
 .site-nav__link.active { color: var(--fg); }
 .site-nav__link.active::before { opacity: 1; color: var(--primary-soft); }
 
-.site-header__tools { display: flex; align-items: center; gap: 10px; }
+.site-header__tools { display: flex; align-items: center; gap: 8px; }
+.site-header__tools .pixel-btn--icon { width: 34px; height: 34px; min-height: 0; min-width: 0; padding: 0; }
+.site-header__tools .pixel-btn--icon svg { width: 16px; height: 16px; }
 .menu-toggle { display: none; }
 
 .menu-icon { display: grid; gap: 4px; width: 20px; }
@@ -51,8 +53,13 @@
 .menu-icon.is-open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
 .mobile-menu {
-  position: fixed;
-  inset: var(--header-h) 0 0 0;
+  /* The header's backdrop-filter makes it the containing block for fixed children, so anchor to the
+     header's bottom edge and give the menu an explicit viewport-based height. */
+  position: absolute;
+  top: 100%; left: 0; right: 0;
+  height: calc(100vh - var(--header-h) - 3px);
+  height: calc(100dvh - var(--header-h) - 3px);
+  z-index: 60;
   background: var(--bg);
   padding: 24px var(--gutter);
   overflow-y: auto;
@@ -108,15 +115,13 @@
 /* Inline variant on /contact */
 .say-hi__inline-grid {
   display: grid;
-  gap: 28px;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: clamp(12px, 3.5vw, 40px);
   align-items: center;
   justify-items: start;
 }
-@media (min-width: 860px) {
-  .say-hi__inline-grid { grid-template-columns: auto minmax(0, 1fr); gap: 40px; }
-}
-.say-hi__inline-meta { display: grid; gap: 16px; justify-items: start; }
-.say-hi__title { font-size: clamp(1.75rem, 4.5vw, 2.75rem); }
+.say-hi__inline-meta { display: grid; gap: 16px; justify-items: start; min-width: 0; }
+.say-hi__title { font-size: clamp(1.1rem, 4vw, 2.75rem); }
 .say-hi__links { list-style: none; display: grid; gap: 4px; margin: 0; padding: 0; }
 .say-hi__links a {
   display: inline-flex; align-items: center; gap: 10px;
@@ -126,8 +131,29 @@
   text-decoration: none;
 }
 .say-hi__links a:hover { color: var(--primary); text-decoration: underline; text-underline-offset: 4px; }
-.say-hi__links svg { width: 20px; height: 20px; }
+.say-hi__links svg { width: 20px; height: 20px; flex: none; }
 .say-hi__muted { color: var(--muted-fg); }
+
+@media (max-width: 859px) {
+  .say-hi__inline-grid {
+    width: 840px;
+    grid-template-columns: 465px minmax(0, 1fr);
+    gap: 40px;
+    zoom: 0.62;
+  }
+  .say-hi__inline-grid .mclovin-id { max-width: none; }
+  .say-hi__title { font-size: 2.5rem; }
+}
+@media (max-width: 639px) {
+  .say-hi__inline-grid { zoom: 0.48; }
+}
+@media (max-width: 560px) {
+  .say-hi__bar { gap: 8px 12px; }
+  .say-hi__bar-mail { font-size: clamp(0.95rem, 3.8vw, var(--text-lg)); }
+}
+@media (max-width: 479px) {
+  .say-hi__inline-grid { zoom: 0.39; }
+}
 
 /* Floating side dock (no backdrop — page remains freely scrollable) */
 .say-hi-dock {
@@ -156,13 +182,14 @@
 }
 html.bug-locked .say-hi-dock { display: none; }
 
-@media (max-width: 500px) {
+@media (max-width: 560px) {
   .say-hi-dock {
-    left: 8px;
-    right: 8px;
-    bottom: 80px;
-    display: flex;
-    justify-content: center;
+    right: 12px;
+    bottom: 72px;
+  }
+  .say-hi-dock .mclovin-id {
+    max-width: none;
+    zoom: 0.58;
   }
 }
 
@@ -221,16 +248,6 @@ html.bug-locked .say-hi-dock { display: none; }
   pointer-events: auto;
   visibility: visible;
   transition: visibility 0s linear 190ms;
-}
-
-@media (max-width: 480px) {
-  .mclovin-id { height: 274px; }
-  .mclovin-id__face--front {
-    grid-template-columns: 92px minmax(0, 1fr);
-    gap: 10px;
-    padding: 10px 12px;
-  }
-  .mclovin-id__face--back { padding: 10px 12px; }
 }
 
 .mclovin-id__rainbow {
@@ -321,9 +338,6 @@ html.bug-locked .say-hi-dock { display: none; }
   display: grid;
   place-items: center;
   overflow: hidden;
-}
-@media (max-width: 480px) {
-  .mclovin-id__photo { height: 104px; }
 }
 .mclovin-id__img {
   display: block;
@@ -567,15 +581,6 @@ html.bug-locked .say-hi-dock { display: none; }
   white-space: nowrap;
 }
 
-@media (max-width: 480px) {
-  .mclovin-id__back-grid { grid-template-columns: 104px minmax(0, 1fr); gap: 10px; }
-  .mclovin-id__back-qr { width: 88px; height: 88px; }
-  .mclovin-id__back-qrcap div { font-size: 10px; }
-  .mclovin-id__back-qrcap span { font-size: 10px; }
-  .mclovin-id__quote-text { font-size: 12px; }
-  .mclovin-id__sig-name { font-size: 10px; }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .say-hi-dock,
   .say-hi-dock.is-visible,
@@ -657,7 +662,7 @@ html.bug-locked .say-hi-dock { display: none; }
 .site-footer__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, max-content));
-  gap: 32px clamp(48px, 12vw, 200px);
+  gap: clamp(16px, 4vw, 32px) clamp(24px, 10vw, 200px);
   align-items: start;
 }
 .site-footer__col { display: grid; gap: 16px; align-content: start; justify-items: start; }
@@ -710,7 +715,18 @@ html.bug-locked .say-hi-dock { display: none; }
 .site-footer__icon:active { transform: translate(3px, 3px); box-shadow: none; }
 
 @media (max-width: 520px) {
-  .site-footer__grid { grid-template-columns: 1fr; }
+  .site-footer { padding-block: 28px 84px; }
+  .site-footer__grid {
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+    gap: 16px 20px;
+  }
+  .site-footer__col { gap: 10px; }
+  .site-footer__label { font-size: 0.72rem; padding: 6px 10px; gap: 6px; border-width: 3px; }
+  .site-footer__nav { gap: 4px; }
+  .site-footer__nav a { font-size: 1rem; min-height: 26px; gap: 8px; }
+  .site-footer__social { gap: 8px; }
+  .site-footer__icon { width: 34px; height: 34px; }
+  .site-footer__text { font-size: 0.9rem; }
 }
 
 /* ---- Retro pixel cursor (site-wide) --------------------------------------
