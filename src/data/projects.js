@@ -121,7 +121,7 @@ export const projects = [
       },
     ],
     links: { source: 'https://github.com/EcomineAI/jv-ytdlp' },
-    cover: '/projects/jv-ytdlp/cover.png',
+    cover: '/projects/jv-ytdlp/cover.webp',
     coverAlt: 'jv-ytdlp desktop video downloader browser UI',
   },
   {
@@ -192,7 +192,7 @@ export const projects = [
     team: null,
     role: 'Solo',
     links: {},
-    cover: '/projects/prompt-engineering.jpg',
+    cover: '/projects/prompt-engineering.webp',
   },
   {
     slug: 'graphics',
@@ -206,7 +206,7 @@ export const projects = [
     team: null,
     role: 'Solo',
     links: {},
-    cover: '/projects/graphics.jpg',
+    cover: '/projects/graphics.webp',
   },
 
   // --------------------------------------------------------------- LEARN
@@ -222,7 +222,7 @@ export const projects = [
     team: null,
     role: 'Student',
     links: {},
-    cover: '/projects/bscs-gordon-college.jpg',
+    cover: '/projects/bscs-gordon-college.webp',
   },
   {
     slug: 'local-llm-lab',
@@ -237,7 +237,7 @@ export const projects = [
     team: null,
     role: 'Self-directed',
     links: {},
-    cover: '/projects/local-llm-lab.jpg',
+    cover: '/projects/local-llm-lab.webp',
   },
   {
     slug: 'linux-cybersecurity',
@@ -252,7 +252,7 @@ export const projects = [
     team: null,
     role: 'Self-directed',
     links: {},
-    cover: '/projects/linux-cybersecurity.jpg',
+    cover: '/projects/linux-cybersecurity.webp',
   },
   {
     slug: 'ai-agents-automation',
@@ -267,7 +267,7 @@ export const projects = [
     team: null,
     role: 'Self-directed',
     links: {},
-    cover: '/projects/ai-agents-automation.jpg',
+    cover: '/projects/ai-agents-automation.webp',
   },
 ];
 

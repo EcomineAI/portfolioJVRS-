@@ -27,7 +27,7 @@ export const profile = {
   status: 'Open to internships, part-time and freelance work',
   email: 'junevicabello@gmail.com',
   resume: '/June Vic M. Abello — Resume.pdf',
-  photo: '/jv.png',
+  photo: '/jv.webp',
   portrait: '/pfp-no-bg.png',   // the Home dot-matrix portrait (plain background, auto-masked)
   links: {
     github: 'https://github.com/EcomineAI',

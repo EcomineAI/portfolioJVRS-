@@ -42,12 +42,19 @@ const journey = [
    click to enlarge (Esc or click to close). */
 function CertGrid({ items }) {
   const [open, setOpen] = useState(null);
+  const [loaded, setLoaded] = useState(() => ({}));
   useEffect(() => {
     if (open === null) return undefined;
     const onKey = e => { if (e.key === 'Escape') setOpen(null); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open]);
+
+  const preloadFull = (src) => {
+    if (!src) return;
+    const img = new Image();
+    img.src = src;
+  };
 
   const label = (c, i) => c.title || `Certificate ${i + 1}`;
   const current = open !== null ? items[open] : null;
@@ -58,21 +65,43 @@ function CertGrid({ items }) {
           <p className="cert-board__empty">Nothing pinned yet. Add images in public/assets/certs and list them in src/data/certifications.js</p>
         ) : (
           <ul className="cert-grid">
-            {items.map((c, i) => (
-              <li key={c.image || c.title} className="cert-pin">
-                <button type="button" className="cert-pin__card" onClick={() => setOpen(i)} aria-label={`View ${label(c, i)} larger`}>
-                  <span className="cert-pin__tack" aria-hidden="true" />
-                  <img className="cert-pin__img" src={c.image} alt={`${label(c, i)}${c.issuer ? `, ${c.issuer}` : ''}`} loading="lazy" />
-                  <span className="cert-pin__name">{label(c, i)}</span>
-                </button>
-              </li>
-            ))}
+            {items.map((c, i) => {
+              const key = c.image || c.title;
+              const isLoaded = !!loaded[key];
+              return (
+                <li key={key} className="cert-pin">
+                  <button
+                    type="button"
+                    className="cert-pin__card"
+                    onClick={() => setOpen(i)}
+                    onMouseEnter={() => preloadFull(c.image)}
+                    onFocus={() => preloadFull(c.image)}
+                    aria-label={`View ${label(c, i)} larger`}
+                  >
+                    <span className="cert-pin__tack" aria-hidden="true" />
+                    <span className={`cert-pin__frame${isLoaded ? ' is-loaded' : ''}`}>
+                      <img
+                        className="cert-pin__img"
+                        src={c.thumb || c.image}
+                        alt={`${label(c, i)}${c.issuer ? `, ${c.issuer}` : ''}`}
+                        width="640"
+                        height="480"
+                        loading="lazy"
+                        decoding="async"
+                        onLoad={() => setLoaded(prev => (prev[key] ? prev : { ...prev, [key]: true }))}
+                      />
+                    </span>
+                    <span className="cert-pin__name">{label(c, i)}</span>
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
       {current && (
         <div className="cert-lightbox" role="dialog" aria-modal="true" aria-label={label(current, open)} onClick={() => setOpen(null)}>
-          <img src={current.image} alt={label(current, open)} />
+          <img src={current.image} alt={label(current, open)} decoding="async" />
           <div className="cert-lightbox__bar">
             {current.url && (
               <a className="pixel-btn pixel-btn--sm" href={current.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>

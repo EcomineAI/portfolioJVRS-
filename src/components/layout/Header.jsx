@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { navItems, profile } from '../../data/profile.js';
+import { prefetchRoute } from '../../App.jsx';
 import { MoonIcon, SunIcon, VolumeOffIcon, VolumeOnIcon } from '../Icons.jsx';
 import { useSound } from '../../sound/SoundContext.jsx';
 import SprayButton from '../../spray/SprayButton.jsx';
-import BugButton from '../../bugEvent/BugButton.jsx';
+
+const BugButton = lazy(() => import('../../bugEvent/BugButton.jsx'));
 
 export function Logo({ className = '' }) {
   return (
@@ -57,14 +59,28 @@ export default function Header({ theme, onToggleTheme }) {
             <ul className="site-nav__list">
               {navItems.map(item => (
                 <li key={item.to}>
-                  <NavLink to={item.to} end={item.end} className="site-nav__link" data-uisfx="forward">{item.label}</NavLink>
+                  <NavLink
+                    to={item.to}
+                    end={item.end}
+                    className="site-nav__link"
+                    data-uisfx="forward"
+                    onMouseEnter={() => prefetchRoute(item.to)}
+                    onFocus={() => prefetchRoute(item.to)}
+                    onTouchStart={() => prefetchRoute(item.to)}
+                  >
+                    {item.label}
+                  </NavLink>
                 </li>
               ))}
             </ul>
           </nav>
 
           <div className="site-header__tools">
-            {bugUnlocked && <BugButton onHide={hideBug} />}
+            {bugUnlocked && (
+              <Suspense fallback={null}>
+                <BugButton onHide={hideBug} />
+              </Suspense>
+            )}
             <SprayButton />
             <button
               type="button"

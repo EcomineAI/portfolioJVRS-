@@ -457,10 +457,27 @@
   outline: none;
 }
 .cert-pin__card:focus-visible { outline: 3px dashed var(--ink-line); outline-offset: 4px; }
-.cert-pin__img {
-  display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: top;
-  border: 4px solid var(--ink-line); background: #fff;
+.cert-pin__frame {
+  display: block; width: 100%; aspect-ratio: 4 / 3; overflow: hidden;
+  border: 4px solid var(--ink-line);
+  background: linear-gradient(110deg, #ece8dc 25%, #f7f4eb 45%, #ece8dc 65%);
+  background-size: 220% 100%;
+  animation: cert-shimmer 1.2s steps(12) infinite;
 }
+.cert-pin__frame.is-loaded {
+  background: #fff;
+  animation: none;
+}
+.cert-pin__img {
+  display: block; width: 100%; height: 100%; object-fit: cover; object-position: top;
+  opacity: 0; transition: opacity 220ms ease-out;
+}
+.cert-pin__frame.is-loaded .cert-pin__img { opacity: 1; }
+@keyframes cert-shimmer {
+  from { background-position: 120% 0; }
+  to   { background-position: -120% 0; }
+}
+.about-section { content-visibility: auto; contain-intrinsic-size: auto 640px; }
 .cert-pin__name {
   font-family: var(--font-pixel); font-size: .86rem; line-height: 1.5; letter-spacing: .04em;
   padding: 4px 4px 2px; min-height: 3.2em; display: grid; place-items: center; overflow-wrap: anywhere;
@@ -488,7 +505,7 @@
     gap: 20px 12px;
   }
   .cert-pin__card { padding: 8px 8px 6px; gap: 6px; border-width: 3px; box-shadow: 4px 4px 0 rgba(0, 0, 0, .28); }
-  .cert-pin__img { border-width: 2px; }
+  .cert-pin__frame { border-width: 2px; }
   .cert-pin__name { font-size: clamp(0.54rem, 2.2vw, 0.7rem); line-height: 1.4; padding: 3px 2px 1px; min-height: auto; }
   .cert-pin__tack { width: 14px; height: 14px; top: -9px; margin-left: -7px; border-width: 2px; }
 }
