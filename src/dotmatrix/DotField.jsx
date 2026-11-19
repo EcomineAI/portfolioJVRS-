@@ -74,18 +74,32 @@ export default function DotField({
       const xs = [], ys = [], ss = [], as = [];
       const padX = (W - cols * pitch) / 2 + pitch / 2;
       const padY = (H - rows * pitch) / 2 + pitch / 2;
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       for (let j = 0; j < rows; j++) {
         for (let i = 0; i < cols; i++) {
           const k = (j * cols + i) * 4;
           const v = (data[k] / 255) * (data[k + 3] / 255);
           if (v < minLevel) continue;
-          xs.push(padX + i * pitch);
-          ys.push(padY + j * pitch);
-          ss.push(Math.max(1, pitch * (0.3 + 0.62 * v)));
+          const x = padX + i * pitch;
+          const y = padY + j * pitch;
+          const s = Math.max(1, pitch * (0.3 + 0.62 * v));
+          const half = s / 2;
+          if (x - half < minX) minX = x - half;
+          if (x + half > maxX) maxX = x + half;
+          if (y - half < minY) minY = y - half;
+          if (y + half > maxY) maxY = y + half;
+          xs.push(x);
+          ys.push(y);
+          ss.push(s);
           as.push(0.35 + 0.65 * v);
         }
       }
       n = xs.length;
+      if (n > 0) {
+        wrap.dataset.dotBounds = `${Math.round(minX)},${Math.round(minY)},${Math.round(maxX)},${Math.round(maxY)}`;
+      } else {
+        delete wrap.dataset.dotBounds;
+      }
       hx = Float32Array.from(xs); hy = Float32Array.from(ys);
       ox = new Float32Array(n); oy = new Float32Array(n);
       vx = new Float32Array(n); vy = new Float32Array(n);

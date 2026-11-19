@@ -114,6 +114,7 @@ export default function SprayLayer() {
 
     const onDown = (e) => {
       if (pending || !e.isPrimary) return;
+      if (document.documentElement.classList.contains('bug-locked')) return;
       if (e.pointerType === 'mouse' && e.button !== 0) return;
       if (e.pointerType === 'touch' && !touchModeRef.current) return;
       if (e.pointerType === 'pen' && !touchModeRef.current && !window.matchMedia?.('(hover: hover)').matches) return;

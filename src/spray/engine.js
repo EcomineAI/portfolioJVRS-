@@ -12,12 +12,13 @@
 // Settings
 //   can      sprite + spray width (classic · graffiti · marker · crosshair)
 //   flow     physics preset (balanced · curly · heavy · floaty · chaos)
-//   palette  colors (section · neon · ink · pastel)
+//   palette  colors (section · neon · ink · print)
 // Reduced motion: no physics; every mode leaves static marks.
 
 import { sprayBus } from './sprayBus.js';
 
 const GRID = 4;               // one pixel of the pixel-art grid
+const STEP = 1000 / 60;       // fixed physics timestep (60 Hz)
 const SEG = 6;                // rest length between rope points
 const MAX_STRAND = 700;       // one spray = one continuous string; past this its far end is trimmed
 const MAX_STRANDS = 40;
@@ -103,7 +104,7 @@ export const PALETTES = {
   section: null, // color of the page section under the pointer
   neon: ['#39ff14', '#ff2bd6', '#00e5ff', '#fff200'],
   ink: ['fg', 'primary', 'create'],
-  print: ['#141414', '#1d4ed8', '#b91c1c', '#166534', '#a14d05'],
+  print: ['fg', 'primary', 'create', 'code', 'learn'],
 };
 
 const COLOR_VARS = {
@@ -160,6 +161,9 @@ export class SprayEngine {
     this.colorIndex = -1;
 
     this.raf = 0;
+    this.lastTick = 0;
+    this.acc = 0;
+    this.wasBusy = false;
     this.tick = this.tick.bind(this);
     this.colors = { ...FALLBACK };
     this.readColors();
@@ -294,20 +298,30 @@ export class SprayEngine {
     if (hidden) {
       if (this.raf) cancelAnimationFrame(this.raf);
       this.raf = 0;
+      this.lastTick = 0;
+      this.acc = 0;
+      this.wasBusy = false;
       this.end();
     } else {
       this.requestFrame();
     }
   }
 
-  /** Color of the page section under the pointer (Code / Create / Learn), else blue/purple. */
+  resolveColor(key) {
+    if (key && this.colors[key]) return this.colors[key];
+    if (typeof key === 'string' && (key[0] === '#' || key.startsWith('rgb') || key.startsWith('hsl'))) return key;
+    return this.colors.primary;
+  }
+
+  /** Color of the page section under the pointer (Code / Create / Learn), else theme inks. */
   sectionColor() {
     const el = document.elementFromPoint(this.pointer.x, this.pointer.y);
     const world = el?.closest?.('[data-world]')?.dataset.world
       || el?.closest?.('section[id]')?.id;
     if (world === 'code' || world === 'create' || world === 'learn') return world;
-    this.colorIndex = (this.colorIndex + 1) % 2;
-    return ['primary', 'purple'][this.colorIndex];
+    const inks = ['primary', 'code', 'create', 'learn'];
+    this.colorIndex = (this.colorIndex + 1) % inks.length;
+    return inks[this.colorIndex];
   }
 
   nextColor() {
@@ -372,9 +386,25 @@ export class SprayEngine {
 
   tick(now) {
     this.raf = 0;
-    const busy = this.update(now);
+    if (!this.lastTick || now - this.lastTick > 100) {
+      this.lastTick = now;
+      this.acc = STEP;
+    } else {
+      this.acc = Math.min(this.acc + (now - this.lastTick), STEP * 3);
+      this.lastTick = now;
+    }
+    let stepped = false;
+    let busy = this.wasBusy;
+    while (this.acc >= STEP - 1) {
+      busy = this.update(now);
+      this.acc = Math.max(0, this.acc - STEP);
+      stepped = true;
+      if (!busy) { this.acc = 0; break; }
+    }
+    this.wasBusy = busy;
     this.draw(now);
-    if (busy) this.requestFrame();
+    if (busy || (!stepped && this.wasBusy)) this.requestFrame();
+    else this.lastTick = 0;
   }
 
   destroy() {
@@ -630,12 +660,16 @@ export class SprayEngine {
   }
 
   // ---- physics -------------------------------------------------------------
-  /** Rect whose top edge the point (moving from prevY) just reached, if any. */
+  /** Topmost rect whose top edge the point (moving downward from prevY) just reached, if any. */
   ledgeHit(x, prevY, y) {
+    if (y <= prevY) return null;
+    let best = null;
     for (const r of this.targets) {
-      if (x > r.l && x < r.r && prevY <= r.t && y >= r.t - GRID) return r;
+      if (x > r.l && x < r.r && prevY <= r.t && y >= r.t - GRID) {
+        if (!best || r.t < best.t) best = r;
+      }
     }
-    return null;
+    return best;
   }
 
   /** String point vs boxes and lines. The string is sticky: it grips the edge it
@@ -756,9 +790,10 @@ export class SprayEngine {
   solid(x, y) {
     const sx = snap(x), sy = snap(y);
     if (this.dots.has(`${sx},${sy}`)) return true;
-    if (this.docH && sy >= this.docH - GRID) return true;
+    if (this.docH && sy >= snap(this.docH - GRID)) return true;
     for (const r of this.targets) {
-      if (sx > r.l - GRID && sx < r.r && sy >= r.t && sy < r.t + GRID * 2) return true;
+      const rt = snap(r.t);
+      if (sx >= snap(r.l) && sx < snap(r.r) && sy >= rt && sy < rt + GRID * 2) return true;
     }
     return false;
   }
@@ -774,12 +809,43 @@ export class SprayEngine {
         p.vx *= 0.96;
         p.x += p.vx;
         p.y += p.vy;
-        // falling-sand rule: settle when blocked below, otherwise slide diagonally
-        if (this.solid(p.x, p.y + GRID)) {
-          if (!this.solid(p.x - GRID, p.y + GRID) && !this.solid(p.x - GRID, p.y)) { p.x -= GRID; p.vy = 0.5; keep.push(p); continue; }
-          if (!this.solid(p.x + GRID, p.y + GRID) && !this.solid(p.x + GRID, p.y)) { p.x += GRID; p.vy = 0.5; keep.push(p); continue; }
-          this.addDot(p.x, p.y, p.color);
-          continue;
+        if (p.x < 0) { p.x = 0; p.vx = 0; }
+        else if (this.docW && p.x > this.docW - GRID) { p.x = this.docW - GRID; p.vx = 0; }
+        // falling-sand rule: sweep downward to avoid tunneling, then slide diagonally or stack
+        if (p.vy > 0) {
+          const sx = snap(p.x);
+          const startY = snap(prevY);
+          const endY = snap(p.y);
+          let hitY = null;
+          for (let sy = startY; sy <= endY; sy += GRID) {
+            if (this.solid(sx, sy + GRID)) { hitY = sy; break; }
+          }
+          if (hitY !== null) {
+            const d = Math.random() < 0.5 ? -GRID : GRID;
+            const inBounds = nx => nx >= 0 && (!this.docW || nx <= this.docW - GRID);
+            let slid = false;
+            for (const dir of [d, -d]) {
+              const nx = sx + dir;
+              if (inBounds(nx) && !this.solid(nx, hitY + GRID) && !this.solid(nx, hitY)) {
+                p.x = nx;
+                p.y = hitY;
+                p.vy = 0.5;
+                p.vx = 0;
+                keep.push(p);
+                slid = true;
+                break;
+              }
+            }
+            if (slid) continue;
+            let landY = hitY;
+            let steps = 0;
+            while (landY > 0 && this.solid(sx, landY) && steps < 4) {
+              landY -= GRID;
+              steps++;
+            }
+            if (!this.solid(sx, landY)) this.addDot(sx, landY, p.color);
+            continue;
+          }
         }
       } else if (p.kind === 'confetti') {
         p.phase += 0.25;
@@ -787,9 +853,11 @@ export class SprayEngine {
         p.vx = p.vx * damping + Math.sin(p.phase) * 0.18;
         p.x += p.vx;
         p.y += p.vy;
-        if (this.ledgeHit(p.x, prevY, p.y) || (this.docH && p.y >= this.docH - GRID)) {
-          this.addDot(p.x, p.y, p.color);
-          if (Math.sin(p.phase) > 0) this.addDot(p.x + GRID, p.y, p.color);
+        const r = this.ledgeHit(p.x, prevY, p.y);
+        if (r || (this.docH && p.y >= this.docH - GRID)) {
+          const landY = r ? r.t - GRID : this.docH - GRID;
+          this.addDot(p.x, landY, p.color);
+          if (Math.sin(p.phase) > 0 && (!r || p.x + GRID < r.r)) this.addDot(p.x + GRID, landY, p.color);
           continue;
         }
       } else { // letter
@@ -834,7 +902,7 @@ export class SprayEngine {
 
     let current = null;
     const fill = key => {
-      if (key !== current) { current = key; ctx.fillStyle = this.colors[key] || key || this.colors.primary; }
+      if (key !== current) { current = key; ctx.fillStyle = this.resolveColor(key); }
     };
 
     // static dots
@@ -854,7 +922,7 @@ export class SprayEngine {
     for (const s of this.strands) {
       const pts = s.pts;
       if (pts.length < 2) continue;
-      ctx.strokeStyle = this.colors[s.color] || s.color || this.colors.primary;
+      ctx.strokeStyle = this.resolveColor(s.color);
       ctx.beginPath();
       ctx.moveTo(pts[0].x - sx, pts[0].y - sy);
       for (let i = 1; i < pts.length - 1; i++) {
@@ -904,7 +972,7 @@ export class SprayEngine {
         } else {
           const size = Math.max(2, Math.round(GRID * (1 - s.t * 0.5)));
           ctx.globalAlpha = 1;
-          ctx.fillStyle = this.colors[s.color] || s.color || this.colors.primary;
+          ctx.fillStyle = this.resolveColor(s.color);
           ctx.fillRect(Math.round(x), Math.round(y), size, size);
         }
       }
@@ -939,7 +1007,7 @@ export class SprayEngine {
     const cfg = this.canCfg;
     const S = cfg.scale;
     const c = this.colors;
-    const paint = c[this.active?.color || this.sprayColor] || this.active?.color || this.sprayColor || c.primary;
+    const paint = this.resolveColor(this.active?.color || this.sprayColor);
     let ox = Math.round(this.pointer.x);
     let oy = Math.round(this.pointer.y);
     if (now < this.shakeUntil && !this.reduced) {
