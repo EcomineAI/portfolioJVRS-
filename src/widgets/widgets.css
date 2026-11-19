@@ -75,7 +75,7 @@
   font-size: 0.75rem;
   line-height: 1.4;
   letter-spacing: 0.1em;
-  box-shadow: 3px 3px 0 0 var(--world-create);
+  box-shadow: 3px 3px 0 0 var(--primary);
 }
 .jvbot__head-actions { margin-left: auto; display: flex; gap: 6px; }
 .jvbot__icon-btn {
@@ -108,7 +108,7 @@
 .jvbot__msg--bot::before { content: '▸ '; color: var(--primary); }
 .jvbot__msg--bot a { color: var(--primary); text-underline-offset: 3px; font-weight: 400; }
 .jvbot__msg--bot a:hover { text-decoration-thickness: 2px; }
-.jvbot__msg--bot strong { color: var(--fg); font-weight: 400; background: linear-gradient(transparent 60%, color-mix(in srgb, var(--world-code) 55%, transparent) 60%); }
+.jvbot__msg--bot strong { color: var(--fg); font-weight: 600; border-bottom: 2px solid var(--primary); }
 .jvbot__msg--user {
   align-self: flex-end;
   padding: 6px 10px;

@@ -73,11 +73,11 @@ export const skillGroups = [
     id: 'design',
     title: 'Design & 3D',
     skills: [
-      { name: 'Figma', icon: 'figma', noKey: true, projects: [] },
-      { name: 'Blender', icon: 'blender', noKey: true, projects: [] },
-      { name: 'Canva', icon: 'canva', noKey: true, projects: [] },
-      { name: 'CapCut', icon: 'capcut', noKey: true, projects: [] },
-      { name: 'Prisma3D', icon: 'prisma3d', noKey: true, projects: [] },
+      { name: 'Figma', icon: 'figma', noKey: true, projects: ['graphics'] },
+      { name: 'Blender', icon: 'blender', noKey: true, projects: ['3d-modeling'] },
+      { name: 'Canva', icon: 'canva', noKey: true, projects: ['graphics'] },
+      { name: 'CapCut', icon: 'capcut', noKey: true, projects: ['video-editing'] },
+      { name: 'Prisma3D', icon: 'prisma3d', noKey: true, projects: ['3d-modeling'] },
     ],
   },
   {

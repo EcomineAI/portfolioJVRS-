@@ -48,7 +48,7 @@ export function drawCode128(canvas, text) {
   const ctx = canvas.getContext('2d');
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, w, h);
-  ctx.fillStyle = '#0d1226';
+  ctx.fillStyle = '#141414';
   let x = quiet;
   widths.forEach((mw, i) => {
     if (i % 2 === 0) ctx.fillRect(x, 1, mw, h - 2);
@@ -323,9 +323,8 @@ export function drawQrCode(canvas, text, badge = 'in') {
 
   // High-contrast diagonal gradient across the QR code
   const grad = ctx.createLinearGradient(0, 0, totalPx, totalPx);
-  grad.addColorStop(0, '#0d1226');
-  grad.addColorStop(0.55, '#1d4ed8');
-  grad.addColorStop(1, '#0f5257');
+  grad.addColorStop(0, '#141414');
+  grad.addColorStop(1, '#1d4ed8');
   ctx.fillStyle = grad;
 
   // 1) Draw rounded / connected data & timing modules
@@ -357,7 +356,7 @@ export function drawQrCode(canvas, text, badge = 'in') {
     const outer = 7 * cell;
 
     // Outer rounded dark frame
-    ctx.fillStyle = '#0d1226';
+    ctx.fillStyle = '#141414';
     roundRectPath(ctx, ox, oy, outer, outer, cell * 1.4);
     ctx.fill();
 
@@ -375,7 +374,7 @@ export function drawQrCode(canvas, text, badge = 'in') {
   drawEye(0, n - 7);
   drawEye(n - 7, 0);
 
-  // 3) Center pixel badge ("GH" / code crest)
+  // 3) Center pixel badge
   const bx = (mid - badgeHalf + quiet) * cell;
   const by = (mid - badgeHalf + quiet) * cell;
   const bw = (badgeHalf * 2 + 1) * cell;
@@ -383,12 +382,12 @@ export function drawQrCode(canvas, text, badge = 'in') {
   roundRectPath(ctx, bx + 2, by + 2, bw - 4, bw - 4, cell * 0.9);
   ctx.fill();
 
-  ctx.fillStyle = '#0d1226';
+  ctx.fillStyle = '#141414';
   roundRectPath(ctx, bx + cell * 0.55, by + cell * 0.55, bw - cell * 1.1, bw - cell * 1.1, cell * 0.65);
   ctx.fill();
 
   // Crisp center mark inside badge
-  ctx.fillStyle = '#5cf2c8';
+  ctx.fillStyle = '#ffffff';
   ctx.font = `900 ${Math.round(cell * 2.5)}px ui-monospace, Menlo, monospace`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';

@@ -347,7 +347,7 @@
 .stone > * { position: relative; }
 .stone .pixel-gadget { flex: none; image-rendering: pixelated; filter: drop-shadow(2px 3px 0 rgba(0,0,0,.25)); }
 .stone__when { font-family: var(--font-pixel); font-size: .58rem; line-height: 1.5; letter-spacing: .04em; color: #1f1f26; }
-.stone-row:last-child .stone::before { background: linear-gradient(#f3dd8a 0 58%, #d9b94f 58% 100%); }
+.stone-row:last-child .stone::before { background: linear-gradient(#d4b96a 0 58%, #b69745 58% 100%); }
 .stone-card { display: grid; gap: 4px; padding: 10px 14px; background: color-mix(in srgb, var(--card) 70%, transparent); border-left: 4px solid var(--border); min-width: 0; }
 .stone-card__title { font-size: 1rem; line-height: 1.4; }
 .stone-card__title a { text-underline-offset: 6px; }
@@ -517,7 +517,7 @@
 .cert-lightbox {
   position: fixed; inset: 0; z-index: 1000;
   display: grid; place-items: center; gap: 16px; align-content: center;
-  padding: 24px; background: rgb(8 12 30 / 0.88); cursor: var(--cursor-pointer, zoom-out);
+  padding: 24px; background: rgb(17 18 20 / 0.88); cursor: var(--cursor-pointer, zoom-out);
 }
 .cert-lightbox img { max-width: min(1100px, 100%); max-height: 80vh; border: var(--border-w) solid var(--border); background: #fff; box-shadow: var(--shadow-md); }
 @media (prefers-reduced-motion: reduce) { .cert-pin__card { transition: none; } }
@@ -615,7 +615,7 @@
   border: 6px solid var(--c-band);
   outline: 3px solid var(--c-line);
 }
-.console__screen .about-facts__item dt::before { content: '> '; color: var(--world-create); }
+.console__screen .about-facts__item dt::before { content: '> '; color: #d97706; }
 
 /* front buttons and ports on the base */
 .console__switch {

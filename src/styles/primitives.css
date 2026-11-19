@@ -89,9 +89,9 @@
 
 /* Chunky marker highlight behind words (hero role line, headings) */
 .marker {
-  /* Full block + dark ink so the text stays readable (≥ 10:1) in both themes */
+  /* Solid retro-print block + white ink so text stays readable (≥ 5:1) in both themes */
   background: var(--dot, var(--world-code));
-  color: var(--ink);
+  color: var(--world-fg);
   padding-inline: 6px;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
@@ -142,7 +142,7 @@
   cursor: var(--cursor-pointer);
   transition: background-color var(--dur) var(--step-ease);
 }
-.item-row.is-active .item-row__link { background: color-mix(in srgb, var(--dot, var(--primary-soft)) 14%, var(--card)); }
+.item-row.is-active .item-row__link { background: color-mix(in srgb, var(--surface) 75%, var(--card)); }
 .item-row__title {
   font-family: var(--font-pixel);
   font-size: clamp(0.8rem, 1.6vw, 0.95rem);
@@ -160,8 +160,8 @@
 }
 /* First meta item is the type (Education, Self-study, Team...) -> chunky world chip */
 .item-row__meta > span:first-child {
-  background: var(--dot, var(--primary-soft));
-  color: var(--ink);
+  background: var(--dot, var(--primary));
+  color: var(--world-fg);
   border: 2px solid var(--border);
   padding: 0 8px;
   line-height: 1.4;
@@ -186,14 +186,14 @@
 }
 .item-row__link:hover,
 .item-row__link:focus-visible {
-  background: color-mix(in srgb, var(--dot, var(--primary-soft)) 14%, var(--card));
+  background: color-mix(in srgb, var(--surface) 75%, var(--card));
 }
 .item-row__link:hover .item-row__title,
 .item-row__link:focus-visible .item-row__title { text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 6px; }
 .item-row__link:hover .item-row__arrow,
 .item-row__link:focus-visible .item-row__arrow {
-  background: var(--dot, var(--primary-soft));
-  color: var(--ink);
+  background: var(--dot, var(--primary));
+  color: var(--world-fg);
   transform: translate(3px, 3px);
   box-shadow: none;
 }
@@ -251,7 +251,7 @@
 /* ---- TODO placeholder block (content the owner still has to provide) ---- */
 .todo {
   border: 3px dashed var(--world-learn);
-  background: color-mix(in srgb, var(--world-learn) 12%, transparent);
+  background: var(--surface);
   padding: 16px 20px;
   font-family: var(--font-ui);
   font-size: var(--text-base);
@@ -263,7 +263,7 @@
   margin-right: 10px;
   padding: 0 6px;
   background: var(--world-learn);
-  color: var(--ink);
+  color: var(--world-fg);
   font-family: var(--font-pixel);
   font-size: 0.6rem;
   vertical-align: middle;

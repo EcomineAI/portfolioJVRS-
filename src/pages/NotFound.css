@@ -29,7 +29,7 @@
   line-height: 1.3;
   text-transform: none;
   color: var(--fg);
-  text-shadow: 4px 4px 0 var(--world-create);
+  text-shadow: 4px 4px 0 var(--primary);
 }
 .game-over__line { font-size: 1.125rem; }
 .game-over__path code {
@@ -55,7 +55,7 @@
   min-width: 2.2em;
   padding: 6px;
   background: var(--world-learn);
-  color: var(--ink);
+  color: var(--world-fg);
   border: var(--border-w) solid var(--border);
   box-shadow: var(--shadow-sm);
 }

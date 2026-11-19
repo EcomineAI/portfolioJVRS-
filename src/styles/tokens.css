@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Design tokens — pixel-art theme (see plan.md §1)
+   Design tokens — Warm Paper & Charcoal Ink pixel-art theme
    Light is the default; [data-theme="dark"] on <html> switches palettes.
    Contrast: every text/background pair below meets WCAG AA (≥ 4.5:1).
    ========================================================================== */
@@ -34,47 +34,51 @@
   --gutter: clamp(16px, 4vw, 72px);
   --header-h: 54px;
 
-  /* World colors (Code / Create / Learn). Text on these is always --ink. */
-  --world-code: #5cf2c8;
-  --world-create: #ff9ec0;
-  --world-learn: #f7d44a;
-  --ink: #0d1226;
-  --bg-purple: #8b5cf6;    /* second color of the animated background (with --primary-soft) */
+  /* World colors (Code / Create / Learn). Text on these is always --world-fg. */
+  --world-code: #166534;
+  --world-create: #b91c1c;
+  --world-learn: #a14d05;
+  --world-fg: #ffffff;
+  --ink: #141414;
 
   /* Motion */
   --step-ease: steps(5, end);
   --dur: 200ms;
 
-  /* ---- Light palette (default) ---- */
+  /* ---- Light palette (default): Warm Paper & Charcoal Ink ---- */
   color-scheme: light;
-  --bg: hsl(232 100% 97%);          /* #f0f2ff */
-  --fg: hsl(228 46% 19%);           /* #1a2447 */
-  --card: #ffffff;
-  --surface: hsl(224 40% 92%);      /* subtle fills, level-0 cells */
-  --muted-fg: hsl(228 28% 32%);     /* secondary text (≈ 9:1 on white) */
-  --primary: hsl(228 78% 52%);      /* buttons/links (white text ≈ 6:1) */
-  --primary-soft: hsl(228 90% 63%); /* decorative accents, the reference blue */
+  --bg: #f4f1ea;
+  --fg: #141414;
+  --card: #fcfbf8;
+  --surface: #e9e4d9;
+  --muted-fg: #4a4843;      /* ≈ 8.2:1 on --card */
+  --primary: #1d4ed8;       /* Cobalt blue (6.7:1 with white) */
+  --primary-soft: #2563eb;
   --primary-fg: #ffffff;
-  --border: var(--fg);
-  --hairline: hsl(218 30% 83%);
-  --shadow-color: hsl(228 46% 19% / 0.85);
-  --grid-line: hsl(228 46% 19% / 0.05);
-  --focus: hsl(228 78% 52%);
+  --border: #141414;
+  --hairline: #cfc8ba;
+  --shadow-color: rgba(20, 20, 20, 0.85);
+  --grid-line: rgba(20, 20, 20, 0.06);
+  --focus: #1d4ed8;
 }
 
 [data-theme='dark'] {
   color-scheme: dark;
-  --bg: #0d1226;
-  --fg: #c9d2e0;
-  --card: #151d38;
-  --surface: #1b2547;
-  --muted-fg: hsl(218 46% 74%);     /* ≈ 7:1 on --card */
-  --primary: hsl(228 90% 68%);      /* dark text on it ≈ 5:1 */
-  --primary-soft: hsl(228 90% 63%);
-  --primary-fg: #0d1226;
-  --border: #c9d2e0;
-  --hairline: #223060;
-  --shadow-color: hsl(218 30% 83% / 0.35);
-  --grid-line: hsl(218 30% 83% / 0.05);
-  --focus: hsl(228 90% 72%);
+  --world-code: #15803d;
+  --world-create: #dc2626;
+  --world-learn: #b45309;
+  --world-fg: #ffffff;
+  --bg: #111214;
+  --fg: #e8e5dd;
+  --card: #1a1c20;
+  --surface: #23262c;
+  --muted-fg: #a3a098;      /* ≈ 6.8:1 on --card */
+  --primary: #60a5fa;       /* dark text #111214 ≈ 7.4:1 */
+  --primary-soft: #3b82f6;
+  --primary-fg: #111214;
+  --border: #d6d2c7;
+  --hairline: #32363e;
+  --shadow-color: rgba(0, 0, 0, 0.72);
+  --grid-line: rgba(232, 229, 221, 0.055);
+  --focus: #60a5fa;
 }

@@ -208,6 +208,38 @@ export const projects = [
     links: {},
     cover: '/projects/graphics.webp',
   },
+  {
+    slug: 'video-editing',
+    world: 'create',
+    title: 'Video Editing & Motion',
+    subtitle: 'CapCut edits, project demos & short-form video cuts',
+    type: 'Video editing',
+    date: '2025–2026',
+    summary:
+      'Project walkthroughs, showcase demos, and short-form video edits cut and paced in CapCut for school presentations and personal builds.',
+    tags: ['CapCut', 'Video editing', 'Motion', 'Demos'],
+    team: null,
+    role: 'Solo',
+    links: {},
+    cover: '/projects/video-editing.webp',
+    coverAlt: 'Multi-track video editing timeline and preview monitor',
+  },
+  {
+    slug: '3d-modeling',
+    world: 'create',
+    title: '3D Modeling & Renders',
+    subtitle: 'Blender & Prisma3D scenes, props & visual experiments',
+    type: '3D design',
+    date: '2025–2026',
+    summary:
+      'Exploring low-poly props, lighting, and 3D scene composition in Blender and Prisma3D for creative assets and visual experiments.',
+    tags: ['Blender', 'Prisma3D', '3D modeling', 'Rendering'],
+    team: null,
+    role: 'Solo',
+    links: {},
+    cover: '/projects/3d-modeling.webp',
+    coverAlt: 'Blender 3D viewport and modeling workspace',
+  },
 
   // --------------------------------------------------------------- LEARN
   {

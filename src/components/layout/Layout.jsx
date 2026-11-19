@@ -42,7 +42,9 @@ export default function Layout() {
         <a href="#main" className="skip-link">Skip to content</a>
         <Header theme={theme} onToggleTheme={toggle} />
         <main id="main" tabIndex={-1}>
-          <Outlet />
+          <Suspense fallback={<div className="container section" aria-busy="true" style={{ minHeight: '60vh' }} />}>
+            <Outlet />
+          </Suspense>
         </main>
         {!hideSayHi && <SayHi />}
         <Footer />

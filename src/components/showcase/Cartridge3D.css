@@ -214,7 +214,7 @@
 .cartridge__badge {
   padding: 1px 7px;
   background: var(--world-learn);
-  color: var(--ink);
+  color: var(--world-fg);
   border: 2px solid var(--border);
   font-size: var(--text-sm);
 }
@@ -265,7 +265,7 @@
   justify-self: start;
   padding: 2px 8px;
   background: var(--world-code);
-  color: var(--ink);
+  color: var(--world-fg);
   border: 2px solid var(--border);
   font-family: var(--font-ui);
   font-size: var(--text-sm);
@@ -285,7 +285,7 @@
   margin-inline: 18px;
   background: repeating-linear-gradient(
     to right,
-    var(--world-learn) 0 10px,
+    #c59b27 0 10px,
     var(--ink) 10px 15px
   );
   border-top: 3px solid var(--border);

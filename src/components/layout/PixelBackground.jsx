@@ -1,4 +1,4 @@
-// Animated pixel-gradient background: a slow "plasma" of chunky cells in the site palette,
+// Animated pixel-gradient background: a slow "plasma" of chunky cells in monochrome light/dark tones,
 // quantized to 5 levels and updated at a low frame rate for a stepped, retro feel.
 // Decorative: fixed behind everything, pointer-events none, very low opacity so text stays readable.
 import { useEffect, useRef } from 'react';
@@ -11,7 +11,7 @@ const hexToRgb = s => {
   const c = document.createElement('canvas').getContext('2d');
   c.fillStyle = s; const v = c.fillStyle;            // normalizes any CSS color to #rrggbb
   const m = /^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(v);
-  return m ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)] : [76, 110, 246];
+  return m ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)] : [20, 20, 20];
 };
 
 export default function PixelBackground() {
@@ -22,15 +22,14 @@ export default function PixelBackground() {
     const ctx = canvas.getContext('2d');
     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     let cols = 0, rows = 0, raf = 0, last = 0, t = Math.random() * 100, hidden = document.hidden;
-    let palette = [], maxAlpha = 0.12, scale = 1;
+    let palette = [], maxAlpha = 0.085, scale = 1;
 
     const readTheme = () => {
-      const cs = getComputedStyle(document.documentElement);
       const dark = document.documentElement.dataset.theme === 'dark';
-      // blue → purple → blue only
-      palette = ['--primary-soft', '--bg-purple', '--primary-soft']
-        .map(v => hexToRgb(cs.getPropertyValue(v).trim() || '#4c6ef6'));
-      maxAlpha = dark ? 0.2 : 0.14;   // kept faint so it never competes with content
+      // Monochrome theme-neutral palette (warm stone -> charcoal in light, ash -> warm bone in dark)
+      palette = (dark ? ['#9ca3af', '#e8e5dd', '#9ca3af'] : ['#78716c', '#141414', '#78716c'])
+        .map(hexToRgb);
+      maxAlpha = dark ? 0.095 : 0.085;
     };
 
     const resize = () => {

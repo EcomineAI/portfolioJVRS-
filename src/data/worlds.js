@@ -12,7 +12,7 @@ export const worlds = [
     num: '02',
     label: 'Create',
     title: 'Things I make',
-    intro: 'Prompt engineering and UI graphics: the creative side that shapes how my projects look and feel.',
+    intro: 'Prompt engineering, UI graphics, video editing and 3D work: the creative side that shapes how my projects look and feel.',
   },
   {
     id: 'learn',

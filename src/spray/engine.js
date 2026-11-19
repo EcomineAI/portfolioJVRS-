@@ -102,8 +102,8 @@ export const CANS = {
 export const PALETTES = {
   section: null, // color of the page section under the pointer
   neon: ['#39ff14', '#ff2bd6', '#00e5ff', '#fff200'],
-  ink: ['fg', 'primary', 'purple'],
-  pastel: ['#ffc8dd', '#bde0fe', '#caffbf', '#fdffb6', '#d0bfff'],
+  ink: ['fg', 'primary', 'create'],
+  print: ['#141414', '#1d4ed8', '#b91c1c', '#166534', '#a14d05'],
 };
 
 const COLOR_VARS = {
@@ -111,12 +111,11 @@ const COLOR_VARS = {
   create: '--world-create',
   learn: '--world-learn',
   primary: '--primary-soft',
-  purple: '--bg-purple',
   fg: '--fg',
 };
 const FALLBACK = {
-  code: '#5cf2c8', create: '#ff9ec0', learn: '#f7d44a', primary: '#4c6ef6', purple: '#8b5cf6',
-  fg: '#1a2447', card: '#fff', muted: '#4d5a85',
+  code: '#166534', create: '#b91c1c', learn: '#a14d05', primary: '#1d4ed8',
+  fg: '#141414', card: '#fcfbf8', muted: '#4a4843',
 };
 
 const snap = v => Math.round(v / GRID) * GRID;

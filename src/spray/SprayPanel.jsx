@@ -26,8 +26,8 @@ const FLOWS = [
 const COLORS = [
   { id: 'section', label: 'By section', swatch: ['var(--world-code)', 'var(--world-create)', 'var(--world-learn)'] },
   { id: 'neon', label: 'Neon', swatch: ['#39ff14', '#ff2bd6', '#00e5ff'] },
-  { id: 'ink', label: 'Ink', swatch: ['var(--fg)', 'var(--primary-soft)', 'var(--bg-purple)'] },
-  { id: 'pastel', label: 'Pastel', swatch: ['#ffc8dd', '#bde0fe', '#caffbf'] },
+  { id: 'ink', label: 'Ink', swatch: ['var(--fg)', 'var(--primary-soft)', 'var(--world-create)'] },
+  { id: 'print', label: 'Print', swatch: ['#141414', '#1d4ed8', '#b91c1c'] },
 ];
 
 function useIsTouch() {

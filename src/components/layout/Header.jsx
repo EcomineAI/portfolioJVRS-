@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { navItems, profile } from '../../data/profile.js';
-import { prefetchRoute } from '../../App.jsx';
+import { prefetchRoute } from '../../routes.js';
 import { MoonIcon, SunIcon, VolumeOffIcon, VolumeOnIcon } from '../Icons.jsx';
 import { useSound } from '../../sound/SoundContext.jsx';
 import SprayButton from '../../spray/SprayButton.jsx';
@@ -130,7 +130,15 @@ export default function Header({ theme, onToggleTheme }) {
           <ul>
             {navItems.map((item, i) => (
               <li key={item.to}>
-                <NavLink to={item.to} end={item.end} className="mobile-menu__link" data-uisfx="forward" onClick={() => setOpen(false)}>
+                <NavLink
+                  to={item.to}
+                  end={item.end}
+                  className="mobile-menu__link"
+                  data-uisfx="forward"
+                  onFocus={() => prefetchRoute(item.to)}
+                  onTouchStart={() => prefetchRoute(item.to)}
+                  onClick={() => setOpen(false)}
+                >
                   <span className="mobile-menu__num" aria-hidden="true">0{i + 1}</span>
                   {item.label}
                 </NavLink>

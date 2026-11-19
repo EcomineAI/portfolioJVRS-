@@ -19,7 +19,7 @@
   border-width: 6px;
   box-shadow: 12px 12px 0 0 var(--shadow-color);
   background:
-    linear-gradient(90deg, var(--world-code) 0 33.3%, var(--world-create) 33.3% 66.6%, var(--world-learn) 66.6%) top / 100% 8px no-repeat,
+    linear-gradient(90deg, var(--primary), var(--primary)) top / 100% 8px no-repeat,
     var(--card);
   padding-top: calc(clamp(20px, 4vw, 44px) + 8px);
 }
@@ -49,10 +49,10 @@
   color: var(--muted-fg);
 }
 .projects-featured__dots { display: inline-flex; gap: 4px; flex: none; }
-.projects-featured__dots i { width: 8px; height: 8px; border: 2px solid var(--border); }
-.projects-featured__dots i:nth-child(1) { background: var(--world-create); }
-.projects-featured__dots i:nth-child(2) { background: var(--world-learn); }
-.projects-featured__dots i:nth-child(3) { background: var(--world-code); }
+.projects-featured__dots i { width: 8px; height: 8px; border: 2px solid var(--border); background: var(--card); }
+.projects-featured__dots i:nth-child(1) { background: var(--surface); }
+.projects-featured__dots i:nth-child(2) { background: var(--surface); }
+.projects-featured__dots i:nth-child(3) { background: var(--border); }
 .projects-featured__url {
   flex: 1;
   min-width: 0;
@@ -106,7 +106,7 @@
   width: 44px;
   height: 44px;
   background: var(--world-learn);
-  color: var(--ink);
+  color: var(--world-fg);
   border: var(--border-w) solid var(--border);
   box-shadow: var(--shadow-sm);
   font-size: 1.5rem;

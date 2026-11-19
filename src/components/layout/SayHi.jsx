@@ -23,19 +23,19 @@ function PixelSignatureJ() {
       <rect x="15" y="2" width="4" height="1" fill="#1d4ed8" />
       <rect x="18" y="3" width="2" height="1" fill="#1d4ed8" />
       <rect x="17" y="4" width="2" height="1" fill="#1d4ed8" />
-      <rect x="14" y="2" width="2" height="2" fill="#0d1226" />
-      <rect x="13" y="4" width="2" height="2" fill="#0d1226" />
-      <rect x="12" y="6" width="2" height="2" fill="#0d1226" />
-      <rect x="11" y="8" width="2" height="2" fill="#0d1226" />
-      <rect x="10" y="10" width="2" height="2" fill="#0d1226" />
-      <rect x="9" y="12" width="2" height="1" fill="#0d1226" />
-      <rect x="6" y="13" width="4" height="1" fill="#0d1226" />
-      <rect x="4" y="14" width="3" height="1" fill="#0d1226" />
-      <rect x="2" y="13" width="2" height="1" fill="#0d1226" />
-      <rect x="2" y="11" width="1" height="2" fill="#0d1226" />
-      <rect x="3" y="10" width="2" height="1" fill="#0d1226" />
-      <rect x="5" y="9" width="3" height="1" fill="#0d1226" />
-      <rect x="8" y="8" width="3" height="1" fill="#0d1226" />
+      <rect x="14" y="2" width="2" height="2" fill="#141414" />
+      <rect x="13" y="4" width="2" height="2" fill="#141414" />
+      <rect x="12" y="6" width="2" height="2" fill="#141414" />
+      <rect x="11" y="8" width="2" height="2" fill="#141414" />
+      <rect x="10" y="10" width="2" height="2" fill="#141414" />
+      <rect x="9" y="12" width="2" height="1" fill="#141414" />
+      <rect x="6" y="13" width="4" height="1" fill="#141414" />
+      <rect x="4" y="14" width="3" height="1" fill="#141414" />
+      <rect x="2" y="13" width="2" height="1" fill="#141414" />
+      <rect x="2" y="11" width="1" height="2" fill="#141414" />
+      <rect x="3" y="10" width="2" height="1" fill="#141414" />
+      <rect x="5" y="9" width="3" height="1" fill="#141414" />
+      <rect x="8" y="8" width="3" height="1" fill="#141414" />
       <rect x="13" y="7" width="3" height="1" fill="#1d4ed8" />
       <rect x="16" y="6" width="4" height="1" fill="#1d4ed8" />
       <rect x="20" y="5" width="4" height="1" fill="#1d4ed8" />
@@ -107,7 +107,7 @@ function McLovinIdCard({ docked = false, onClose, resetKey, onQrZoomChange }) {
         <div className="mclovin-id__face mclovin-id__face--front" aria-hidden={flipped}>
           <div className="mclovin-id__glare" aria-hidden="true" />
 
-          {/* Stepped pixel rainbow arc behind right fields */}
+          {/* Stepped cobalt/slate security stripe watermark behind right fields */}
           <svg
             className="mclovin-id__rainbow"
             viewBox="0 0 180 80"
@@ -115,10 +115,10 @@ function McLovinIdCard({ docked = false, onClose, resetKey, onQrZoomChange }) {
             shapeRendering="crispEdges"
             aria-hidden="true"
           >
-            <path d="M0 10 H45 V16 H85 V24 H120 V34 H150 V46 H180 V58 H145 V46 H115 V36 H80 V28 H40 V22 H0 Z" fill="#fde047" />
-            <path d="M0 22 H40 V28 H80 V36 H115 V46 H145 V58 H180 V68 H140 V56 H110 V46 H75 V38 H35 V32 H0 Z" fill="#86efac" />
-            <path d="M0 32 H35 V38 H75 V46 H110 V56 H140 V68 H180 V76 H135 V66 H105 V56 H70 V48 H30 V42 H0 Z" fill="#93c5fd" />
-            <path d="M0 42 H30 V48 H70 V56 H105 V66 H135 V76 H110 V72 H65 V64 H25 V56 H0 Z" fill="#f9a8d4" />
+            <path d="M0 10 H45 V16 H85 V24 H120 V34 H150 V46 H180 V58 H145 V46 H115 V36 H80 V28 H40 V22 H0 Z" fill="#e2e8f0" />
+            <path d="M0 22 H40 V28 H80 V36 H115 V46 H145 V58 H180 V68 H140 V56 H110 V46 H75 V38 H35 V32 H0 Z" fill="#cbd5e1" />
+            <path d="M0 32 H35 V38 H75 V46 H110 V56 H140 V68 H180 V76 H135 V66 H105 V56 H70 V48 H30 V42 H0 Z" fill="#1d4ed8" />
+            <path d="M0 42 H30 V48 H70 V56 H105 V66 H135 V76 H110 V72 H65 V64 H25 V56 H0 Z" fill="#dbe3f0" />
           </svg>
 
           {onClose && (
@@ -256,7 +256,7 @@ function McLovinIdCard({ docked = false, onClose, resetKey, onQrZoomChange }) {
 
         {/* ======================== BACK FACE ======================== */}
         <div className="mclovin-id__face mclovin-id__face--back" aria-hidden={!flipped}>
-          {/* Faint diagonal rainbow watermark */}
+          {/* Faint diagonal security stripe watermark */}
           <svg
             className="mclovin-id__back-rainbow"
             viewBox="0 0 200 120"
@@ -264,10 +264,10 @@ function McLovinIdCard({ docked = false, onClose, resetKey, onQrZoomChange }) {
             shapeRendering="crispEdges"
             aria-hidden="true"
           >
-            <path d="M-10 95 L90 40 L210 75 L210 92 L90 56 L-10 112 Z" fill="#fde047" />
-            <path d="M-10 105 L90 50 L210 85 L210 100 L90 65 L-10 118 Z" fill="#86efac" />
-            <path d="M-10 114 L90 60 L210 95 L210 108 L90 73 L-10 125 Z" fill="#93c5fd" />
-            <path d="M-10 122 L90 68 L210 103 L210 116 L90 81 L-10 132 Z" fill="#f9a8d4" />
+            <path d="M-10 95 L90 40 L210 75 L210 92 L90 56 L-10 112 Z" fill="#e2e8f0" />
+            <path d="M-10 105 L90 50 L210 85 L210 100 L90 65 L-10 118 Z" fill="#cbd5e1" />
+            <path d="M-10 114 L90 60 L210 95 L210 108 L90 73 L-10 125 Z" fill="#1d4ed8" />
+            <path d="M-10 122 L90 68 L210 103 L210 116 L90 81 L-10 132 Z" fill="#dbe3f0" />
           </svg>
 
           {onClose && (

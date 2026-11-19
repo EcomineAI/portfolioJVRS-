@@ -58,7 +58,7 @@
   opacity: .35; transition: opacity var(--dur) var(--step-ease);
 }
 .world-list .item-row.is-active::after { opacity: 1; }
-.world-list .item-row.is-active::before { background: #5dff8f; }
+.world-list .item-row.is-active::before { background: #16a34a; }
 
 /* The monitor + Pi board show beside the breadboard on desktop. */
 .world-list {
@@ -179,9 +179,9 @@
 }
 .lap__dots { display: inline-flex; gap: 4px; }
 .lap__dots i { width: 8px; height: 8px; border: 2px solid var(--border); background: var(--card); }
-.lap__dots i:nth-child(1) { background: var(--world-create); }
-.lap__dots i:nth-child(2) { background: var(--world-learn); }
-.lap__dots i:nth-child(3) { background: var(--world-code); }
+.lap__dots i:nth-child(1) { background: var(--surface); }
+.lap__dots i:nth-child(2) { background: var(--surface); }
+.lap__dots i:nth-child(3) { background: var(--border); }
 .lap__url {
   flex: 1; min-width: 0;
   padding: 0 8px;
