@@ -1,5 +1,6 @@
 // /about — background, interests, evidence-based skills, troubleshooting, live activity, journey.
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import RetroType from '../components/showcase/RetroType';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
@@ -99,18 +100,19 @@ function CertGrid({ items }) {
           </ul>
         )}
       </div>
-      {current && (
+      {current && createPortal(
         <div className="cert-lightbox" role="dialog" aria-modal="true" aria-label={label(current, open)} onClick={() => setOpen(null)}>
           <img src={current.image} alt={label(current, open)} decoding="async" />
-          <div className="cert-lightbox__bar">
+          <div className="cert-lightbox__bar" onClick={e => e.stopPropagation()}>
             {current.url && (
-              <a className="pixel-btn pixel-btn--sm" href={current.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>
-                Verify<span className="sr-only"> (opens in a new tab)</span>
+              <a className="pixel-btn pixel-btn--primary pixel-btn--sm" href={current.url} target="_blank" rel="noopener noreferrer">
+                Verify ↗<span className="sr-only"> (opens in a new tab)</span>
               </a>
             )}
-            <button type="button" className="pixel-btn pixel-btn--sm cert-lightbox__close" onClick={() => setOpen(null)}>Close</button>
+            <button type="button" className="pixel-btn pixel-btn--outline pixel-btn--sm cert-lightbox__close" onClick={() => setOpen(null)}>Close</button>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );

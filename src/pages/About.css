@@ -477,7 +477,6 @@
   from { background-position: 120% 0; }
   to   { background-position: -120% 0; }
 }
-.about-section { content-visibility: auto; contain-intrinsic-size: auto 640px; }
 .cert-pin__name {
   font-family: var(--font-pixel); font-size: .86rem; line-height: 1.5; letter-spacing: .04em;
   padding: 4px 4px 2px; min-height: 3.2em; display: grid; place-items: center; overflow-wrap: anywhere;
