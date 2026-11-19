@@ -42,3 +42,13 @@ desktop.ini
 # Local AI-assistant settings
 .claude/
 graphify-out/
+
+# Internal notes, plans & local-only files
+/CLAUDE.md
+/plan.md
+/DECISIONS.md
+/*_PLAN.md
+src/buddies/BUDDIES.md
+/start.bat
+/pfp.jpg
+/pfp-no bg.png
