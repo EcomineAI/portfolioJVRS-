@@ -301,6 +301,14 @@
   will-change: transform, opacity;
 }
 
+@media (max-width: 420px) {
+  .cartridge-stage {
+    --cart-depth: 26px;
+    --cart-half: 13px;
+    width: min(100%, 272px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cartridge-tilt,
   .cartridge-flip {

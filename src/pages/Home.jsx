@@ -84,11 +84,18 @@ function FeaturedProjects() {
           title="Selected projects"
           intro="Live apps with the source code for each. Askademic has a full case study."
         />
-        <WorldList world="code" items={items} hrefFor={projectPath} roleFor={roleFor} />
-        <div className="home-featured__actions">
-          <PixelButton to="/case-study">Read the Askademic case study <PixelArrow /></PixelButton>
-          <PixelButton to="/projects" variant="outline">All projects</PixelButton>
-        </div>
+        <WorldList
+          world="code"
+          items={items}
+          hrefFor={projectPath}
+          roleFor={roleFor}
+          footer={(
+            <div className="home-featured__actions">
+              <PixelButton to="/case-study">Read the Askademic case study <PixelArrow /></PixelButton>
+              <PixelButton to="/projects" variant="outline">All projects</PixelButton>
+            </div>
+          )}
+        />
       </div>
     </Reveal>
   );

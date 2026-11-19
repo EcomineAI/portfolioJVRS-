@@ -17,43 +17,61 @@ function rowRole(p) {
 
 const hrefFor = p => (p.slug === CASE_STUDY_SLUG ? '/case-study' : `/projects/${p.slug}`);
 
+const hostOf = url => { try { return new URL(url).host; } catch { return null; } };
+
 function FeaturedCaseStudy({ project: p }) {
   if (!p) return null;
   const teamSize = Array.isArray(p.team) ? p.team.length : 0;
+  const host = hostOf(p.links?.live) || 'askademic.local';
   return (
     <section className="projects-featured" aria-labelledby="featured-title">
       <PixelCard className="projects-featured__card" data-spray-surface="true">
         <div className="projects-featured__badge" aria-hidden="true">★</div>
-        <Eyebrow world={p.world}>Featured case study · Software engineering project</Eyebrow>
-        <h2 id="featured-title" className="projects-featured__title">{p.title}</h2>
-        {p.subtitle && <p className="projects-featured__subtitle">{p.subtitle}</p>}
-        {p.summary && <p className="prose projects-featured__summary">{p.summary}</p>}
-        <TagList tags={p.tags || []} />
-        <dl className="projects-featured__facts">
-          {teamSize > 0 && (
+        <div className="projects-featured__body">
+          <Eyebrow world={p.world}>Featured case study · Software engineering project</Eyebrow>
+          <h2 id="featured-title" className="projects-featured__title">{p.title}</h2>
+          {p.subtitle && <p className="projects-featured__subtitle">{p.subtitle}</p>}
+          {p.summary && <p className="prose projects-featured__summary">{p.summary}</p>}
+          <TagList tags={p.tags || []} />
+          <dl className="projects-featured__facts">
+            {teamSize > 0 && (
+              <div>
+                <dt>Team</dt>
+                <dd>Team project · {teamSize} members</dd>
+              </div>
+            )}
             <div>
-              <dt>Team</dt>
-              <dd>Team project · {teamSize} members</dd>
+              <dt>My role</dt>
+              <dd>{isTodo(p.role) ? 'To be added (see case study)' : p.role}</dd>
             </div>
-          )}
-          <div>
-            <dt>My role</dt>
-            <dd>{isTodo(p.role) ? 'To be added (see case study)' : p.role}</dd>
+          </dl>
+          <div className="projects-featured__actions">
+            <PixelButton to="/case-study">Read the case study <PixelArrow /></PixelButton>
+            {p.links?.live && (
+              <PixelButton href={p.links.live} variant="outline">
+                Live app <span aria-hidden="true">↗</span><span className="sr-only">(opens in a new tab)</span>
+              </PixelButton>
+            )}
+            {p.links?.source && (
+              <PixelButton href={p.links.source} variant="outline">
+                <GithubIcon aria-hidden="true" /> Source<span className="sr-only">(opens in a new tab)</span>
+              </PixelButton>
+            )}
           </div>
-        </dl>
-        <div className="projects-featured__actions">
-          <PixelButton to="/case-study">Read the case study <PixelArrow /></PixelButton>
-          {p.links?.live && (
-            <PixelButton href={p.links.live} variant="outline">
-              Live app <span aria-hidden="true">↗</span><span className="sr-only">(opens in a new tab)</span>
-            </PixelButton>
-          )}
-          {p.links?.source && (
-            <PixelButton href={p.links.source} variant="outline">
-              <GithubIcon aria-hidden="true" /> Source<span className="sr-only">(opens in a new tab)</span>
-            </PixelButton>
-          )}
         </div>
+
+        {p.cover && (
+          <figure className="projects-featured__preview">
+            <div className="projects-featured__winbar" aria-hidden="true">
+              <span className="projects-featured__dots"><i /><i /><i /></span>
+              <span className="projects-featured__url">{host}</span>
+            </div>
+            <div className="projects-featured__shot">
+              <img src={p.cover} alt={`${p.title} preview`} loading="lazy" />
+              {p.status && <span className="projects-featured__status">{p.status}</span>}
+            </div>
+          </figure>
+        )}
       </PixelCard>
     </section>
   );

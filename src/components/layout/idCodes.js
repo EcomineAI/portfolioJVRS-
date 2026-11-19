@@ -56,14 +56,16 @@ export function drawCode128(canvas, text) {
   });
 }
 
-// ---- QR Code generator (Byte mode, ECC Level H = 30% recovery, Versions 1..4) ----
+// ---- QR Code generator (Byte mode, ECC Level H = 30% recovery, Versions 1..6) ----
 // Using ECC Level H allows a crisp center emblem without hurting phone scan reliability.
 const QR_H_SPECS = [
   null,
-  { size: 21, dataBytes: 9, ecPerBlock: 17, blocks: 1, align: [] },
-  { size: 25, dataBytes: 16, ecPerBlock: 28, blocks: 1, align: [18] },
-  { size: 29, dataBytes: 26, ecPerBlock: 22, blocks: 2, align: [22] },
-  { size: 33, dataBytes: 36, ecPerBlock: 16, blocks: 4, align: [26] },
+  { size: 21, dataBytes: 9,  ecPerBlock: 17, blockSizes: [9], align: [] },
+  { size: 25, dataBytes: 16, ecPerBlock: 28, blockSizes: [16], align: [18] },
+  { size: 29, dataBytes: 26, ecPerBlock: 22, blockSizes: [13, 13], align: [22] },
+  { size: 33, dataBytes: 36, ecPerBlock: 16, blockSizes: [9, 9, 9, 9], align: [26] },
+  { size: 37, dataBytes: 46, ecPerBlock: 22, blockSizes: [11, 11, 12, 12], align: [30] },
+  { size: 41, dataBytes: 60, ecPerBlock: 28, blockSizes: [15, 15, 15, 15], align: [34] },
 ];
 
 const GF_EXP = new Uint8Array(512);
@@ -138,9 +140,9 @@ function penaltyScore(grid, size) {
 export function encodeQrMatrix(text) {
   const bytes = new TextEncoder().encode(text);
   let ver = 1;
-  while (ver < 4 && bytes.length + 2 > QR_H_SPECS[ver].dataBytes) ver++;
+  while (ver < QR_H_SPECS.length - 1 && bytes.length + 2 > QR_H_SPECS[ver].dataBytes) ver++;
   const spec = QR_H_SPECS[ver];
-  const { size, dataBytes, ecPerBlock, blocks, align } = spec;
+  const { size, dataBytes, ecPerBlock, blockSizes, align } = spec;
 
   const bits = [];
   const pushBits = (val, len) => {
@@ -162,22 +164,26 @@ export function encodeQrMatrix(text) {
     codewords[i] = v;
   }
 
-  // Split into equal blocks (all V1..V4 H blocks are equal length) & interleave
-  const blockLen = dataBytes / blocks;
+  // Split into blocks & interleave (supports equal and unequal block sizes in V1..V6 H)
   const dataBlocks = [];
   const ecBlocks = [];
-  for (let b = 0; b < blocks; b++) {
-    const slice = codewords.slice(b * blockLen, (b + 1) * blockLen);
+  let offset = 0;
+  for (const len of blockSizes) {
+    const slice = codewords.slice(offset, offset + len);
+    offset += len;
     dataBlocks.push(slice);
     ecBlocks.push(rsRemainder(slice, ecPerBlock));
   }
 
+  const maxBlockLen = Math.max(...blockSizes);
   const stream = [];
-  for (let i = 0; i < blockLen; i++) {
-    for (let b = 0; b < blocks; b++) stream.push(dataBlocks[b][i]);
+  for (let i = 0; i < maxBlockLen; i++) {
+    for (let b = 0; b < blockSizes.length; b++) {
+      if (i < dataBlocks[b].length) stream.push(dataBlocks[b][i]);
+    }
   }
   for (let i = 0; i < ecPerBlock; i++) {
-    for (let b = 0; b < blocks; b++) stream.push(ecBlocks[b][i]);
+    for (let b = 0; b < blockSizes.length; b++) stream.push(ecBlocks[b][i]);
   }
 
   const base = Array.from({ length: size }, () => new Int8Array(size).fill(-1));
@@ -292,7 +298,7 @@ function roundRectPath(ctx, x, y, w, h, r) {
  * - Stylized rounded finder eyes
  * - Small center badge (protected by ECC Level H 30% error correction)
  */
-export function drawQrCode(canvas, text) {
+export function drawQrCode(canvas, text, badge = 'in') {
   if (!canvas) return;
   const grid = encodeQrMatrix(text);
   const n = grid.length;
@@ -381,10 +387,10 @@ export function drawQrCode(canvas, text) {
   roundRectPath(ctx, bx + cell * 0.55, by + cell * 0.55, bw - cell * 1.1, bw - cell * 1.1, cell * 0.65);
   ctx.fill();
 
-  // Crisp white "<J>" / Octocat-inspired pixel mark inside badge
+  // Crisp center mark inside badge
   ctx.fillStyle = '#5cf2c8';
   ctx.font = `900 ${Math.round(cell * 2.5)}px ui-monospace, Menlo, monospace`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText('GH', bx + bw / 2, by + bw / 2 + 2);
+  ctx.fillText(badge, bx + bw / 2, by + bw / 2 + 2);
 }

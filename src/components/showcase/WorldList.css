@@ -4,33 +4,40 @@
    the screen changes with a pixel-tile dissolve. Theme tokens only.
    ========================================================================== */
 .world-list .item-list { max-width: none; }
+.world-list__left {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+  align-content: start;
+}
+.world-list__left .home-featured__actions { margin-top: 4px; }
 
-/* The list is a breadboard: cream board with a hole grid and red/blue power rails. Each project is a
+/* The list is a breadboard: calm cream board with subtle holes and muted power rails. Each project is a
    component plugged into it; a jumper wire runs from the active one to the rail facing the monitor. */
 .world-list .item-list {
-  --bb: #efeadb; --bb-edge: #bdb69f; --hole: #6b6657; --wire: #3d7bff;
+  --bb: #f4f1e8; --bb-edge: #cfc9b6; --hole: rgba(107, 102, 87, 0.22); --wire: #3d7bff;
   position: relative;
   display: grid; gap: 16px;
-  padding: 44px 46px 22px 28px;
+  padding: 36px 38px 18px 22px;
   background:
-    radial-gradient(circle, var(--hole) 0 1.6px, transparent 2.2px) 0 0 / 14px 14px,
+    radial-gradient(circle, var(--hole) 0 1.4px, transparent 2px) 0 0 / 16px 16px,
     var(--bb);
   border: 3px solid var(--bb-edge); outline: 3px solid #1f1f26;
   box-shadow: 6px 7px 0 3px var(--shadow-color);
 }
-.world-list .item-list::before {              /* red + blue power rails along the top */
-  content: ''; position: absolute; top: 8px; left: 14px; right: 14px; height: 24px;
+.world-list .item-list::before {              /* muted red + blue power rails along the top */
+  content: ''; position: absolute; top: 8px; left: 14px; right: 14px; height: 20px;
   background:
-    linear-gradient(#d8404a, #d8404a) top / 100% 3px no-repeat,
-    linear-gradient(#3d7bff, #3d7bff) bottom / 100% 3px no-repeat,
-    radial-gradient(circle, var(--hole) 0 1.6px, transparent 2.2px) 0 50% / 14px 14px repeat-x;
+    linear-gradient(rgba(216, 64, 74, 0.45), rgba(216, 64, 74, 0.45)) top / 100% 2px no-repeat,
+    linear-gradient(rgba(61, 123, 255, 0.45), rgba(61, 123, 255, 0.45)) bottom / 100% 2px no-repeat,
+    radial-gradient(circle, var(--hole) 0 1.3px, transparent 1.9px) 0 50% / 16px 16px repeat-x;
 }
-.world-list .item-list::after {               /* vertical power rail on the monitor side */
-  content: ''; position: absolute; top: 40px; bottom: 12px; right: 10px; width: 22px;
+.world-list .item-list::after {               /* muted vertical power rail on the monitor side */
+  content: ''; position: absolute; top: 34px; bottom: 12px; right: 10px; width: 18px;
   background:
-    linear-gradient(#d8404a, #d8404a) left / 3px 100% no-repeat,
-    linear-gradient(#3d7bff, #3d7bff) right / 3px 100% no-repeat,
-    radial-gradient(circle, var(--hole) 0 1.6px, transparent 2.2px) 50% 0 / 14px 14px repeat-y;
+    linear-gradient(rgba(216, 64, 74, 0.45), rgba(216, 64, 74, 0.45)) left / 2px 100% no-repeat,
+    linear-gradient(rgba(61, 123, 255, 0.45), rgba(61, 123, 255, 0.45)) right / 2px 100% no-repeat,
+    radial-gradient(circle, var(--hole) 0 1.3px, transparent 1.9px) 50% 0 / 16px 16px repeat-y;
 }
 .world-list .item-row {
   position: relative;
@@ -53,15 +60,15 @@
 .world-list .item-row.is-active::after { opacity: 1; }
 .world-list .item-row.is-active::before { background: #5dff8f; }
 
-/* The monitor + Pi board show at every width beside the breadboard, scaled proportionally on narrow screens. */
+/* The monitor + Pi board show beside the breadboard on desktop. */
 .world-list {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr);
-  gap: clamp(18px, 3vw, 40px);
+  grid-template-columns: minmax(0, 1.38fr) minmax(300px, 1fr);
+  gap: clamp(20px, 3vw, 40px);
   align-items: start;
-  zoom: 0.78;
+  zoom: 0.92;
 }
 .lap {
   display: block;
@@ -72,14 +79,66 @@
   --lap-shell-dark: color-mix(in srgb, var(--fg) 16%, var(--card));
 }
 
-@media (max-width: 999px) {
-  .world-list { zoom: 0.56; }
-}
-@media (max-width: 639px) {
-  .world-list { zoom: 0.40; }
-}
-@media (max-width: 400px) {
-  .world-list { zoom: 0.35; }
+.item-row__thumb { display: none; }
+
+@media (max-width: 960px) {
+  .world-list {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    zoom: 1;
+  }
+  .lap {
+    display: none;
+  }
+  .world-list .item-list {
+    min-width: 0;
+    padding: 0;
+    gap: 14px;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    box-shadow: none;
+  }
+  .world-list .item-list::before,
+  .world-list .item-list::after,
+  .world-list .item-row::before,
+  .world-list .item-row::after {
+    display: none;
+  }
+  .world-list .item-row {
+    min-width: 0;
+    border: 3px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .world-list .item-row + .item-row { border-top: 3px solid var(--border); }
+  .world-list .item-row__link {
+    padding: 12px 14px;
+    gap: 6px 12px;
+  }
+  .world-list .item-row__thumb {
+    display: block;
+    grid-column: 1 / -1;
+    margin: -12px -14px 8px;
+    border-bottom: 3px solid var(--border);
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .world-list .item-row__thumb img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+  .world-list .item-row__title,
+  .world-list .item-row__desc { overflow-wrap: anywhere; }
+  .world-list .item-row__arrow {
+    grid-row: auto;
+    align-self: center;
+  }
+  .world-list .item-row__link:has(.item-row__thumb) .item-row__arrow {
+    grid-row: 2 / span 3;
+  }
 }
 
 /* ---- lid ----------------------------------------------------------------- */
@@ -209,7 +268,7 @@
 .lap__led { position: absolute; right: 10px; top: 3px; width: 6px; height: 6px; background: #5dff8f; border: 2px solid var(--border); animation: lap-led 1.6s steps(1) infinite; }
 @keyframes lap-led { 50% { background: #1c7a4d; } }
 
-.lap__cable { position: relative; height: 38px; margin: 0 auto; width: 120px; display: flex; justify-content: space-between; }
+.lap__cable { position: relative; height: 24px; margin: 0 auto; width: 120px; display: flex; justify-content: space-between; }
 .lap__cable i { width: 14px; background: #e7e1cf; border-inline: 2px solid #1f1f26; }
 .lap__cable i:nth-child(odd) { background: #d98a3d; }
 .lap__cable::before, .lap__cable::after {            /* connector plugs at both ends */
@@ -243,17 +302,18 @@
 /* details sit on a dark "label" plate so text stays readable on the green */
 .lap__pcb .lap__body {
   /* fixed height so the page below never jumps when a project's text is longer or shorter */
-  display: flex; flex-direction: column; align-items: flex-start; height: 270px; overflow: hidden;
-  margin: 10px 14px 0; padding: 14px 16px 16px; background: var(--card); color: var(--fg); border: 3px solid #0d1f17; box-shadow: 3px 3px 0 rgba(0,0,0,.3); }
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-height: 248px; height: auto; overflow: visible;
+  margin: 10px 14px 0; padding: 14px 16px 14px; background: var(--card); color: var(--fg); border: 3px solid #0d1f17; box-shadow: 3px 3px 0 rgba(0,0,0,.3); }
 .lap__pcb .lap__cap { border-top: 0; color: #cfe3d6; margin-top: 8px; padding: 6px 16px 10px; }
 
-.lap__title { font-size: clamp(0.85rem, 1.4vw, 1rem); line-height: 1.5; }
+.lap__title { font-size: clamp(0.95rem, 1.5vw, 1.1rem); line-height: 1.45; }
 .lap__summary {
+  flex: none;
   font-family: var(--font-prose);
-  font-size: 0.95rem; line-height: 1.55;
+  font-size: 0.96rem; line-height: 1.48;
   color: var(--muted-fg);
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -285,7 +345,36 @@
 .lap__pcb .lap__actions { margin-top: auto; }
 
 
-/* tighter rows on the breadboard */
-.world-list .item-list { gap: 12px; }
-.world-list .item-row__link { padding: 12px clamp(14px, 2vw, 22px); }
-.world-list .item-row__arrow { width: 38px; height: 38px; }
+/* tighter rows on the breadboard + bigger, clearer desktop typography */
+.world-list .item-list { gap: 14px; }
+.world-list .item-row__link { padding: 16px clamp(16px, 2vw, 24px); }
+.world-list .item-row__title { font-size: clamp(0.95rem, 1.45vw, 1.1rem); line-height: 1.5; }
+.world-list .item-row__desc { font-size: 1.04rem; line-height: 1.5; }
+.world-list .item-row__meta { font-size: var(--text-lg); }
+.world-list .item-row__arrow { width: 42px; height: 42px; }
+
+/* Ensure mobile overrides win over desktop fixed-height card rules above */
+@media (max-width: 960px) {
+  .lap__pcb .lap__body {
+    height: auto;
+    overflow: visible;
+    gap: 8px;
+  }
+  .lap__pcb .lap__title {
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+  }
+  .lap__pcb .lap__summary {
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+  }
+  .lap__pcb .lap__body .tag-list {
+    max-height: none;
+    overflow: visible;
+  }
+  .lap__pcb .lap__actions {
+    margin-top: 6px;
+  }
+}

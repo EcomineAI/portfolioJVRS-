@@ -64,6 +64,7 @@ const responses = {
     Say hi on the <a href="/contact">Contact page</a>.`,
   contact: `The quickest way is the <a href="/contact">Contact page</a>.<br><br>
     ▸ <strong>Email</strong>: junevicabello@gmail.com<br>
+    ▸ <strong>LinkedIn</strong>: linkedin.com/in/june-vic-abello-82a1683b7<br>
     ▸ <strong>GitHub</strong>: github.com/EcomineAI<br>
     ▸ <strong>OnlineJobs.ph</strong>: profile linked on the Contact page`,
   about: `<strong>June Vic M. Abello</strong> is a 3rd-year BS Computer Science student at <strong>Gordon College</strong>, Olongapo City, Philippines.<br><br>
@@ -89,7 +90,7 @@ const rules = [
   [/yt-?dlp|downloader|electron|ffmpeg/, () => responses.ytdlp],
   [/twitch|stream/, () => responses.twitch],
   [/hire|hiring|freelance|available|availability|job|intern|collab|opportunit|rate|commission/, () => responses.hire],
-  [/contact|email|e-mail|mail|reach|message|onlinejobs|github|socials?/, () => responses.contact],
+  [/contact|email|e-mail|mail|reach|message|onlinejobs|github|linkedin|socials?/, () => responses.contact],
   [/project|built|build|made|portfolio|repo|apps?\b|work/, () => responses.projects],
   [/\bai\b|llm|model|machine learning|\bml\b|lm.?studio|gguf|gemma|qwen|prompt|transformers/, () => responses.ai],
   [/skill|tech|stack|language|tool|know|react|vite|supabase|python|javascript|\bjs\b|css/, () => responses.skills],

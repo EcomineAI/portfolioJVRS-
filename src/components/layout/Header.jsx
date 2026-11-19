@@ -41,73 +41,80 @@ export default function Header({ theme, onToggleTheme }) {
     if (!open) return;
     const onKey = e => { if (e.key === 'Escape') setOpen(false); };
     document.addEventListener('keydown', onKey);
-    document.body.style.overflow = 'hidden';
-    return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
+    return () => { document.removeEventListener('keydown', onKey); };
   }, [open]);
 
   const { enabled: soundEnabled, toggleEnabled: toggleSound } = useSound();
   const isDark = theme === 'dark';
 
   return (
-    <header className="site-header" data-no-spray="true">
-      <div className="site-header__inner container">
-        <Logo />
+    <>
+      <header className="site-header" data-no-spray="true">
+        <div className="site-header__inner container">
+          <Logo />
 
-        <nav className="site-nav" aria-label="Main" data-uisfx-pack="minimal">
-          <ul className="site-nav__list">
-            {navItems.map(item => (
-              <li key={item.to}>
-                <NavLink to={item.to} end={item.end} className="site-nav__link" data-uisfx="forward">{item.label}</NavLink>
-              </li>
-            ))}
-          </ul>
-        </nav>
+          <nav className="site-nav" aria-label="Main" data-uisfx-pack="minimal">
+            <ul className="site-nav__list">
+              {navItems.map(item => (
+                <li key={item.to}>
+                  <NavLink to={item.to} end={item.end} className="site-nav__link" data-uisfx="forward">{item.label}</NavLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
-        <div className="site-header__tools">
-          {bugUnlocked && <BugButton onHide={hideBug} />}
-          <SprayButton />
-          <button
-            type="button"
-            className="pixel-btn pixel-btn--outline pixel-btn--icon"
-            onClick={toggleSound}
-            data-no-sfx="true"
-            aria-pressed={soundEnabled}
-            aria-label={soundEnabled ? 'Mute UI sounds' : 'Unmute UI sounds'}
-            title={soundEnabled ? 'Mute sounds' : 'Unmute sounds'}
-          >
-            {soundEnabled ? <VolumeOnIcon /> : <VolumeOffIcon />}
-          </button>
-          <button
-            type="button"
-            className="pixel-btn pixel-btn--outline pixel-btn--icon"
-            onClick={onToggleTheme}
-            data-uisfx={isDark ? 'toggle-off' : 'toggle-on'}
-            aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-            title={isDark ? 'Light theme' : 'Dark theme'}
-          >
-            {isDark ? <SunIcon /> : <MoonIcon />}
-          </button>
-          <button
-            type="button"
-            className="pixel-btn pixel-btn--outline pixel-btn--icon menu-toggle"
-            aria-expanded={open}
-            aria-controls="mobile-menu"
-            aria-label={open ? 'Close menu' : 'Open menu'}
-            data-uisfx={open ? 'close' : 'open'}
-            data-uisfx-pack="minimal"
-            onClick={() => setOpen(o => !o)}
-          >
-            <span className={`menu-icon${open ? ' is-open' : ''}`} aria-hidden="true"><span /><span /><span /></span>
-          </button>
+          <div className="site-header__tools">
+            {bugUnlocked && <BugButton onHide={hideBug} />}
+            <SprayButton />
+            <button
+              type="button"
+              className="pixel-btn pixel-btn--outline pixel-btn--icon"
+              onClick={toggleSound}
+              data-no-sfx="true"
+              aria-pressed={soundEnabled}
+              aria-label={soundEnabled ? 'Mute UI sounds' : 'Unmute UI sounds'}
+              title={soundEnabled ? 'Mute sounds' : 'Unmute sounds'}
+            >
+              {soundEnabled ? <VolumeOnIcon /> : <VolumeOffIcon />}
+            </button>
+            <button
+              type="button"
+              className="pixel-btn pixel-btn--outline pixel-btn--icon"
+              onClick={onToggleTheme}
+              data-uisfx={isDark ? 'toggle-off' : 'toggle-on'}
+              aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
+              title={isDark ? 'Light theme' : 'Dark theme'}
+            >
+              {isDark ? <SunIcon /> : <MoonIcon />}
+            </button>
+            <button
+              type="button"
+              className="pixel-btn pixel-btn--outline pixel-btn--icon menu-toggle"
+              aria-expanded={open}
+              aria-controls="mobile-menu"
+              aria-label={open ? 'Close menu' : 'Open menu'}
+              data-uisfx={open ? 'close' : 'open'}
+              data-uisfx-pack="minimal"
+              onClick={() => setOpen(o => !o)}
+            >
+              <span className={`menu-icon${open ? ' is-open' : ''}`} aria-hidden="true"><span /><span /><span /></span>
+            </button>
+          </div>
         </div>
-      </div>
+      </header>
 
-      <div id="mobile-menu" className={`mobile-menu${open ? ' is-open' : ''}`} hidden={!open} data-uisfx-pack="minimal">
-        <nav aria-label="Mobile">
+      <div
+        id="mobile-menu"
+        className={`mobile-menu${open ? ' is-open' : ''}`}
+        hidden={!open}
+        data-uisfx-pack="minimal"
+        onClick={e => { if (e.target === e.currentTarget) setOpen(false); }}
+      >
+        <nav className="mobile-menu__panel" aria-label="Mobile">
           <ul>
             {navItems.map((item, i) => (
               <li key={item.to}>
-                <NavLink to={item.to} end={item.end} className="mobile-menu__link" data-uisfx="forward">
+                <NavLink to={item.to} end={item.end} className="mobile-menu__link" data-uisfx="forward" onClick={() => setOpen(false)}>
                   <span className="mobile-menu__num" aria-hidden="true">0{i + 1}</span>
                   {item.label}
                 </NavLink>
@@ -116,6 +123,6 @@ export default function Header({ theme, onToggleTheme }) {
           </ul>
         </nav>
       </div>
-    </header>
+    </>
   );
 }

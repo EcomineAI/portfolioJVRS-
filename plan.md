@@ -10,12 +10,12 @@ We recreate *patterns and tokens*, not their code, copy, images or branding.
 
 | # | Requirement | How the plan meets it | Status |
 |---|---|---|---|
-| R1 | Individual build, any stack, works on **mobile + desktop** | Vite + React; every page tested at 360px, 768px, 1280px+ (Phase 4) | planned |
-| R2 | UI/UX principles: **clear navigation, readable content, consistent design, usability, accessibility** | Plain nav labels (see IA), readable body font for long text, one token system, spray/buddies opt-in and never blocking, WCAG AA contrast, keyboard + screen reader support, reduced motion | planned — see §R2 notes |
-| R3 | **SE project as featured case study**; other work optional; **state own role & contributions** in team projects | Case study is the #1 featured item on Home and Projects; every team project has a "My role" + "My contributions" block | ⚠ need: which project is the SE project, team members, my role |
-| R4 | Case study content follows the **provided slide deck template** (adapt, don't copy layout) | `/case-study` page sections map 1:1 to the template | ⚠ need: the slide deck |
-| R5 | Publish on a **paid, affordable domain + hosting**; domain **based on own name**; publicly accessible | e.g. `junevicabello.com` (~$10–12/yr via Porkbun / Namecheap / Cloudflare); host on a paid plan (see §Publishing) | ⚠ need: confirm whether hosting must be paid too |
-| R6 | AI allowed; **review & personalize**; **must be able to explain** work and decisions | Owner rewrites all copy in own voice; `DECISIONS.md` logs every design/tech choice with the UI/UX principle behind it; walkthrough before submission | planned |
+| R1 | Individual build, any stack, works on **mobile + desktop** | Vite + React; dedicated mobile-first responsive layouts across all pages, tested at 360px, 390px, 768px, 1280px+ | ✅ done |
+| R2 | UI/UX principles: **clear navigation, readable content, consistent design, usability, accessibility** | Plain nav labels (see IA), readable body font for long text, one token system, spray/buddies opt-in and never blocking, WCAG AA contrast, keyboard + screen reader support, reduced motion | ✅ done — see §R2 notes |
+| R3 | **SE project as featured case study**; other work optional; **state own role & contributions** in team projects | Askademic is the #1 featured item on Home and Projects (2-col retro browser preview card); every team project has a "My role" + "My contributions" block | ✅ done |
+| R4 | Case study content follows the **provided slide deck template** (adapt, don't copy layout) | `/case-study` maps 1:1 to sections `01`–`08` with corkboard hero, locker TOC (`CS-01`), and lined notebook sheets | ✅ done |
+| R5 | Publish on a **paid, affordable domain + hosting**; domain **based on own name**; publicly accessible | Deployed on Vercel with custom domain `www.junevicabello.site` | ✅ done |
+| R6 | AI allowed; **review & personalize**; **must be able to explain** work and decisions | Owner reviewed copy and design; `DECISIONS.md` logs every design/tech choice with the UI/UX principle behind it | ✅ done |
 
 **Suggested structure → our pages:** Home → `/` · About & skills → `/about` · Projects → `/projects` · Case study → `/projects/<se-project>` (also linked as "Case Study" in nav) · Contact → `/contact`.
 
@@ -87,8 +87,8 @@ We recreate *patterns and tokens*, not their code, copy, images or branding.
 | Askademic admin bypass | Not now |
 | Identity | **Real name: June Vic M. Abello** (first: June Vic, middle: M., last: Abello). Drop "EcomineAI" as primary brand; logo `<JVA/>`. GitHub handle stays `EcomineAI` in links only. |
 
-**Status (Nov 9 2026):** ✅ Phases 1–3 built and merged; build passes; checked in headless Edge at 390px and 1280px, dark + light: no page-level horizontal overflow, no console errors, one `<h1>` per page.
-**Remaining:** owner content (TODO blocks: case study role/process/designs/lessons, About bio, Askademic + JALgorithm roles), slide-deck alignment, real-device test, Lighthouse run, commit + push, Vercel deploy, then domain later. Rehearse `DECISIONS.md`.
+**Status (Nov 19 2026):** ✅ Complete mobile-first responsive overhaul across all pages; EmailJS direct email form (`DirectEmailForm.jsx`) + `.env.example`; LinkedIn integrated across McLovin Developer ID card (with Version-6 ECC-H scannable QR code), `/contact`, footer Connect, and JV-BOT; `/case-study` redesigned with corkboard hero, locker TOC (`CS-01`), and full-width lined notebook sheets (`01`–`08`); `/projects` Askademic featured card upgraded to 2-col retro browser preview; `03 · Learn` expanded to 4 topics with verified local cover photos in `public/projects/`; résumé PDF updated. Build passes cleanly (`npm run build`).
+**Remaining:** Replace placeholder Lorem ipsum text inside the résumé PDF when ready, configure EmailJS env vars on Vercel (`VITE_EMAILJS_*`), and rehearse `DECISIONS.md`.
 
 ---
 

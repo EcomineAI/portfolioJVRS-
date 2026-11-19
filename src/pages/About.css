@@ -36,31 +36,80 @@
 }
 @media (max-width: 1199px) {
   .about-hero {
-    grid-template-columns: 980px 330px;
-    gap: 40px;
-    width: 1350px;
-    zoom: 0.69;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
   }
-  .about-hero__title { font-size: 2.35rem; }
+  .cartridge-outro-wrap {
+    max-width: 300px;
+  }
 }
-@media (max-width: 1023px) {
-  .about-hero { zoom: 0.58; }
+@media (max-width: 767px) {
+  .about-intro { gap: 12px; }
+  .about-intro__jump {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    overflow: visible;
+  }
+  .about-intro__jump .eyebrow {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 5px;
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+  }
+  .about-intro__jump .eyebrow > span[aria-hidden='true'] {
+    display: none;
+  }
+  .about-intro__jump a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 26px;
+    padding: 3px 7px;
+    background: var(--card);
+    border: 2px solid var(--border);
+    box-shadow: 2px 2px 0 0 var(--shadow-color);
+    white-space: nowrap;
+    line-height: 1;
+  }
+  .about-intro__jump a:hover,
+  .about-intro__jump a:focus-visible {
+    background: var(--primary);
+    color: var(--primary-fg);
+    border-bottom-color: var(--border);
+  }
+  .about-hero__title {
+    font-size: clamp(0.82rem, 3.8vw, 1.15rem);
+    line-height: 1.35;
+    max-width: 100%;
+  }
+  .about-hero__bio {
+    font-size: 0.86rem;
+    line-height: 1.5;
+    gap: 8px;
+  }
+  .about-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 2px;
+  }
+  .about-facts__item {
+    padding: 6px 8px;
+    border-width: 2px;
+    box-shadow: 2px 2px 0 0 var(--shadow-color);
+    min-width: 0;
+  }
+  .about-facts__item dt { font-size: 0.78rem; }
+  .about-facts__item dd { font-size: 0.84rem; line-height: 1.25; overflow-wrap: anywhere; }
 }
-@media (max-width: 859px) {
-  .about-hero { zoom: 0.46; }
-}
-@media (max-width: 679px) {
-  .about-hero { zoom: 0.35; }
-}
-@media (max-width: 519px) {
-  .about-hero { zoom: 0.275; }
-}
-@media (max-width: 409px) {
-  .about-hero { zoom: 0.24; }
-}
-@media (max-width: 560px) {
-  .about-intro__jump { padding: 4px 10px; }
-  .about-intro__jump .eyebrow { font-size: clamp(0.68rem, 2.5vw, var(--text-base)); gap: 4px 8px; }
+@media (max-width: 419px) {
+  .about-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .about-hero__main-wrap {
@@ -202,19 +251,6 @@
   gap: 0;
   align-items: start;
 }
-@media (max-width: 999px) {
-  .proof-row {
-    grid-template-columns: 760px 56px 260px;
-    width: 1076px;
-    zoom: 0.68;
-  }
-  .proof-row .activity__toggle { margin-left: auto; width: auto; }
-  .proof-row .activity__radio { flex: 0 0 auto; }
-}
-@media (max-width: 799px) { .proof-row { zoom: 0.54; } }
-@media (max-width: 639px) { .proof-row { zoom: 0.42; } }
-@media (max-width: 499px) { .proof-row { zoom: 0.34; } }
-@media (max-width: 399px) { .proof-row { zoom: 0.30; } }
 /* Mini single-board-computer look: green PCB, copper traces, GPIO header, chips, a silver port */
 .pcb {
   --pcb: #1c7a4d; --pcb-dark: #135c39; --trace: #2fa56b; --gold: #e9c75a; --silver: #c9ced4; --chip: #16181d; --silk: #f1f5ec;
@@ -324,9 +360,49 @@
 .stone-row:nth-child(even):hover .stone { transform: translate(70px, -3px); }
 .stone-row:nth-child(odd) .stone-card { grid-column: 3; grid-row: 1; }
 .stone-row:nth-child(even) .stone-card { grid-column: 1; grid-row: 1; text-align: right; border-left: 0; border-right: 4px solid var(--border); }
-@media (max-width: 899px) { .stones { zoom: 0.68; } }
-@media (max-width: 639px) { .stones { zoom: 0.50; } }
-@media (max-width: 479px) { .stones { zoom: 0.40; } }
+@media (max-width: 860px) {
+  .stones { gap: 4px; }
+  .stone-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    padding: 8px 0 18px 20px;
+  }
+  .stone-row:not(:last-child)::after,
+  .stone-row:nth-child(even):not(:last-child)::after {
+    left: 4px;
+    top: 34px;
+    bottom: 4px;
+    width: 6px;
+    height: auto;
+    background: repeating-linear-gradient(to bottom, var(--border) 0 6px, transparent 6px 14px);
+    box-shadow: none;
+  }
+  .stone,
+  .stone-row:nth-child(odd) .stone,
+  .stone-row:nth-child(even) .stone,
+  .stone-row:nth-child(odd):hover .stone,
+  .stone-row:nth-child(even):hover .stone {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    transform: none;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    min-height: 58px;
+    padding: 8px 16px;
+  }
+  .stone-row:nth-child(odd) .stone-card,
+  .stone-row:nth-child(even) .stone-card {
+    grid-column: 1;
+    grid-row: 2;
+    text-align: left;
+    border-right: 0;
+    border-left: 4px solid var(--border);
+  }
+  .stone-card__title { font-size: 0.88rem; line-height: 1.45; overflow-wrap: anywhere; }
+  .stone-card__text { overflow-wrap: anywhere; }
+}
 @media (prefers-reduced-motion: reduce) { .stone { transition: none !important; } }
 
 /* ---- Certificates: pixel bulletin board ---- */
@@ -398,19 +474,28 @@
 }
 @media (max-width: 760px) {
   .cert-board {
-    padding: 16px 8px 14px;
-    border-width: 6px;
+    padding: 22px 12px 18px;
+    border-width: 8px;
     box-shadow:
       inset 0 0 0 2px var(--ink-line),
       0 0 0 2px var(--ink-line),
-      inset 3px 3px 0 rgba(0, 0, 0, .18),
-      4px 5px 0 2px var(--shadow-color);
+      inset 4px 4px 0 rgba(0, 0, 0, .18),
+      5px 6px 0 2px var(--shadow-color);
   }
-  .cert-board::before { inset: -6px; border-width: 6px; }
-  .cert-pin__card { padding: 5px 5px 4px; gap: 4px; border-width: 2px; box-shadow: 3px 3px 0 rgba(0, 0, 0, .28); }
+  .cert-board::before { inset: -8px; border-width: 8px; }
+  .cert-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 12px;
+  }
+  .cert-pin__card { padding: 8px 8px 6px; gap: 6px; border-width: 3px; box-shadow: 4px 4px 0 rgba(0, 0, 0, .28); }
   .cert-pin__img { border-width: 2px; }
-  .cert-pin__name { font-size: clamp(0.36rem, 1.35vw, 0.86rem); line-height: 1.35; padding: 2px 2px 0; min-height: 2.8em; }
-  .cert-pin__tack { width: 12px; height: 12px; top: -8px; margin-left: -6px; border-width: 2px; box-shadow: inset 2px 2px 0 #f58a90, 2px 2px 0 rgba(0, 0, 0, .3); }
+  .cert-pin__name { font-size: clamp(0.54rem, 2.2vw, 0.7rem); line-height: 1.4; padding: 3px 2px 1px; min-height: auto; }
+  .cert-pin__tack { width: 14px; height: 14px; top: -9px; margin-left: -7px; border-width: 2px; }
+}
+@media (max-width: 380px) {
+  .cert-board { padding: 18px 8px 14px; }
+  .cert-grid { gap: 16px 8px; }
+  .cert-pin__card { padding: 6px 6px 5px; }
 }
 
 .cert-lightbox {
@@ -544,6 +629,49 @@
 
 .console__screen .about-facts { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
 
+@media (max-width: 767px) {
+  .console {
+    --dx: 0px;
+    --dy: 0px;
+    --band: 0px;
+    margin: 0;
+    max-width: 100%;
+    background: var(--c-lid);
+    box-shadow: 4px 4px 0 0 var(--shadow-color);
+  }
+  .console__face { display: none; }
+  .console__top,
+  .console__bottom {
+    flex-wrap: wrap;
+    gap: 6px 8px;
+    padding: 6px 10px;
+  }
+  .console__top { padding-right: 10px; }
+  .console__led { width: 9px; height: 9px; }
+  .console__brand { font-size: 0.6rem; letter-spacing: 0.12em; }
+  .console__stripe { display: none; }
+  .console__screen {
+    gap: 10px;
+    min-width: 0;
+    overflow: hidden;
+    margin: 0 8px 8px;
+    padding: 10px 12px;
+    border-width: 3px;
+    outline: 0;
+  }
+  .console__screen .about-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .console__switch i { width: 22px; height: 10px; border-width: 2px; }
+  .console__ports { display: none; }
+  .console__insert { font-size: 0.44rem; }
+}
+@media (max-width: 419px) {
+  .console__screen {
+    margin: 0 6px 6px;
+    padding: 10px;
+  }
+  .console__screen .about-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 /* ---- Activity panel as a circuit board, wired to the mini board by a ribbon cable ---- */
 .proof-row .activity {
   --pcb-dark: #135c39;
@@ -619,3 +747,57 @@
 }
 .proof-link::before { left: -8px; } .proof-link::after { right: -8px; }
 .proof-row .pcb { align-self: start; margin-top: 0; }
+
+/* Responsive Proof of Work: stack PCBs vertically with a vertical ribbon cable */
+@media (max-width: 1024px) {
+  .proof-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .proof-link {
+    width: 74px;
+    height: 36px;
+    margin: 0 auto;
+  }
+  .proof-link i {
+    left: 0;
+    right: 0;
+    top: -6px;
+    bottom: -6px;
+    background:
+      repeating-linear-gradient(to right, #e3cd86 0 7px, #b89a45 7px 10px),
+      #e3cd86;
+    border: 3px solid #0d1f17;
+    border-block: 0;
+    box-shadow: 3px 0 0 rgba(0, 0, 0, .25);
+  }
+  .proof-link::before,
+  .proof-link::after {
+    top: auto;
+    bottom: auto;
+    left: -6px;
+    right: -6px;
+    width: auto;
+    height: 12px;
+  }
+  .proof-link::before { top: -8px; }
+  .proof-link::after { bottom: -8px; }
+  .pcb__chips {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+}
+@media (max-width: 639px) {
+  .proof-row .activity {
+    padding: 36px 12px 18px;
+  }
+  .pcb {
+    padding: 48px 16px 20px;
+    gap: 14px;
+  }
+  .pcb__chips {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .pcb__chip dd { font-size: 1.25rem; }
+  .pcb__port { font-size: 0.68rem; }
+}

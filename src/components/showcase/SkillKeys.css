@@ -176,11 +176,12 @@
   inset: 0;
   transform: translateZ(var(--lift));
   display: grid; place-items: center;
+  overflow: hidden;
   background: var(--card);
   border: 3px solid var(--brand);
   box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--brand) 18%, var(--card));
 }
-.key__top .pixel-logo { width: 62%; height: auto; filter: none; }
+.key__top .pixel-logo { width: 64% !important; height: 64% !important; filter: none; }
 .key__front {
   left: 0; bottom: 0; width: 100%; height: var(--lift);
   transform-origin: bottom; transform: rotateX(-90deg);
@@ -228,38 +229,46 @@
   from { opacity: 0; transform: translateY(18px); }
   to { opacity: 1; transform: translateY(0); }
 }
-@media (max-width: 759px) {
-  .skillkeys { gap: 6px; }
-  .skillkeys__hint { font-size: clamp(0.5rem, 1.6vw, var(--text-sm)); }
+@media (max-width: 767px) {
+  .skillkeys { gap: 10px; }
+  .skillkeys__hint { font-size: var(--text-sm); text-align: center; }
+  .skillkeys__rig {
+    transform: rotateX(22deg) rotateZ(0deg);
+  }
+  .skillkeys--intro .skillkeys__rig {
+    animation-name: skillkeys-intro-mobile;
+  }
   .case__top {
-    box-shadow: inset 0 0 0 1.5px #0d1226, inset 0 0 0 3px #ffffff;
+    box-shadow: inset 0 0 0 2px #0d1226, inset 0 0 0 4px #ffffff;
   }
   .case__top::before {
-    box-shadow: inset 0 0 0 1.5px #0d1226, inset 2px 2px 0 1.5px #4a5780;
+    box-shadow: inset 0 0 0 2px #0d1226, inset 3px 3px 0 2px #4a5780;
   }
   .case__front, .case__left, .case__right, .case__back, .case__bottom {
-    box-shadow: inset 0 0 0 1.5px #0d1226;
+    box-shadow: inset 0 0 0 2px #0d1226;
   }
   .key__top {
-    border-width: 1.5px;
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand) 18%, var(--card));
-  }
-  .key__top .pixel-logo { width: 72%; }
-  .skillkeys__readout {
-    height: auto;
-    min-height: 58px;
-    padding: 6px 8px;
-    gap: 4px;
     border-width: 2px;
-    box-shadow: 2px 2px 0 0 var(--shadow-color);
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--brand) 18%, var(--card));
   }
-  .skillkeys__content { gap: 4px; }
-  .skillkeys__head { gap: 6px; }
-  .skillkeys__name { font-size: clamp(0.45rem, 1.5vw, 0.72rem); line-height: 1.3; }
-  .skillkeys__count { font-size: clamp(0.48rem, 1.5vw, 0.75rem); padding: 0 4px; white-space: nowrap; }
-  .skillkeys__note { font-size: clamp(0.52rem, 1.6vw, 0.85rem); line-height: 1.25; }
-  .skillkeys__projects { gap: 2px 6px; }
-  .skillkeys__projects .tag { font-size: clamp(0.48rem, 1.5vw, 0.75rem); }
+  .key__top .pixel-logo { width: 66% !important; height: 66% !important; }
+  .skillkeys__readout {
+    width: 100%;
+    height: 152px;
+    overflow-y: auto;
+    align-content: start;
+    padding: 12px 14px;
+    gap: 8px;
+  }
+  .skillkeys__name { font-size: 0.78rem; line-height: 1.4; }
+  .skillkeys__count { font-size: var(--text-xs); white-space: nowrap; }
+  .skillkeys__note { font-size: var(--text-base); line-height: 1.3; }
+}
+
+@keyframes skillkeys-intro-mobile {
+  0% { transform: rotateX(8deg) rotateZ(-360deg) scale(0.6); }
+  60% { transform: rotateX(40deg) rotateZ(-40deg) scale(1.02); }
+  100% { transform: rotateX(22deg) rotateZ(0deg) scale(1); }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -2,9 +2,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
 import { gmailCompose, profile } from '../../data/profile.js';
-import { BriefcaseIcon, GithubIcon, MailIcon } from '../Icons.jsx';
+import { BriefcaseIcon, GithubIcon, LinkedinIcon, MailIcon } from '../Icons.jsx';
 import { PixelButton } from '../ui/index.jsx';
 import { drawCode128, drawQrCode } from './idCodes.js';
+import DirectEmailForm from './DirectEmailForm.jsx';
 
 /** Custom pixel-art cursive 'J' signature overlapping the printed name. */
 function PixelSignatureJ() {
@@ -70,12 +71,12 @@ function McLovinIdCard({ docked = false, onClose, resetKey, onQrZoomChange }) {
 
   useEffect(() => {
     drawCode128(barcodeRef.current, 'JVA-WEB-03');
-    drawQrCode(qrRef.current, profile.links.github);
+    drawQrCode(qrRef.current, profile.links.linkedin, 'in');
   }, []);
 
   useEffect(() => {
     if (!qrZoom) return undefined;
-    drawQrCode(zoomQrRef.current, profile.links.github);
+    drawQrCode(zoomQrRef.current, profile.links.linkedin, 'in');
     const onKey = (e) => {
       if (e.key === 'Escape') {
         e.stopImmediatePropagation?.();
@@ -156,7 +157,7 @@ function McLovinIdCard({ docked = false, onClose, resetKey, onQrZoomChange }) {
               data-uisfx="swipe"
               onClick={() => setFlipped(true)}
               tabIndex={flipped ? -1 : 0}
-              title="Flip card to scan GitHub QR code"
+              title="Flip card to scan LinkedIn QR code"
             >
               <canvas ref={barcodeRef} className="mclovin-id__barcode" aria-hidden="true" />
               <span className="mclovin-id__scan-hint">Tap for QR →</span>
@@ -290,7 +291,7 @@ function McLovinIdCard({ docked = false, onClose, resetKey, onQrZoomChange }) {
           )}
 
           <div className="mclovin-id__back-grid">
-            {/* Left: Large Scannable GitHub QR (tap to enlarge) */}
+            {/* Left: Large Scannable LinkedIn QR (tap to enlarge) */}
             <div className="mclovin-id__back-qrcol">
               <button
                 type="button"
@@ -298,18 +299,18 @@ function McLovinIdCard({ docked = false, onClose, resetKey, onQrZoomChange }) {
                 data-uisfx="expand"
                 onClick={() => setQrZoom(true)}
                 tabIndex={flipped ? 0 : -1}
-                aria-label="Enlarge GitHub QR code"
+                aria-label="Enlarge LinkedIn QR code"
                 title="Click to enlarge QR code"
               >
                 <canvas
                   ref={qrRef}
                   className="mclovin-id__back-qr"
                   role="img"
-                  aria-label={`QR code for ${profile.links.github}`}
+                  aria-label={`QR code for ${profile.links.linkedin}`}
                 />
               </button>
               <div className="mclovin-id__back-qrcap">
-                <div>SCAN FOR GITHUB</div>
+                <div>SCAN FOR LINKEDIN</div>
                 <span>Tap QR to enlarge</span>
               </div>
             </div>
@@ -332,13 +333,13 @@ function McLovinIdCard({ docked = false, onClose, resetKey, onQrZoomChange }) {
                 <div className="mclovin-id__back-links">
                   <a
                     className="mclovin-id__btn"
-                    href={profile.links.github}
+                    href={profile.links.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
                     data-uisfx="open"
                     tabIndex={flipped ? 0 : -1}
                   >
-                    <GithubIcon aria-hidden="true" /> @{profile.links.githubHandle}
+                    <LinkedinIcon aria-hidden="true" /> LinkedIn
                   </a>
                   <a
                     className="mclovin-id__btn"
@@ -390,12 +391,12 @@ function McLovinIdCard({ docked = false, onClose, resetKey, onQrZoomChange }) {
           role="dialog"
           aria-modal="true"
           data-uisfx-pack="studio"
-          aria-label="Enlarged GitHub QR code"
+          aria-label="Enlarged LinkedIn QR code"
           onClick={(e) => { if (e.target === e.currentTarget) setQrZoom(false); }}
         >
           <div className="qr-modal__card pixel-card">
             <div className="qr-modal__head">
-              <span className="qr-modal__title">GITHUB QR · @{profile.links.githubHandle}</span>
+              <span className="qr-modal__title">LINKEDIN QR · JUNE VIC</span>
               <button
                 type="button"
                 className="mclovin-id__close qr-modal__x"
@@ -411,13 +412,13 @@ function McLovinIdCard({ docked = false, onClose, resetKey, onQrZoomChange }) {
                 ref={zoomQrRef}
                 className="qr-modal__canvas"
                 role="img"
-                aria-label={`Large QR code for ${profile.links.github}`}
+                aria-label={`Large QR code for ${profile.links.linkedin}`}
               />
             </div>
-            <p className="qr-modal__url">{profile.links.github.replace('https://', '')}</p>
+            <p className="qr-modal__url">{profile.links.linkedin.replace('https://www.', '').replace(/\/$/, '')}</p>
             <div className="qr-modal__actions">
-              <PixelButton href={profile.links.github} size="sm">
-                <GithubIcon aria-hidden="true" /> Open GitHub
+              <PixelButton href={profile.links.linkedin} size="sm">
+                <LinkedinIcon aria-hidden="true" /> Open LinkedIn
               </PixelButton>
               <PixelButton variant="outline" size="sm" data-uisfx="close" onClick={() => setQrZoom(false)}>
                 Close
@@ -440,6 +441,7 @@ function McLovinIdCard({ docked = false, onClose, resetKey, onQrZoomChange }) {
 export default function SayHi({ headingLevel = 'h2', id = 'say-hi', inline = false }) {
   const { pathname } = useLocation();
   const [dockOpen, setDockOpen] = useState(false);
+  const [mailOpen, setMailOpen] = useState(false);
   const dismissedRef = useRef(false);
   const manualRef = useRef(false);
   const qrZoomRef = useRef(false);
@@ -524,6 +526,11 @@ export default function SayHi({ headingLevel = 'h2', id = 'say-hi', inline = fal
                 </a>
               </li>
               <li>
+                <a href={profile.links.linkedin} target="_blank" rel="noopener noreferrer">
+                  <LinkedinIcon aria-hidden="true" /> LinkedIn <span className="say-hi__muted">connect</span>
+                </a>
+              </li>
+              <li>
                 <a href={profile.links.onlinejobs} target="_blank" rel="noopener noreferrer">
                   <BriefcaseIcon aria-hidden="true" /> OnlineJobs.ph <span className="say-hi__muted">hire me</span>
                 </a>
@@ -535,6 +542,9 @@ export default function SayHi({ headingLevel = 'h2', id = 'say-hi', inline = fal
               </li>
             </ul>
           </div>
+          <div className="say-hi__inline-form">
+            <DirectEmailForm />
+          </div>
         </div>
       </section>
     );
@@ -543,24 +553,45 @@ export default function SayHi({ headingLevel = 'h2', id = 'say-hi', inline = fal
   return (
     <>
       <section className="say-hi say-hi--compact" aria-labelledby={id}>
-        <div className="container say-hi__bar">
-          <div className="say-hi__bar-left">
-            <Heading id={id} className="say-hi__bar-title">Say hi</Heading>
-            <a className="say-hi__bar-mail" href={`mailto:${profile.email}`}>
-              {profile.email}
-            </a>
+        <div className="container">
+          <div className="say-hi__bar">
+            <div className="say-hi__bar-left">
+              <Heading id={id} className="say-hi__bar-title">Say hi</Heading>
+              <a className="say-hi__bar-mail" href={`mailto:${profile.email}`}>
+                {profile.email}
+              </a>
+            </div>
+
+            <div className="say-hi__bar-actions">
+              <PixelButton
+                size="sm"
+                variant={mailOpen ? 'primary' : 'outline'}
+                data-uisfx={mailOpen ? 'close' : 'open'}
+                onClick={() => setMailOpen((o) => !o)}
+                aria-expanded={mailOpen}
+                aria-controls="say-hi-mail-drawer"
+              >
+                {mailOpen ? 'Close' : 'Email me'}
+              </PixelButton>
+
+              <PixelButton
+                size="sm"
+                variant={dockOpen ? 'outline' : 'primary'}
+                data-uisfx={dockOpen ? 'close' : 'open'}
+                onClick={toggleDock}
+                aria-expanded={dockOpen}
+                aria-controls="dev-id-dock"
+              >
+                {dockOpen ? 'Hide Dev ID' : 'Show Dev ID'}
+              </PixelButton>
+            </div>
           </div>
 
-          <PixelButton
-            size="sm"
-            variant={dockOpen ? 'outline' : 'primary'}
-            data-uisfx={dockOpen ? 'close' : 'open'}
-            onClick={toggleDock}
-            aria-expanded={dockOpen}
-            aria-controls="dev-id-dock"
-          >
-            {dockOpen ? 'Hide Dev ID' : 'Show Dev ID'}
-          </PixelButton>
+          {mailOpen && (
+            <div id="say-hi-mail-drawer" className="say-hi__mail-drawer">
+              <DirectEmailForm compact onClose={() => setMailOpen(false)} />
+            </div>
+          )}
         </div>
       </section>
 

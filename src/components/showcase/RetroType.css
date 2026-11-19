@@ -20,4 +20,17 @@
 }
 .retro-type__cursor.is-solid { animation: none; }
 @keyframes retro-blink { 50% { opacity: 0; } }
+@media (max-width: 860px) {
+  .retro-type,
+  .retro-type__visual {
+    display: block;
+    max-width: 100%;
+  }
+  .retro-type__ghost,
+  .retro-type__live {
+    white-space: normal;
+    width: 100%;
+    overflow-wrap: break-word;
+  }
+}
 @media (prefers-reduced-motion: reduce) { .retro-type__cursor { animation: none; } }

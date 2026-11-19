@@ -73,7 +73,7 @@ export default function SkillChains() {
         introPlayed = true;
         setIntro('play');
       }
-    }, { threshold: 0.3 });
+    }, { threshold: 0.08 });
     io.observe(el);
     return () => io.disconnect();
   }, [intro]);

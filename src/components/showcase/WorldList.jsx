@@ -8,27 +8,31 @@ import PixelSprite from '../../buddies/PixelSprite.jsx';
 import { worldIcons } from '../../buddies/sprites.js';
 import './WorldList.css';
 
-export default function WorldList({ world, items, hrefFor, titleFor = p => p.title, roleFor = () => undefined }) {
+export default function WorldList({ world, items, hrefFor, titleFor = p => p.title, roleFor = () => undefined, footer }) {
   const [activeSlug, setActiveSlug] = useState(items[0]?.slug);
   const index = Math.max(0, items.findIndex(p => p.slug === activeSlug));
   const active = items[index];
 
   return (
     <div className="world-list" data-world={world}>
-      <ul className="item-list" data-world={world}>
-        {items.map(p => (
-          <ItemRow
-            key={p.slug}
-            to={hrefFor(p)}
-            title={titleFor(p)}
-            description={p.subtitle}
-            meta={[p.type, p.date]}
-            role={roleFor(p)}
-            active={p.slug === active?.slug}
-            onActivate={() => setActiveSlug(p.slug)}
-          />
-        ))}
-      </ul>
+      <div className="world-list__left">
+        <ul className="item-list" data-world={world}>
+          {items.map(p => (
+            <ItemRow
+              key={p.slug}
+              to={hrefFor(p)}
+              title={titleFor(p)}
+              description={p.subtitle}
+              cover={p.cover}
+              meta={[p.type, p.date]}
+              role={roleFor(p)}
+              active={p.slug === active?.slug}
+              onActivate={() => setActiveSlug(p.slug)}
+            />
+          ))}
+        </ul>
+        {footer}
+      </div>
       {active && <Laptop project={active} world={world} href={hrefFor(active)} index={index} total={items.length} />}
     </div>
   );

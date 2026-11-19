@@ -52,18 +52,29 @@ function ExternalButtons({ links = {} }) {
 
 function Toc({ sections, active }) {
   return (
-    <nav className="cs-toc" aria-labelledby="cs-toc-title">
-      <h2 id="cs-toc-title" className="cs-toc__title">In this story</h2>
-      <ol className="cs-toc__list">
-        {sections.map((s, i) => (
-          <li key={s.id}>
-            <a href={`#${s.id}`} className="cs-toc__link" aria-current={active === s.id ? 'true' : undefined}>
-              <span className="cs-toc__num">{num(i)}</span>
-              <span>{s.title}</span>
-            </a>
-          </li>
-        ))}
-      </ol>
+    <nav className="cs-toc cs-locker" aria-labelledby="cs-toc-title">
+      <div className="cs-locker__top" aria-hidden="true">
+        <span className="cs-locker__vents"><i /><i /><i /><i /></span>
+        <span className="cs-locker__plate">CS-01</span>
+      </div>
+      <span className="cs-locker__handle" aria-hidden="true"><i /></span>
+      <div className="cs-locker__sheet">
+        <span className="cs-locker__tape" aria-hidden="true" />
+        <h2 id="cs-toc-title" className="cs-toc__title">In this story</h2>
+        <ol className="cs-toc__list">
+          {sections.map((s, i) => (
+            <li key={s.id}>
+              <a href={`#${s.id}`} className="cs-toc__link" aria-current={active === s.id ? 'true' : undefined}>
+                <span className="cs-toc__num">{num(i)}</span>
+                <span>{s.title}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </div>
+      <div className="cs-locker__bottom" aria-hidden="true">
+        <span className="cs-locker__vents cs-locker__vents--sm"><i /><i /></span>
+      </div>
     </nav>
   );
 }
@@ -419,64 +430,75 @@ export default function CaseStudy() {
 
   return (
     <article className="cs-page">
-      {/* ---- Hero ---- */}
+      {/* ---- Hero + Tools: Pixel Bulletin Board ---- */}
       <header className="container cs-hero">
         <Link to="/projects" className="cs-back" data-uisfx="back" data-uisfx-pack="minimal"><span aria-hidden="true">←</span> Projects</Link>
-        <PixelCard className="cs-hero__card" data-spray-surface="true">
-          <Eyebrow world="code">Featured case study · Software engineering &amp; UX project</Eyebrow>
-          <h1 className="cs-hero__title">{cs.title}</h1>
-          {cs.tagline && <p className="cs-hero__tagline">{cs.tagline}</p>}
-          {cs.cover && (
-            <ScreenshotFigure
-              className="cs-hero__banner"
-              img={{ src: cs.cover, alt: cs.coverAlt || cs.title }}
-              onZoom={setZoomed}
-            />
-          )}
-          {cs.formerNames && (
-            <p className="cs-hero__former">
-              <span className="cs-hero__former-label">Formerly</span> {cs.formerNames}
-            </p>
-          )}
-          {arr(cs.meta).length > 0 && (
-            <dl className="cs-meta">
-              {cs.meta.map(m => (
-                <div key={m.label} className="cs-meta__item">
-                  <dt>{m.label}</dt>
-                  <dd>{m.value}</dd>
-                </div>
-              ))}
-            </dl>
-          )}
-          {arr(cs.kpis).length > 0 && (
-            <div className="cs-kpis">
-              {cs.kpis.map(k => (
-                <div key={k.label} className="cs-kpi">
-                  <span className="cs-kpi__val">{k.value}</span>
-                  <span className="cs-kpi__lbl">{k.label}</span>
-                </div>
-              ))}
+        <div className="cs-board" data-spray-surface="true">
+          <div className="cs-hero__card">
+            <span className="cs-pin cs-pin--tl" aria-hidden="true" />
+            <span className="cs-pin cs-pin--tr" aria-hidden="true" />
+            <div className="cs-hero__top">
+              <div className="cs-hero__intro">
+                <Eyebrow world="code">Featured case study · Software engineering &amp; UX project</Eyebrow>
+                <h1 className="cs-hero__title">{cs.title}</h1>
+                {cs.tagline && <p className="cs-hero__tagline">{cs.tagline}</p>}
+                {cs.formerNames && (
+                  <p className="cs-hero__former">
+                    <span className="cs-hero__former-label">Formerly</span> {cs.formerNames}
+                  </p>
+                )}
+              </div>
+              {cs.cover && (
+                <ScreenshotFigure
+                  className="cs-hero__banner"
+                  img={{ src: cs.cover, alt: cs.coverAlt || cs.title }}
+                  onZoom={setZoomed}
+                />
+              )}
             </div>
-          )}
-          <TagList tags={tags} />
-          <ExternalButtons links={cs.links} />
-        </PixelCard>
-      </header>
+            {arr(cs.meta).length > 0 && (
+              <dl className="cs-meta">
+                {cs.meta.map(m => (
+                  <div key={m.label} className="cs-meta__item">
+                    <dt>{m.label}</dt>
+                    <dd>{m.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+            {arr(cs.kpis).length > 0 && (
+              <div className="cs-kpis">
+                {cs.kpis.map(k => (
+                  <div key={k.label} className="cs-kpi">
+                    <span className="cs-kpi__val">{k.value}</span>
+                    <span className="cs-kpi__lbl">{k.label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            <TagList tags={tags} />
+            <ExternalButtons links={cs.links} />
+          </div>
 
-      {/* ---- Tools ---- */}
-      {arr(cs.stack).length > 0 && (
-        <section className="container cs-tools" aria-labelledby="cs-tools-title">
-          <h2 id="cs-tools-title" className="cs-tools__title">Tools and their roles</h2>
-          <ul className="cs-tools__list">
-            {cs.stack.map(t => (
-              <li key={t.name} className="cs-tool">
-                <span className="cs-tool__name">{t.name}</span>
-                <span className="cs-tool__role">{t.role}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+          {arr(cs.stack).length > 0 && (
+            <section className="cs-tools" aria-labelledby="cs-tools-title">
+              <h2 id="cs-tools-title" className="cs-tools__title">
+                <span className="cs-pin cs-pin--center" aria-hidden="true" />
+                Tools and their roles
+              </h2>
+              <ul className="cs-tools__list">
+                {cs.stack.map(t => (
+                  <li key={t.name} className="cs-tool">
+                    <span className="cs-tool__tack" aria-hidden="true" />
+                    <span className="cs-tool__name">{t.name}</span>
+                    <span className="cs-tool__role">{t.role}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </div>
+      </header>
 
       {/* ---- Story: TOC + sections ---- */}
       <div className="container cs-layout">

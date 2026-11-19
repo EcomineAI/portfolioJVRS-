@@ -21,17 +21,26 @@
   border-top: var(--border-w) solid var(--border);
 }
 .contact-faq { min-width: 0; }
-@media (max-width: 899px) {
+@media (max-width: 900px) {
   .contact-more {
-    width: 920px;
-    zoom: 0.62;
+    grid-template-columns: 1fr;
+    gap: 36px;
   }
 }
-@media (max-width: 639px) {
-  .contact-more { zoom: 0.46; }
-}
-@media (max-width: 479px) {
-  .contact-more { zoom: 0.355; }
+@media (max-width: 520px) {
+  .contact-intro {
+    padding-top: 32px;
+    padding-bottom: 24px;
+  }
+  .faq__q {
+    padding: 10px 12px;
+    gap: 10px;
+    font-size: var(--text-base);
+    min-height: 48px;
+  }
+  .faq__a {
+    padding: 4px 14px 16px 14px;
+  }
 }
 
 .faq { display: grid; gap: 16px; }

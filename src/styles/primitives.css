@@ -99,6 +99,9 @@
 
 /* ---- Section heading ----------------------------------------------------- */
 .section-heading { display: grid; gap: 16px; margin-bottom: clamp(28px, 5vw, 48px); }
+@media (max-width: 767px) {
+  .section-heading { gap: 8px; margin-bottom: 18px; }
+}
 .section-heading__title { font-size: clamp(1.25rem, 3.2vw, 2rem); }
 .section-heading__intro { color: var(--muted-fg); }
 
@@ -195,7 +198,19 @@
   box-shadow: none;
 }
 @media (max-width: 560px) {
-  .item-row__arrow { width: 36px; height: 36px; font-size: var(--text-base); }
+  .pixel-btn {
+    min-height: 44px;
+    padding: 8px 16px;
+    font-size: var(--text-base);
+    white-space: normal;
+    text-align: center;
+  }
+  .pixel-btn--icon { width: 40px; min-height: 40px; padding: 0; }
+  .item-row__link { padding: 14px 14px; gap: 6px 12px; }
+  .item-row__title { font-size: 0.82rem; line-height: 1.5; }
+  .item-row__desc { font-size: 0.94rem; }
+  .item-row__arrow { width: 38px; height: 38px; font-size: var(--text-base); }
+  .item-row__arrow .pixel-arrow { width: 24px; height: 24px; }
 }
 
 /* ---- Featured card ------------------------------------------------------- */

@@ -76,11 +76,16 @@ export function PixelArrow() {
   return <span className="pixel-arrow" aria-hidden="true" />;
 }
 
-/** One row in a list of work: title · one-liner · meta · arrow. */
-export function ItemRow({ to, href, title, description, meta = [], role, active = false, onActivate }) {
+/** One row in a list of work: optional mobile cover · title · one-liner · meta · arrow. */
+export function ItemRow({ to, href, title, description, cover, meta = [], role, active = false, onActivate }) {
   const suppressClickRef = useRef(false);
   const inner = (
     <>
+      {cover && (
+        <span className="item-row__thumb" aria-hidden="true">
+          <img src={cover} alt="" loading="lazy" />
+        </span>
+      )}
       <span className="item-row__title">{title}</span>
       {description && <span className="item-row__desc">{description}</span>}
       {(meta.length > 0 || role) && (
@@ -94,6 +99,10 @@ export function ItemRow({ to, href, title, description, meta = [], role, active 
   );
   const handlePointerDown = e => {
     if (!onActivate) return;
+    if (window.matchMedia?.('(max-width: 960px)').matches) {
+      suppressClickRef.current = false;
+      return;
+    }
     const isTouch = e.pointerType === 'touch' || window.matchMedia?.('(pointer: coarse)').matches;
     const clickedArrow = e.target.closest?.('.item-row__arrow');
     suppressClickRef.current = Boolean(isTouch && !active && !clickedArrow);

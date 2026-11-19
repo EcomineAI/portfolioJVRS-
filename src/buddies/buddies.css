@@ -125,6 +125,32 @@
 }
 .buddy__bubble--left::after { left: 14px; }
 .buddy__bubble--right::after { right: 14px; }
+@media (max-width: 767px) {
+  .buddy__sprite,
+  .buddy-world__prop svg {
+    scale: 0.68;
+    transform-origin: 50% 100%;
+  }
+  .buddy__bubble {
+    bottom: auto;
+    top: calc(100% + 10px);
+    width: max-content;
+    max-width: min(240px, calc(100vw - 32px));
+    white-space: normal;
+    text-wrap: balance;
+    font-size: var(--text-xs);
+    line-height: 1.25;
+    padding: 4px 10px;
+  }
+  .buddy__bubble::after {
+    top: auto;
+    bottom: 100%;
+    border: 3px solid var(--border);
+    border-bottom: 0;
+    border-right: 0;
+    transform: translateY(5px) rotate(45deg);
+  }
+}
 
 @keyframes buddy-pop {
   from { transform: scale(0.6); opacity: 0; }

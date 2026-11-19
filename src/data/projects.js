@@ -192,7 +192,7 @@ export const projects = [
     team: null,
     role: 'Solo',
     links: {},
-    cover: '/projects/prompt-engineering.png',
+    cover: '/projects/prompt-engineering.jpg',
   },
   {
     slug: 'graphics',
@@ -206,7 +206,7 @@ export const projects = [
     team: null,
     role: 'Solo',
     links: {},
-    cover: '/projects/graphics.png',
+    cover: '/projects/graphics.jpg',
   },
 
   // --------------------------------------------------------------- LEARN
@@ -222,7 +222,7 @@ export const projects = [
     team: null,
     role: 'Student',
     links: {},
-    cover: '/projects/bscs-gordon-college.png',
+    cover: '/projects/bscs-gordon-college.jpg',
   },
   {
     slug: 'local-llm-lab',
@@ -237,7 +237,37 @@ export const projects = [
     team: null,
     role: 'Self-directed',
     links: {},
-    cover: '/projects/local-llm-lab.png',
+    cover: '/projects/local-llm-lab.jpg',
+  },
+  {
+    slug: 'linux-cybersecurity',
+    world: 'learn',
+    title: 'Linux & Cybersecurity',
+    subtitle: 'Hands-on Linux administration, networking & security basics',
+    type: 'Self-study · Certs',
+    date: '2024 – present',
+    summary:
+      'Practicing Linux CLI workflows, network diagnostics, and security fundamentals alongside Fortinet NSE 1, Cisco, and DICT Data Privacy certifications.',
+    tags: ['Linux', 'Networking', 'Fortinet NSE 1', 'Data Privacy'],
+    team: null,
+    role: 'Self-directed',
+    links: {},
+    cover: '/projects/linux-cybersecurity.jpg',
+  },
+  {
+    slug: 'ai-agents-automation',
+    world: 'learn',
+    title: 'AI Agents & Automation',
+    subtitle: 'Tool-using agents, MCP servers & n8n workflows',
+    type: 'Self-study · Certs',
+    date: '2025 – present',
+    summary:
+      'Exploring multi-step AI agent workflows, MCP integrations, and task automation with n8n, Claude Code, and OpenAI / Claude Academy courses.',
+    tags: ['n8n', 'Claude Code', 'MCP', 'Automation'],
+    team: null,
+    role: 'Self-directed',
+    links: {},
+    cover: '/projects/ai-agents-automation.jpg',
   },
 ];
 

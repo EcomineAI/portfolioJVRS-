@@ -116,50 +116,145 @@
 .home-hero__ctas { display: flex; flex-wrap: wrap; gap: 10px 12px; margin-top: 4px; }
 .home-hero__ctas .pixel-btn { font-size: var(--text-base); }
 
-/* Keep the full 3-column desktop hero row across tablet & mobile, scaled down proportionally. */
+/* Tablet: 2-column top (portrait + intro) with interactive keyboard centered below */
 @media (max-width: 1179px) {
-  .home-hero__grid {
-    grid-template-columns: 24% minmax(0, 1fr) 32%;
-    column-gap: clamp(8px, 2vw, 24px);
-    row-gap: 16px;
-  }
-  .home-hero__keys { --hero-k: clamp(9.5px, 2.65vw, 38px); }
-}
-
-@media (max-width: 759px) {
   .home-hero {
     min-height: auto;
-    padding-block: 18px 8px;
+    padding-block: clamp(24px, 4vw, 44px) 12px;
+  }
+  .home-hero__grid {
+    grid-template-columns: clamp(210px, 30vw, 290px) minmax(0, 1fr);
+    grid-template-areas:
+      'portrait main'
+      'keys keys';
+    column-gap: clamp(20px, 4vw, 40px);
+    row-gap: 28px;
+    align-items: center;
+  }
+  .home-hero__keys {
+    --hero-k: clamp(32px, 5vw, 44px);
+    width: 100%;
+    max-width: 520px;
+    justify-self: center;
+  }
+}
+
+/* Mobile: compact 2-col top row ([portrait] [JUNE VIC ABELLO]) → full-width intro, CTAs & keyboard */
+@media (max-width: 767px) {
+  .home-hero {
+    padding-block: 16px 8px;
+  }
+  .home-hero__grid {
+    grid-template-columns: clamp(88px, 26vw, 118px) minmax(0, 1fr);
+    grid-template-areas: none;
+    column-gap: 14px;
+    row-gap: 12px;
+    align-items: center;
+    justify-items: start;
   }
   .home-hero__portrait {
-    border-width: 2px;
-    box-shadow: 4px 4px 0 0 var(--shadow-color);
+    grid-area: auto;
+    grid-column: 1;
+    grid-row: 1;
+    width: 100%;
+    max-width: none;
+    justify-self: stretch;
+    align-self: center;
+    box-shadow: var(--shadow-sm);
+  }
+  .home-hero__photo {
+    aspect-ratio: 1 / 1;
   }
   .home-hero__portrait-cap {
-    zoom: 0.48;
-    padding: 6px 8px;
-    border-top-width: 3px;
-    line-height: 1.2;
+    display: none;
   }
-  .home-hero__main { gap: 5px; }
-  .home-hero__name { margin-bottom: 2px; }
+  .home-hero__main {
+    display: contents;
+  }
+  .home-hero__name {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    width: 100%;
+    max-width: 260px;
+    margin: 0;
+  }
+  .home-hero__status,
+  .home-hero__chips,
+  .home-hero__lead,
+  .home-hero__ctas {
+    grid-column: 1 / -1;
+    justify-self: start;
+    text-align: left;
+  }
   .home-hero__status {
-    zoom: 0.48;
-    flex-wrap: nowrap;
-    white-space: nowrap;
+    justify-content: flex-start;
+    font-size: 0.86rem;
+    letter-spacing: 0.05em;
+    padding: 2px 8px;
+    gap: 4px 6px;
+    box-shadow: 2px 2px 0 0 var(--shadow-color);
+    max-width: 100%;
   }
-  .home-hero__chips { zoom: 0.48; }
+  .home-hero__live-dot {
+    width: 6px;
+    height: 6px;
+    border-width: 1.5px;
+  }
+  .home-hero__chips {
+    justify-content: flex-start;
+    gap: 4px;
+  }
+  .home-hero__chips li {
+    font-size: 0.84rem;
+    padding: 0 6px;
+    letter-spacing: 0.05em;
+  }
   .home-hero__lead {
-    zoom: 0.48;
-    line-height: 1.45;
+    font-size: 0.9rem;
+    line-height: 1.48;
+    max-width: 44ch;
   }
   .home-hero__ctas {
-    zoom: 0.44;
+    width: 100%;
+    justify-content: flex-start;
+    gap: 8px;
     margin-top: 2px;
   }
-  .home-featured__actions { zoom: 0.62; margin-top: 18px; }
-  .buddy-floor { margin-top: 16px; }
-  .buddy-floor__stage { height: 76px; }
+  .home-hero__ctas .pixel-btn {
+    min-height: 36px;
+    padding: 5px 12px;
+    font-size: 0.96rem;
+    border-width: 3px;
+    box-shadow: 3px 3px 0 0 var(--shadow-color);
+  }
+  .home-hero__ctas .pixel-btn--ghost {
+    border-color: transparent;
+    box-shadow: none;
+    padding-inline: 6px;
+  }
+  .home-hero__keys {
+    grid-area: auto;
+    grid-column: 1 / -1;
+    --hero-k: clamp(28px, 8vw, 38px);
+    margin-top: 2px;
+    width: 100%;
+    justify-self: center;
+  }
+  .home-hero__keys .skillkeys__stage {
+    height: calc(var(--k) * 5.2);
+  }
+  .home-featured__actions {
+    margin-top: 20px;
+    gap: 10px 12px;
+  }
+  .buddy-floor { margin-top: 8px; padding-bottom: 44px; }
+  .buddy-floor__stage { height: 52px; }
+}
+
+@media (max-width: 359px) {
+  .home-hero__grid { column-gap: 10px; }
+  .home-hero__keys { --hero-k: 24px; }
 }
 
 /* Anchor pills: ● 01 CODE  ● 02 CREATE  ● 03 LEARN ↓ (compact) */

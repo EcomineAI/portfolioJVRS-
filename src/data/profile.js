@@ -32,6 +32,7 @@ export const profile = {
   links: {
     github: 'https://github.com/EcomineAI',
     githubHandle: 'EcomineAI',
+    linkedin: 'https://www.linkedin.com/in/june-vic-abello-82a1683b7/',
     onlinejobs: 'https://www.onlinejobs.ph/jobseekers/info/4809449',
   },
 };

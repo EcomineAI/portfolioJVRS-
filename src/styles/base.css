@@ -116,6 +116,9 @@ body::after {
   padding-inline: var(--gutter);
 }
 .section { padding-block: clamp(56px, 9vw, 112px); }
+@media (max-width: 767px) {
+  .section { padding-block: 24px 32px; }
+}
 
 .sr-only {
   position: absolute !important;

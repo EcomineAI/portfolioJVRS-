@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
 import { gmailCompose, navItems, profile } from '../../data/profile.js';
-import { BriefcaseIcon, DownloadIcon, GithubIcon, MailIcon } from '../Icons.jsx';
+import { BriefcaseIcon, DownloadIcon, GithubIcon, LinkedinIcon, MailIcon } from '../Icons.jsx';
 
 const CONNECT = [
   { href: profile.links.github, label: `GitHub (@${profile.links.githubHandle})`, Icon: GithubIcon, external: true },
+  { href: profile.links.linkedin, label: 'LinkedIn profile', Icon: LinkedinIcon, external: true },
   { href: gmailCompose, label: `Email ${profile.email}`, Icon: MailIcon, external: true },
   { href: profile.links.onlinejobs, label: 'OnlineJobs.ph profile', Icon: BriefcaseIcon, external: true },
   { href: profile.resume, label: 'Download résumé (PDF)', Icon: DownloadIcon, download: true },
