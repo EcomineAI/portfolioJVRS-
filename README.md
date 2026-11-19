@@ -2,7 +2,7 @@
 
 My personal developer portfolio built with React and Vite, styled around a retro pixel-art look in light and dark modes.
 
-Live site: https://www.junevicabello.site
+Personal portfolio repository — view the live site at https://www.junevicabello.site.
 
 ## Pages
 
@@ -19,21 +19,6 @@ Live site: https://www.junevicabello.site
 - Plain CSS with shared design tokens
 - GSAP
 - Hosted on Vercel
-
-## Run locally
-
-```bash
-npm install
-npm run dev
-```
-
-To create a production build:
-
-```bash
-npm run build
-```
-
-If you want the direct email form to send via EmailJS locally, copy `.env.example` to `.env` and fill in your EmailJS keys.
 
 ## Links
 

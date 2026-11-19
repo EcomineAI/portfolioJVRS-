@@ -16,6 +16,7 @@ export const quickChips = [
   { label: 'AI stack', msg: 'What AI tools do you use?' },
   { label: 'Hire?', msg: 'Are you available for hire?' },
   { label: 'Contact', msg: 'How can I contact you?' },
+  { label: '???', msg: '???', secret: true },
 ];
 
 const responses = {
@@ -72,6 +73,8 @@ const responses = {
   school: `Gordon College is in <strong>Olongapo City, Philippines</strong>. June Vic is in his <strong>3rd year of BSCS</strong> there.<br><br>
     Two of his projects were built for the college: <a href="/case-study">Askademic</a> and <a href="/projects/gc-assist">GC Assist</a>.`,
   troubleshoot: `June Vic also does hands-on <strong>troubleshooting</strong>: PC hardware, Windows/Linux and driver issues, LLM load and VRAM errors, and home network problems. Most of it comes from running local AI on his own machines.`,
+  secret: `<strong>Secret unlocked!</strong> Look up at the top header — the green <strong>bug button</strong> just appeared.<br><br>
+    Press it whenever you're ready to trigger the boss fight (or hold it to hide it again).`,
   default: [
     "Hmm, that's not in my spellbook. Try <strong>projects</strong>, <strong>case study</strong>, <strong>skills</strong>, <strong>AI</strong>, <strong>hire</strong> or <strong>contact</strong>.",
     "I'm a simple scripted bot, so keywords work best: <em>Askademic</em>, <em>GC Assist</em>, <em>skills</em>, <em>contact</em>…",
@@ -81,9 +84,14 @@ const responses = {
 
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
+const SECRET_RE = /\bbug\b|bug attack|konami|easter.?egg|secret|\?\?\?/i;
+
+export const isSecretTrigger = msg => SECRET_RE.test(msg.trim());
+
 // Order matters: specific project names first, then broad topics.
 const rules = [
   [/^(hi|hey|hello|yo|sup|greetings|good (morning|afternoon|evening)|howdy|kumusta)\b/, () => pick(responses.greet)],
+  [SECRET_RE, () => responses.secret],
   [/askademic|facs|g-?cas|case.?study|se project|software engineering|consultation|appointment system/, () => responses.caseStudy],
   [/gc.?assist|campus assistant/, () => responses.gcassist],
   [/jalgorithm|salon|thesis/, () => responses.jalgorithm],

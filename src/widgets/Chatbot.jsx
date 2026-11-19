@@ -2,7 +2,7 @@
 // Opens from the launcher button or from `window.dispatchEvent(new CustomEvent('chatbot:open'))`.
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BOT_NAME, CLEARED, WELCOME, getResponse, quickChips } from '../data/chatbot.js';
+import { BOT_NAME, CLEARED, WELCOME, getResponse, isSecretTrigger, quickChips } from '../data/chatbot.js';
 import './widgets.css';
 
 const TYPE_MS = 16;          // per character
@@ -109,6 +109,9 @@ export default function Chatbot() {
   const send = text => {
     const msg = text.trim();
     if (!msg || thinking) return;
+    if (isSecretTrigger(msg)) {
+      window.dispatchEvent(new CustomEvent('konami:unlock'));
+    }
     skipTyping();
     setMessages(ms => [...ms, { id: nextId++, from: 'user', text: msg }]);
     setInput('');
@@ -200,7 +203,15 @@ export default function Chatbot() {
 
           <div className="jvbot__chips" role="group" aria-label="Suggested questions">
             {quickChips.map(c => (
-              <button key={c.label} type="button" className="jvbot__chip" data-uisfx="select" onClick={() => send(c.msg)} disabled={thinking}>
+              <button
+                key={c.label}
+                type="button"
+                className={`jvbot__chip${c.secret ? ' jvbot__chip--secret' : ''}`}
+                data-uisfx="select"
+                onClick={() => send(c.msg)}
+                disabled={thinking}
+                {...(c.secret ? { 'aria-label': 'Secret bug button activator', title: '???' } : {})}
+              >
                 {c.label}
               </button>
             ))}
