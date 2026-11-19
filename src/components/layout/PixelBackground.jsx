@@ -22,6 +22,7 @@ export default function PixelBackground() {
     const ctx = canvas.getContext('2d');
     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     let cols = 0, rows = 0, raf = 0, last = 0, t = Math.random() * 100, hidden = document.hidden;
+    let bugRunning = document.documentElement.classList.contains('bug-locked');
     let palette = [], maxAlpha = 0.085, scale = 1;
 
     const readTheme = () => {
@@ -77,7 +78,7 @@ export default function PixelBackground() {
 
     function loop(now) {
       raf = requestAnimationFrame(loop);
-      if (hidden || now - last < 1000 / FPS) return;
+      if (hidden || bugRunning || now - last < 1000 / FPS) return;
       last = now;
       t += 0.08;   // slow drift
       draw();
@@ -89,13 +90,16 @@ export default function PixelBackground() {
 
     const onTheme = () => requestAnimationFrame(() => { readTheme(); draw(); });
     const onVis = () => { hidden = document.hidden; };
+    const onBug = e => { bugRunning = !!e.detail?.running; };
     window.addEventListener('resize', resize);
     window.addEventListener('themechange', onTheme);
+    window.addEventListener('bugevent:state', onBug);
     document.addEventListener('visibilitychange', onVis);
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', resize);
       window.removeEventListener('themechange', onTheme);
+      window.removeEventListener('bugevent:state', onBug);
       document.removeEventListener('visibilitychange', onVis);
     };
   }, []);

@@ -169,7 +169,7 @@ function makeDecoy(boss, x) {
   };
 }
 
-function makeBackgroundDamage(o, W, H, n = 7) {
+function makeBackgroundDamage(o, W, H, n = 7, maxTiles = 36) {
   const cracks = [], tiles = [];
   for (let i = 0; i < n; i++) {
     let a = (i / n) * Math.PI * 2 + rand(-0.3, 0.3);
@@ -183,7 +183,7 @@ function makeBackgroundDamage(o, W, H, n = 7) {
     }
     cracks.push({ pts: pts.map(p => p.join(',')).join(' '), delay: i * 0.06 });
   }
-  return { cracks, tiles: tiles.slice(0, 36) };
+  return { cracks, tiles: tiles.slice(0, maxTiles) };
 }
 function makeCardCrack(x0, w, h) {
   const lines = [];
@@ -231,7 +231,12 @@ export default function BugEvent() {
 
   /* ---------------------------------------------------------------- helpers */
   const say = (f, text, dur = 2.2) => { if (!f) return; f.bubble = text; f.bubbleT = dur; if (f.boss) snd.sfx('bleep', rand(0.8, 1.3)); };
-  const fx = (g, item) => { g.fx.push({ id: ++ids, vx: 0, vy: 0, grav: 0, life: 1, max: 1, ...item }); if (g.fx.length > 260) g.fx.shift(); };
+  const fx = (g, item) => {
+    if (g.lowPerf && g.fx.length > 60 && !item.text && /fx-(ember|debris|px)/.test(item.cls || '')) return;
+    g.fx.push({ id: ++ids, vx: 0, vy: 0, grav: 0, life: 1, max: 1, ...item });
+    const maxFx = g.lowPerf ? 90 : 220;
+    if (g.fx.length > maxFx) g.fx.shift();
+  };
   const cx = o => o.x + o.w / 2;
   const cy = o => o.y - o.h / 2;
   const setMode = (f, mode) => { f.mode = mode; f.timer = 0; };
@@ -361,11 +366,23 @@ export default function BugEvent() {
     document.querySelectorAll('.bug-decals').forEach(n => n.remove());
     document.querySelectorAll('.bug-decal-host').forEach(n => n.classList.remove('bug-decal-host'));
     g.hosts = new Map();
-    document.documentElement.classList.remove('bug-shake', 'bug-punch', 'bug-sad');
+    document.documentElement.classList.remove('bug-shake', 'bug-punch', 'bug-sad', 'bug-lowperf');
     g.fallBox?.remove(); g.fallBox = null; g.club = null; g.laser = null;
     g.falling = []; g.damage = []; g.letters = []; g.cards = new Map(); g.bg = null; g.lettersGone = new Set(); g.small = new Map(); g.headBites = new Map();
   }
   const damagePct = g => clamp(Math.round(document.querySelectorAll('.bug-gone').length * 14 + g.damage.filter(d => d.kind === 'bite').length * 2.5 + g.lettersGone.size * 0.6), 7, 99);
+
+  function refreshLayoutCache(g) {
+    if (!g) return;
+    g.W = window.innerWidth;
+    g.H = window.innerHeight;
+    g.floorY = g.H - 84;
+    g.ceilY = (document.querySelector('.site-header')?.getBoundingClientRect().bottom ?? 0) + 62;
+    const main = document.querySelector('main');
+    g.cachedMain = main;
+    g.mainLeft = main ? main.offsetLeft : 0;
+    g.mainTop = main ? main.offsetTop : 0;
+  }
 
   /* ---------------------------------------------------------------- camera */
   const setCam = (g, z, x, y) => { g.cam.tz = z; if (x != null) { g.cam.tx = x; g.cam.ty = y; } };
@@ -381,25 +398,39 @@ export default function BugEvent() {
     const tf = `translate(${tx}px, ${ty}px) scale(${c.z.toFixed(3)})`;
     const set = (el, ox, oy) => {
       if (!el) return;
-      if (on) { el.style.transform = tf; el.style.transformOrigin = `${Math.round(ox)}px ${Math.round(oy)}px`; el.dataset.bugCam = '1'; }
-      else if (el.dataset.bugCam) { el.style.transform = ''; el.style.transformOrigin = ''; delete el.dataset.bugCam; }
+      if (on) {
+        const origin = `${Math.round(ox)}px ${Math.round(oy)}px`;
+        if (el.dataset.bugTf !== tf) { el.style.transform = tf; el.dataset.bugTf = tf; }
+        if (el.dataset.bugOr !== origin) { el.style.transformOrigin = origin; el.dataset.bugOr = origin; }
+        el.dataset.bugCam = '1';
+      } else if (el.dataset.bugCam) {
+        el.style.transform = ''; el.style.transformOrigin = '';
+        delete el.dataset.bugCam; delete el.dataset.bugTf; delete el.dataset.bugOr;
+      }
     };
     set(camRef.current, c.x, c.y);
     set(bgRef.current, c.x, c.y);
     set(dmgRef.current, c.x + sx, c.y + sy);
     set(g.fallBox, c.x + sx, c.y + sy);
-    const main = document.querySelector('main');
-    if (main) set(main, c.x + sx - main.offsetLeft, c.y + sy - main.offsetTop);
+    const main = g.cachedMain?.isConnected ? g.cachedMain : null;
+    if (main) set(main, c.x + sx - g.mainLeft, c.y + sy - g.mainTop);
   }
   function clearCam() {
-    for (const el of [camRef.current, bgRef.current, dmgRef.current, document.querySelector('main')]) if (el?.dataset.bugCam) { el.style.transform = ''; el.style.transformOrigin = ''; delete el.dataset.bugCam; }
+    for (const el of [camRef.current, bgRef.current, dmgRef.current, G.current?.cachedMain || document.querySelector('main')]) {
+      if (el?.dataset.bugCam) {
+        el.style.transform = ''; el.style.transformOrigin = '';
+        delete el.dataset.bugCam; delete el.dataset.bugTf; delete el.dataset.bugOr;
+      }
+    }
   }
 
   /* ------------------------------------------------------- start / stop / end */
   function start() {
     const W = window.innerWidth, H = window.innerHeight;
+    const lowPerf = (navigator.hardwareConcurrency || 4) <= 4 || (navigator.deviceMemory || 8) <= 4;
     const g = {
       phase: 'intro', t: 0, total: 0, real: 0, reduced: !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
+      lowPerf, emaMs: 16, slowSecs: 0, cachedMain: null, mainLeft: 0, mainTop: 0,
       mt: 0, timeScale: 1, slowT: 0, freezeT: 0, W, H, floorY: H - 84, stageIdx: 0, phaseIdx: 0, phaseKind: null,
       boss: null, minions: [], team: { hp: TEAM_HP, max: TEAM_HP }, losses: 0, lockPath: path.current,
       vic: makeFighter('vic'), claude: makeFighter('claude'), armor: false,
@@ -415,6 +446,8 @@ export default function BugEvent() {
       army: null, armyFrom: null, hanging: new Set(), smokeMin: 0, ceilY: 140, hosts: new Map(),
       hatch: [], kicks: [], amb: [], glitch: null, chat: null, small: new Map(), headBites: new Map(), move: null, moveAt: 0, secT: 0, dl: null, halluc: [], inj: null, injBox: null, badge: null, laser: null, club: null, retry: null, storm: null, sky: null, kbeam: null,
     };
+    refreshLayoutCache(g);
+    document.documentElement.classList.toggle('bug-lowperf', lowPerf);
     // dev only: tests can start at a later stage (window.__bugStartStage = 2)
     if (import.meta.env.DEV && window.__bugStartStage) g.stageIdx = clamp(Number(window.__bugStartStage) || 0, 0, STAGES.length - 1);
     G.current = g;
@@ -443,6 +476,7 @@ export default function BugEvent() {
     const g = G.current;
     if (g) restorePage(g);
     clearCam();
+    document.documentElement.classList.remove('bug-lowperf');
     snd.stopAll();
     G.current = null;
     setRunning(false);
@@ -450,7 +484,7 @@ export default function BugEvent() {
   }
 
   /* --------------------------------------------------------------- damage */
-  const addDamage = (g, d) => { g.damage.push({ id: ++g.damageId, ...d }); if (g.damage.length > 160) g.damage.shift(); };
+  const addDamage = (g, d) => { g.damage.push({ id: ++g.damageId, ...d }); if (g.damage.length > (g.lowPerf ? 70 : 140)) g.damage.shift(); };
   function dropLetters(g, el, px, n) {
     const chars = [];
     const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
@@ -525,7 +559,7 @@ export default function BugEvent() {
     if (st.hp >= 1) {
       hostOf(g, el);
       const W = el.clientWidth, H = el.clientHeight, lx = clamp(toLocal(el, px), 2, W - 2);
-      addDamage(g, { kind: 'crack', el, local: true, lines: makeCardCrack(lx, W, H) });
+      addDamage(g, { kind: 'crack', el, local: true, w: W, h: H, lines: makeCardCrack(lx, W, H) });
       addDamage(g, { kind: 'noise', el, local: true, x: 0, y: 0, w: W, h: H });
       if (!g.reduced) el.style.rotate = `${(rand(2, 4) * (Math.random() < 0.5 ? -1 : 1)).toFixed(1)}deg`;
       snd.sfx('crack', 1.3);
@@ -573,7 +607,7 @@ export default function BugEvent() {
       st.hp -= power;
       st.cracks.push(...makeCardCrack(clamp(lx, 2, W - 2), W, H));
       g.cards.set(el, st);
-      addDamage(g, { kind: 'crack', el, local: true, lines: st.cracks.slice(-2) });
+      addDamage(g, { kind: 'crack', el, local: true, w: W, h: H, lines: st.cracks.slice(-2) });
       if (st.hp === 1 && !g.hanging.has(el)) {
         g.hanging.add(el);
         el.classList.add('bug-hanging', px < r.left + r.width / 2 ? 'bug-hanging--r' : 'bug-hanging--l');   // hangs from the corner away from the bite
@@ -728,8 +762,9 @@ export default function BugEvent() {
     if (lvl && g.crackT <= 0) {
       g.crackT = [99, 9, 6, 4, 3, 2][lvl] * rand(0.7, 1.3);
       const o = { x: rand(0.05, 0.95) * g.W, y: rand(g.ceilY, g.floorY - 60) };
-      const more = makeBackgroundDamage(o, g.W, g.H, 2 + lvl);
-      g.bg = { cracks: [...g.bg.cracks, ...more.cracks].slice(-140), tiles: [...g.bg.tiles, ...more.tiles].slice(-160) };
+      const more = makeBackgroundDamage(o, g.W, g.H, 2 + lvl, g.lowPerf ? 14 : 36);
+      const maxC = g.lowPerf ? 50 : 120, maxT = g.lowPerf ? 48 : 140;
+      g.bg = { cracks: [...g.bg.cracks, ...more.cracks].slice(-maxC), tiles: [...g.bg.tiles, ...more.tiles].slice(-maxT) };
       snd.sfx('crack', rand(0.6, 0.9)); g.shakeT = Math.max(g.shakeT, 0.1);
     }
     // 2) glitch bursts: the screen tears in slices, a card flickers in RGB
@@ -755,7 +790,7 @@ export default function BugEvent() {
     }
     if (g.glitch && (g.glitch.t -= dt) <= 0) g.glitch = null;
     // 3) bugs crawling around the background, out of the cracks (just ambience, behind the page)
-    const want = [0, 5, 11, 18, 26, 34][lvl];
+    const want = (g.lowPerf ? [0, 3, 6, 9, 12, 16] : [0, 5, 11, 18, 26, 34])[lvl];
     while (g.amb.length < want) {
       const k = g.bg?.cracks.length ? pick(g.bg.cracks).pts.split(' ')[0].split(',').map(Number) : null;
       g.amb.push({ id: ++ids, x: k ? k[0] : rand(0, g.W), y: k ? k[1] : rand(g.ceilY, g.floorY), a: rand(0, Math.PI * 2), sp: rand(28, 70), t: rand(1, 3), pause: 0 });
@@ -830,8 +865,9 @@ export default function BugEvent() {
     const el = cards.length ? pick(cards) : null;
     if (!el) return;
     const title = (el.querySelector('h2, h3, figcaption')?.textContent || 'your-card').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 18) || 'card';
-    g.dl = { el, p: 0, hits: 0, name: `${title}.zip` };
-    b.mode = 'download'; b.vx = 0; b.timer = 0; b.dir = Math.sign(el.getBoundingClientRect().left + 40 - cx(b)) || b.dir;
+    const r0 = el.getBoundingClientRect();
+    g.dl = { el, p: 0, hits: 0, name: `${title}.zip`, rect: { left: r0.left, top: r0.top, width: r0.width, height: r0.height } };
+    b.mode = 'download'; b.vx = 0; b.timer = 0; b.dir = Math.sign(r0.left + 40 - cx(b)) || b.dir;
     say(b, 'Downloading your card…', 1.6); snd.sfx('zap', 0.8);
     say(g.vic, 'Stop the download! Hit it!', 1.6);
   }
@@ -844,6 +880,7 @@ export default function BugEvent() {
     dl.maxP = Math.max(dl.maxP || 0, dl.p);
     if (dl.t > 9 && dl.p < 1) { say(b, 'Connection timed out?!', 1.4); cancelDownload(g, 'timeout'); return; }
     const r = dl.el.getBoundingClientRect();
+    dl.rect = { left: r.left, top: r.top, width: r.width, height: r.height };
     if (Math.random() < dt * 20) fx(g, { text: '', cls: 'fx-px fx-px--e403', x: r.left + rand(0, r.width), y: r.top + rand(0, r.height), vx: (cx(b) - r.left - r.width / 2) * 1.4, vy: (cy(b) - r.top - r.height / 2) * 1.4, life: 0.6, max: 0.6 });
     if (dl.p >= 1) {   // too late: the card is gone into the bug
       touch(g, dl.el); dl.el.classList.add('bug-gone'); g.hanging.delete(dl.el);
@@ -858,6 +895,7 @@ export default function BugEvent() {
     const dl = g.dl, b = g.boss;
     if (!dl) return;
     const r = dl.el.getBoundingClientRect();
+    dl.rect = { left: r.left, top: r.top, width: r.width, height: r.height };
     g.dl = null;
     fx(g, { text: 'DOWNLOAD CANCELLED', cls: 'fx-big fx-pow', x: r.left + r.width / 2 - 140, y: r.top + r.height / 2 - 20, vy: -40, life: 1, max: 1 });
     snd.sfx('blocked'); snd.sfx('shatter', 1.3); g.shakeT = Math.max(g.shakeT, 0.3);
@@ -2200,7 +2238,8 @@ export default function BugEvent() {
       if (ask && !sp.burst) {
         sp.total ??= Math.max(1.5, toBurst);
         const n = Math.round(30 * clamp(1 - toBurst / sp.total, 0, 1));
-        if (!g.badge || n > g.badge.n) { if (g.badge && n % 3 === 0) snd.sfx('notif', 1 + n * 0.01); g.badge = { el: g.spawnEl, n }; }
+        const br = g.spawnEl?.getBoundingClientRect();
+        if (!g.badge || n > g.badge.n) { if (g.badge && n % 3 === 0) snd.sfx('notif', 1 + n * 0.01); g.badge = { el: g.spawnEl, n, rect: br ? { right: br.right, top: br.top } : g.badge?.rect }; }
       }
       if (toBurst < 1.2 && toBurst > 0 && Math.floor(sp.t * 3) !== Math.floor((sp.t - dt) * 3)) { g.shakeT = Math.max(g.shakeT, ask ? 0.3 : 0.14); snd.sfx('rumble'); }
       once('legs', toBurst < 0.9, () => { const p = at(); fx(g, { text: '', cls: 'fx-legs', x: p.x - 16, y: p.y - 14, life: 1.1, max: 1.1 }); say(g.claude, ask ? "Something's inside ASKADEMIC?!" : 'Something is IN the card!', 1.6); });
@@ -3199,8 +3238,6 @@ export default function BugEvent() {
     if (g.slowT > 0) { g.slowT -= realDt; if (g.slowT <= 0) g.timeScale = 1; }
     const dt = realDt * g.timeScale;
     g.t += dt; g.total += g.phase === 'outro' ? 0 : dt;
-    g.W = window.innerWidth; g.H = window.innerHeight; g.floorY = g.H - 84;
-    g.ceilY = (document.querySelector('.site-header')?.getBoundingClientRect().bottom ?? 0) + 62;   // below the HUD
     const { vic: v, claude: c } = g;
     const b = g.boss;
     if (['fight', 'arrive', 'intro'].includes(g.phase)) armyStep(g, dt);
@@ -3217,11 +3254,13 @@ export default function BugEvent() {
     if (['fight', 'arrive', 'laststand'].includes(g.phase)) {
       g.smoke = Math.max(g.smoke, g.smokeMin || 0);
       // embers rising off the burning edges, crumbs falling from hanging cards
-      const fires = g.damage.filter(d => d.kind === 'edgefire');
-      if (fires.length && Math.random() < dt * Math.min(12, fires.length * 1.5)) {
-        const d = pick(fires);
-        const p = decalPos(d);
-        fx(g, { text: '', cls: 'fx-ember', x: p.x + rand(0, d.w || 60), y: p.y + 20, vx: rand(-20, 20), vy: rand(-110, -50), life: 1.4, max: 1.4 });
+      if (g.damage.length && Math.random() < dt * (g.lowPerf ? 4 : 10)) {
+        const fires = g.damage.filter(d => d.kind === 'edgefire');
+        if (fires.length) {
+          const d = pick(fires);
+          const p = decalPos(d);
+          fx(g, { text: '', cls: 'fx-ember', x: p.x + rand(0, d.w || 60), y: p.y + 20, vx: rand(-20, 20), vy: rand(-110, -50), life: 1.4, max: 1.4 });
+        }
       }
       for (const el of g.hanging) {
         if (!el.isConnected || el.classList.contains('bug-gone')) { g.hanging.delete(el); continue; }
@@ -3263,7 +3302,7 @@ export default function BugEvent() {
           g.fx = []; g.letters = []; g.floorBits = []; g.projectiles = []; g.prompts = []; g.tokens = []; g.waves = []; g.beams = []; g.shocks = [];
           restorePage(g);
           g.navPainted = false;
-          requestAnimationFrame(() => requestAnimationFrame(() => { g.navPainted = true; }));
+          requestAnimationFrame(() => requestAnimationFrame(() => { if (G.current) refreshLayoutCache(G.current); g.navPainted = true; }));
           g.navigating = true;
           g.lockPath = g.next.to;
           navigate(g.next.to);
@@ -3575,16 +3614,61 @@ export default function BugEvent() {
 
   useEffect(() => {
     if (!running) return undefined;
-    let raf = 0, last = performance.now();
+    const onResize = () => refreshLayoutCache(G.current);
+    window.addEventListener('resize', onResize, { passive: true });
+    window.addEventListener('scroll', onResize, { passive: true });
+
+    let raf = 0, last = performance.now(), renderLast = last, gameoverPainted = false;
     const loop = now => {
-      const wall = Math.min(0.5, (now - last) / 1000), dt = Math.min(0.05, wall);
+      const frameMs = Math.max(0, now - last);
       last = now;
-      if (!document.hidden && !G.current?.gameover) step(dt, wall);
-      setFrame(n => (n + 1) % 1e6);
+      const g = G.current;
+      if (!g) return;
+
+      if (document.hidden) {
+        renderLast = now;
+        raf = requestAnimationFrame(loop);
+        return;
+      }
+
+      if (g.gameover) {
+        if (!gameoverPainted) {
+          gameoverPainted = true;
+          setFrame(n => (n + 1) % 1e6);
+        }
+        raf = requestAnimationFrame(loop);
+        return;
+      }
+      gameoverPainted = false;
+
+      if (g.phase === 'fight') {
+        g.emaMs = g.emaMs * 0.9 + Math.min(80, frameMs) * 0.1;
+        if (!g.lowPerf && g.emaMs > 28) {
+          g.slowSecs += Math.min(0.1, frameMs / 1000);
+          if (g.slowSecs > 1.5) {
+            g.lowPerf = true;
+            document.documentElement.classList.add('bug-lowperf');
+          }
+        } else {
+          g.slowSecs = Math.max(0, g.slowSecs - Math.min(0.1, frameMs / 1000) * 0.5);
+        }
+      }
+
+      if (!g.lowPerf || now - renderLast >= 32) {
+        const wall = Math.min(0.5, (now - renderLast) / 1000);
+        const dt = Math.min(0.05, wall);
+        renderLast = now;
+        step(dt, wall);
+        if (G.current) setFrame(n => (n + 1) % 1e6);
+      }
       if (G.current) raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('scroll', onResize);
+    };
   }, [running]);
 
   /* ---------------------------------------------------------------- render */
@@ -3778,26 +3862,41 @@ export default function BugEvent() {
   const decal = d => {
     if (d.kind === 'crack') {
       if (!d.el?.isConnected || d.el.classList.contains('bug-gone')) return null;
-      const w = d.local ? d.el.clientWidth : d.el.getBoundingClientRect().width, h = d.local ? d.el.clientHeight : d.el.getBoundingClientRect().height;
       const r = d.local ? null : d.el.getBoundingClientRect();
+      const w = d.local ? (d.w ?? d.el.clientWidth) : r.width;
+      const h = d.local ? (d.h ?? d.el.clientHeight) : r.height;
       return (
         <svg key={d.id} className="bug-dmg bug-dmg--crack" width={w} height={h} style={{ transform: r ? `translate(${Math.round(r.left + sx)}px, ${Math.round(r.top + sy)}px)` : undefined }} shapeRendering="crispEdges">
           {d.lines.map((pts, i) => <polyline key={i} points={pts} />)}
         </svg>
       );
     }
+    const edgeCount = d.kind === 'edgefire'
+      ? (g.lowPerf ? Math.min(6, Math.max(2, Math.floor((d.w || 60) / 32))) : Math.min(18, Math.max(3, Math.floor((d.w || 60) / 14))))
+      : 0;
     return (
       <span key={d.id} className={`bug-dmg bug-dmg--${d.kind}`} style={{ transform: `translate(${Math.round(d.x)}px, ${Math.round(d.y)}px)${d.rot ? ` rotate(${d.rot}deg)` : ''}`, width: d.w, height: d.h, background: d.kind === 'patch' ? d.color : undefined }}>
-        {d.kind === 'edgefire' ? Array.from({ length: Math.max(3, Math.floor(d.w / 14)) }, (_, i) => <i key={i} style={{ left: i * 14, animationDelay: `${-(i % 3) * 0.08}s`, height: 14 + ((i * 7) % 3) * 6 }} />)
+        {d.kind === 'edgefire' ? Array.from({ length: edgeCount }, (_, i) => <i key={i} style={{ left: i * (g.lowPerf ? 28 : 14), animationDelay: `${-(i % 3) * 0.08}s`, height: 14 + ((i * 7) % 3) * 6 }} />)
           : d.kind === 'plume' ? <><i /><i /><i /><i /></> : (d.text || null)}
       </span>
     );
   };
   const shadowX = g.shadow ? -520 + ((g.t - g.shadow.t0) / 2.4) * (g.W + 1040) : null;
   const wipeCells = [];
+  const wipeCellSize = g.lowPerf ? 144 : 96;
   if (g.wipe) {
-    const cell = 96, cols = Math.ceil(g.W / cell), rows = Math.ceil(g.H / cell);   // ~150 cells (was ~570)
+    const cols = Math.ceil(g.W / wipeCellSize), rows = Math.ceil(g.H / wipeCellSize);
     for (let r = 0; r < rows; r++) for (let k = 0; k < cols; k++) wipeCells.push({ k, r, d: (k + r) * 0.03 });
+  }
+  const worldDamage = [];
+  const localByEl = new Map();
+  for (const d of g.damage) {
+    if (!d.local) worldDamage.push(d);
+    else if (d.el) {
+      let arr = localByEl.get(d.el);
+      if (!arr) { arr = []; localByEl.set(d.el, arr); }
+      arr.push(d);
+    }
   }
   const claudeOnTop = ['fallen', 'held', 'down'].includes(g.claude.mode) || ['cry', 'heal'].includes(v.mode) || !!g.ls;
   const lives = LIVES - g.losses;
@@ -3828,10 +3927,10 @@ export default function BugEvent() {
       )}
 
       <div ref={dmgRef} className={`bug-damage${g.repairing ? ' is-repairing' : ''}`} aria-hidden="true">
-        {g.damage.filter(d => !d.local).map(decal)}
+        {worldDamage.map(decal)}
       </div>
       {/* card decals: rendered INSIDE each damaged card so they tilt, swing and fall with it */}
-      {[...g.hosts].map(([el, h]) => createPortal(<>{g.damage.filter(d => d.local && d.el === el).map(decal)}</>, h.node, `decals-${h.id}`))}
+      {[...g.hosts].map(([el, h]) => createPortal(<>{(localByEl.get(el) || []).map(decal)}</>, h.node, `decals-${h.id}`))}
 
       <div className="bug-event" data-no-spray="true" data-no-sfx="true">
         <div className="bug-event__dim" style={{ opacity: g.dim }} aria-hidden="true" />
@@ -3874,10 +3973,9 @@ export default function BugEvent() {
             <span key={`sh${m.id}`} className="bug-dropshadow" style={{ transform: `translate(${Math.round(cx(m) - 22)}px, ${Math.round(g.floorY - 6)}px) scale(${m.mode === 'predrop' ? (0.4 + Math.min(1, m.timer / 0.4) * 0.6).toFixed(2) : 1})` }} aria-hidden="true" />
           ))}
           {/* Askademic's booking-request badge counting up before it explodes */}
-          {g.badge?.el?.isConnected && (() => {
-            const r = g.badge.el.getBoundingClientRect();
-            return <span className="bug-badge" style={{ transform: `translate(${Math.round(r.right - 40)}px, ${Math.round(r.top - 16)}px)` }} aria-hidden="true">🔔 {g.badge.n} pending</span>;
-          })()}
+          {g.badge?.el?.isConnected && g.badge.rect && (
+            <span className="bug-badge" style={{ transform: `translate(${Math.round(g.badge.rect.right - 40)}px, ${Math.round(g.badge.rect.top - 16)}px)` }} aria-hidden="true">🔔 {g.badge.n} pending</span>
+          )}
           {/* Hallucination's chat reply: every list item hatches into a bug */}
           {g.chat && (() => {
             const ch = g.chat, typed = Math.floor(ch.t * 50);
@@ -3938,8 +4036,8 @@ export default function BugEvent() {
             {g.glitch.dead.map((d, i) => <b key={`d${i}`} className={`is-${d.k}`} style={{ left: d.x, top: d.y }} />)}
           </div>
         )}
-        {g.dl?.el?.isConnected && b && (() => {
-          const r = g.dl.el.getBoundingClientRect(), pct = Math.round(g.dl.p * 100);
+        {g.dl?.el?.isConnected && g.dl.rect && b && (() => {
+          const r = g.dl.rect, pct = Math.round(g.dl.p * 100);
           const bx = cx(b) + b.dir * b.w * 0.3, by = b.y - b.h * 0.6, tx = r.left + r.width / 2, ty = r.top + r.height / 2;
           const len = Math.hypot(tx - bx, ty - by), ang = (Math.atan2(ty - by, tx - bx) * 180) / Math.PI;
           return (
@@ -4043,7 +4141,7 @@ export default function BugEvent() {
         {g.toastT > 0 && <p className="bug-event__toast" role="status">{g.toast}</p>}
         {g.wipe && (
           <div className={`bug-wipe is-${g.wipe.dir}`} style={g.wipe.color ? { '--wipe': g.wipe.color } : undefined} aria-hidden="true">
-            {wipeCells.map(cc => <i key={`${cc.k}-${cc.r}`} style={{ left: cc.k * 96, top: cc.r * 96, animationDelay: `${cc.d}s` }} />)}
+            {wipeCells.map(cc => <i key={`${cc.k}-${cc.r}`} style={{ left: cc.k * wipeCellSize, top: cc.r * wipeCellSize, width: wipeCellSize + 2, height: wipeCellSize + 2, animationDelay: `${cc.d}s` }} />)}
             {g.wipe.label && <p className="bug-wipe__label">{g.wipe.label}</p>}
           </div>
         )}

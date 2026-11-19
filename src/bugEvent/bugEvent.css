@@ -13,7 +13,7 @@
 @keyframes bug-btn-wiggle { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
 
 /* ---- overlay ----------------------------------------------------------------- */
-.bug-event { position: fixed; inset: 0; z-index: 44; pointer-events: none; overflow: hidden; }
+.bug-event { position: fixed; inset: 0; z-index: 44; pointer-events: none; overflow: hidden; contain: layout style; }
 .bug-event__dim { position: absolute; inset: 0; background: #04070f; transition: opacity 120ms steps(2, end); }
 .bug-event__alarm {
   position: absolute; inset: 0;
@@ -73,7 +73,7 @@ html.bug-punch main { scale: 1.015; }
 }
 
 /* ---- cracked background (behind the content) ------------------------------ */
-.bug-bgfx { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.bug-bgfx { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; contain: layout style; }
 .bug-bgfx svg { position: absolute; inset: 0; }
 .bug-bgcrack {
   fill: none; stroke: #0b0b10; stroke-width: 5; stroke-linecap: square;
@@ -160,7 +160,7 @@ html.bug-punch main { scale: 1.015; }
 .bug-hp__lives s { color: color-mix(in srgb, var(--fg) 30%, transparent); text-decoration: none; }
 
 /* ---- the bug (humanoid) --------------------------------------------------------- */
-.bug-boss { position: absolute; left: 0; top: 0; translate: 0 -100%; }
+.bug-boss { position: absolute; left: 0; top: 0; translate: 0 -100%; will-change: transform; }
 .bug-boss__hit { position: absolute; inset: 0; padding: 0; background: none; border: 0; pointer-events: auto; cursor: var(--cursor-pointer); display: flex; align-items: flex-end; justify-content: center; }
 .bug-boss__body { position: relative; display: block; transform-origin: 50% 100%; }
 .bug-boss__body svg { display: block; filter: drop-shadow(0 0 4px color-mix(in srgb, #ff2a2a 45%, transparent)) drop-shadow(2px 3px 0 #000); }
@@ -205,7 +205,7 @@ html.bug-punch main { scale: 1.015; }
 @keyframes bug-beam { 0% { scale: 0.2 1; } 40% { scale: 1 1; } 100% { scale: 0.1 1; opacity: 0; } }
 
 /* ---- fighters + armour ----------------------------------------------- */
-.bug-fighter { position: absolute; left: 0; top: 0; translate: 0 -100%; }
+.bug-fighter { position: absolute; left: 0; top: 0; translate: 0 -100%; will-change: transform; }
 .bug-fighter__body { position: relative; display: block; isolation: isolate; }
 .bug-fighter__body > svg { position: relative; z-index: 1; display: block; }
 .bug-fighter--vic .bug-fighter__body svg { filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000); }
@@ -323,7 +323,7 @@ html.bug-punch main { scale: 1.015; }
 @keyframes bug-legs { 50% { translate: 0 -5px; } }
 
 /* ---- page damage (page coordinates) -------------------------------------- */
-.bug-damage { position: absolute; top: 0; left: 0; width: 100%; height: 0; z-index: 41; pointer-events: none; }
+.bug-damage { position: absolute; top: 0; left: 0; width: 100%; height: 0; z-index: 41; pointer-events: none; contain: layout style; }
 .bug-dmg { position: absolute; left: 0; top: 0; }
 /* big jagged bite out of the edge */
 .bug-dmg--bite {
@@ -389,7 +389,7 @@ html.bug-shake main, html.bug-shake .site-footer { animation: bug-shake 90ms ste
    v5: lock, camera + letterbox, armies, wings, shields, combo, finisher,
    aftermath, last stand (tears → Super Saiyan), ending
    ========================================================================== */
-.bug-cam { position: absolute; inset: 0; }
+.bug-cam { position: absolute; inset: 0; will-change: transform; }
 
 /* LOCKED: internal links look sealed while the fight runs */
 html.bug-locked a[href^="/"]:not(.bug-event a) { opacity: 0.45; cursor: not-allowed; filter: grayscale(1); }
@@ -747,7 +747,7 @@ html.bug-sad main, html.bug-sad .bug-bgfx, html.bug-sad .bug-damage { filter: gr
 /* ---- v6.3: EPIC = more cracks, glitches, bugs crawling in the background ---- */
 /* ambient bugs behind the page (inside the cracked background layer) */
 .bug-amb { position: absolute; left: 0; top: 0; opacity: 0.8; transform-origin: 50% 50%; }
-.bug-amb svg { display: block; max-width: none; filter: drop-shadow(0 0 2px #ff3b2a); }
+.bug-amb svg { display: block; max-width: none; }
 /* glitch burst, in the site's own dot-matrix theme: rows of 8px blocks jump sideways, dead pixels blink */
 .bug-glitchrows { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
 .bug-glitchrows i {
@@ -879,6 +879,25 @@ html.bug-sad main, html.bug-sad .bug-bgfx, html.bug-sad .bug-damage { filter: gr
 .bug-boss.is-land .bug-boss__body { animation: bug-mv-land 160ms steps(4, end); transform-origin: 50% 100%; }
 .bug-boss.is-walk .bug-boss__body { rotate: calc(var(--dir) * 3deg); }
 .bug-boss.is-download .bug-boss__body svg { animation: bug-rage 100ms steps(2, end) infinite; filter: drop-shadow(0 0 6px #b48cff) drop-shadow(2px 3px 0 #000); }
+
+/* ---- low-perf hardware fallback: drop GPU-heavy filters & decorative smoke ---- */
+html.bug-lowperf .bug-fighter--vic .bug-fighter__body svg,
+html.bug-lowperf .bug-fighter--vic.is-ssj .bug-fighter__body > svg { filter: drop-shadow(2px 2px 0 #000); }
+html.bug-lowperf .bug-boss__body svg,
+html.bug-lowperf .bug-boss.is-rage .bug-boss__body svg,
+html.bug-lowperf .bug-boss.is-download .bug-boss__body svg { filter: drop-shadow(2px 2px 0 #000); }
+html.bug-lowperf .bug-boss--minion .bug-boss__body svg,
+html.bug-lowperf .bug-boss--elite .bug-boss__body svg,
+html.bug-lowperf .bug-boss--blocked .bug-boss__body svg,
+html.bug-lowperf .bug-nimbus svg,
+html.bug-lowperf .bug-shadow,
+html.bug-lowperf .fx-bolt,
+html.bug-lowperf .bug-fighter--vic.is-heal .bug-fighter__body > svg,
+html.bug-lowperf.bug-sad main,
+html.bug-lowperf.bug-sad .bug-bgfx,
+html.bug-lowperf.bug-sad .bug-damage { filter: none; }
+html.bug-lowperf .bug-impactframe { backdrop-filter: none; background: rgba(255, 255, 255, 0.82); }
+html.bug-lowperf .bug-event__smoke i { display: none; }
 
 /* ---- reduced motion: no flashing, shaking, slow-mo or wobble ------------------ */
 @media (prefers-reduced-motion: reduce) {
