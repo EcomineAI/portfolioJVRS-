@@ -21,9 +21,10 @@ export const projects = [
     team: ['June Vic M. Abello', 'Erica Mae D. Camintoy', 'Ma. Erica P. Monton'],
     role: 'Project lead · Documentation lead · Design assistance',
     contributions: [
-      'Assigned tasks to team members efficiently across frontend, backend, and documentation tracks.',
-      'Monitored progress to ensure all standards and deliverables were met.',
-      'Led and guided the team across the February – November 2026 project duration.',
+      'Split frontend, Supabase backend, and documentation tracks across our 3-person team (Erica Mae D. Camintoy, Ma. Erica P. Monton, and myself) so parallel builds stayed aligned with defense milestones.',
+      'Drove the shift from a generic admin screen to an Instructor → Program Chair → Department Dean review hierarchy after the May 8 defense panel, shaping the role switcher and dedicated Reports views.',
+      'Specified and documented the unified auto-flagged login and mandatory “Closed · Held / No-show” outcome flow so students see real availability and instructors never leave ambiguous records (46 requests tracked, 14 closed with outcomes).',
+      'Co-authored UX documentation, personas, journey maps, and interface reviews across the February – November 2026 build cycle.',
     ],
     links: { live: 'https://askademic1.vercel.app', source: 'https://github.com/EcomineAI/CAE-G-CAS' },
     cover: '/projects/askademic/cover.jpg',
