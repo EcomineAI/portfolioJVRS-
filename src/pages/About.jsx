@@ -31,7 +31,7 @@ const journey = [
   { when: 'Mid 2024', gadget: 'terminal', title: 'Linux & cybersecurity basics', text: 'Linux experiments and hands-on practice with basic cybersecurity using Linux.' },
   { when: '2024 →', gadget: 'chip', title: 'Local LLM experiments', text: 'Running and prompting open models (Qwen, Gemma, Llama) on my own PC with LM Studio.' },
   { when: 'Jun–Jul 2025', gadget: 'badge', title: 'DOLE SPES (Subic Bay Freeport Zone)', text: 'Completed 20 days as Production Helper in the Assembly Group under the Department of Labor & Employment.' },
-  { when: 'Feb–Nov 2026', gadget: 'bubble', title: 'Askademic (Ctrl Alt Elite)', text: 'Project & documentation lead for our team software engineering project: real-time faculty consultation system for Gordon College CCS.', to: '/case-study' },
+  { when: 'Feb–Nov 2026', gadget: 'bubble', title: 'Askademic (Ctrl Alt Elite)', text: 'Implementation lead and design assistance for our team software engineering project: real-time faculty consultation system for Gordon College CCS.', to: '/case-study' },
   { when: 'May 2026', gadget: 'trophy', title: 'GCCCS TechFest Hackathon 2026', text: 'Competed with Team VisioMotus in Team1 Philippines × Gordon College CCS, building blockchain-based sustainability solutions.' },
   { when: 'Jun–Jul 2026', gadget: 'briefcase', title: '200-Hour OJT · Columban College, Inc.', text: 'Completed 200 hours of On-the-Job Training at the College of Arts, Sciences, and Education (CASEd).' },
   { when: '2026', gadget: 'robot', title: 'GC-Assist', text: 'Solo AI-powered conversational information system for Gordon College using a local open-source LLM and RAG over a JSON knowledge base.', to: '/projects/gc-assist' },

@@ -19,7 +19,7 @@ export const projects = [
       'A real-time system for the Gordon College CCS department: students see which faculty are available right now, book consultation slots, and get notified when requests are approved.',
     tags: ['React', 'Vite', 'Supabase', 'PostgreSQL', 'Realtime', 'PWA'],
     team: ['June Vic M. Abello', 'Erica Mae D. Camintoy', 'Ma. Erica P. Monton'],
-    role: 'Project lead · Documentation lead · Design assistance',
+    role: 'Implementation lead · Design assistance',
     contributions: [
       'Split frontend, Supabase backend, and documentation tracks across our 3-person team (Erica Mae D. Camintoy, Ma. Erica P. Monton, and myself) so parallel builds stayed aligned with defense milestones.',
       'Drove the shift from a generic admin screen to an Instructor → Program Chair → Department Dean review hierarchy after the May 8 defense panel, shaping the role switcher and dedicated Reports views.',

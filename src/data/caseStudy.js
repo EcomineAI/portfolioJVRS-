@@ -10,7 +10,7 @@ export const caseStudy = {
   cover: '/projects/askademic/cover.jpg',
   coverAlt: 'Askademic: A Faculty Consultation Appointment System title slide — Ctrl Alt Elite (CAE)',
   meta: [
-    { label: 'My role', value: 'Project lead · Documentation lead · Design assistance' },
+    { label: 'My role', value: 'Implementation lead · Design assistance' },
     { label: 'Timeline', value: 'February 2026 – November 2026' },
     { label: 'Team', value: 'Ctrl Alt Elite (CAE) — June Vic M. Abello, Erica Mae D. Camintoy, Ma. Erica P. Monton' },
     { label: 'Platform', value: 'Web app · PWA (mobile + desktop)' },
