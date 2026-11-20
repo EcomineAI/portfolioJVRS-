@@ -158,17 +158,6 @@ flowchart LR
 
 ---
 
-## Run Locally
-
-```bash
-npm install      # Install dependencies
-npm run dev      # Start local dev server
-npm run build    # Build production bundle
-npm run preview  # Preview production build
-```
-
----
-
 ## Links
 
 - **Website:** https://www.junevicabello.site
