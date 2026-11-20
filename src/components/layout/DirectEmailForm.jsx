@@ -4,6 +4,7 @@ import { MailIcon } from '../Icons.jsx';
 import { PixelButton } from '../ui/index.jsx';
 
 const EMAILJS_URL = 'https://api.emailjs.com/api/v1.0/email/send';
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const getConfig = () => ({
   serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID?.trim() || '',
@@ -11,27 +12,68 @@ const getConfig = () => ({
   publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY?.trim() || '',
 });
 
+const buildGmailUrl = ({ name, email, message }) => {
+  const cleanName = name.trim();
+  const cleanEmail = email.trim();
+  const cleanMessage = message.trim();
+
+  if (!cleanName && !cleanEmail && !cleanMessage) {
+    return gmailCompose;
+  }
+
+  const subject = cleanName
+    ? `Portfolio inquiry from ${cleanName}`
+    : 'Hello from your portfolio';
+  const bodyLines = [];
+  if (cleanMessage) bodyLines.push(cleanMessage);
+  if (cleanName || cleanEmail) {
+    bodyLines.push('', '---', [cleanName, cleanEmail].filter(Boolean).join(' · '));
+  }
+
+  const params = new URLSearchParams({
+    view: 'cm',
+    to: profile.email,
+    su: subject,
+    body: bodyLines.join('\n'),
+  });
+  return `https://mail.google.com/mail/?${params.toString()}`;
+};
+
 export default function DirectEmailForm({ compact = false, onClose }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [botField, setBotField] = useState('');
-  const [status, setStatus] = useState('idle'); // idle | sending | sent | error
+  const [status, setStatus] = useState('idle'); // idle | sending | sent | fallback | error
   const [errorMsg, setErrorMsg] = useState('');
+
+  const gmailHref = buildGmailUrl({ name, email, message });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (botField) return; // honeypot
-    if (!name.trim() || !email.trim() || !message.trim()) {
+
+    const cleanName = name.trim();
+    const cleanEmail = email.trim();
+    const cleanMessage = message.trim();
+
+    if (!cleanName || !cleanEmail || !cleanMessage) {
       setStatus('error');
       setErrorMsg('Please fill in your name, email, and message.');
       return;
     }
 
+    if (!EMAIL_RE.test(cleanEmail)) {
+      setStatus('error');
+      setErrorMsg('Please enter a valid email address.');
+      return;
+    }
+
     const { serviceId, templateId, publicKey } = getConfig();
     if (!serviceId || !templateId || !publicKey) {
-      setStatus('error');
-      setErrorMsg('EmailJS keys are not set yet. Add VITE_EMAILJS_SERVICE_ID, VITE_EMAILJS_TEMPLATE_ID, and VITE_EMAILJS_PUBLIC_KEY in .env, or use Gmail below.');
+      window.open(gmailHref, '_blank', 'noopener,noreferrer');
+      setStatus('fallback');
+      setErrorMsg('');
       return;
     }
 
@@ -47,10 +89,13 @@ export default function DirectEmailForm({ compact = false, onClose }) {
           template_id: templateId,
           user_id: publicKey,
           template_params: {
-            from_name: name.trim(),
-            from_email: email.trim(),
-            reply_to: email.trim(),
-            message: message.trim(),
+            name: cleanName,
+            email: cleanEmail,
+            title: `Portfolio inquiry from ${cleanName}`,
+            from_name: cleanName,
+            from_email: cleanEmail,
+            reply_to: cleanEmail,
+            message: cleanMessage,
             to_email: profile.email,
           },
         }),
@@ -154,6 +199,12 @@ export default function DirectEmailForm({ compact = false, onClose }) {
         </p>
       )}
 
+      {status === 'fallback' && (
+        <p className="direct-mail__feedback direct-mail__feedback--ok" role="status">
+          ✓ Opened Gmail with your message pre-filled. If it didn’t open, click “Open in Gmail ↗” below.
+        </p>
+      )}
+
       {status === 'error' && (
         <p className="direct-mail__feedback direct-mail__feedback--err" role="alert">
           {errorMsg}
@@ -172,7 +223,7 @@ export default function DirectEmailForm({ compact = false, onClose }) {
 
         <a
           className="direct-mail__fallback"
-          href={gmailCompose}
+          href={gmailHref}
           target="_blank"
           rel="noopener noreferrer"
         >
